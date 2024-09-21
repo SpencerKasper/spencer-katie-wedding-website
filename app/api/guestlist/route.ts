@@ -6,12 +6,14 @@ import {DynamoDBClient} from "@aws-sdk/client-dynamodb";
 
 export async function GET() {
     try {
-        const dynamo = new DynamoDBClient({
-            credentials: {
-                accessKeyId: process.env.WEDDING_AWS_ACCESS_KEY_ID || '',
-                secretAccessKey: process.env.WEDDING_AWS_SECRET_ACCESS_KEY || ''
-            }
-        });
+        const dynamo = process.env.WEDDING_ENV === 'local' ?
+            new DynamoDBClient({
+                credentials: {
+                    accessKeyId: process.env.WEDDING_AWS_ACCESS_KEY_ID || '',
+                    secretAccessKey: process.env.WEDDING_AWS_SECRET_ACCESS_KEY || ''
+                }
+            }) :
+            new DynamoDBClient();
         const response = await dynamo.send(new ScanCommand({
             TableName: 'wedding_guest_list',
         }));
