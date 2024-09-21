@@ -2,7 +2,9 @@
 import HomePageClient from "@/app/home/homePageClient";
 
 export default async function AuthenticatedHomePage() {
-    const response = await fetch(`${process.env.WEDDING_API_URL}/api/guestlist`);
+    const url = `${process.env.WEDDING_API_URL}/api/guestlist`;
+    console.error(`Making request to url: ${url}`);
+    const response = await fetch(url);
     if(response && response.ok) {
         const {guests} = await response.json();
         return (
