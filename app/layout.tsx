@@ -7,19 +7,6 @@ import '@mantine/core/styles.css';
 import { ColorSchemeScript, MantineProvider } from '@mantine/core';
 import Background from "@/app/background";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
-
-
-
 export const metadata: Metadata = {
   title: "Kasper Wedding",
   description: "This is the website for Katie and Spencer's wedding!",
@@ -36,9 +23,8 @@ export default function RootLayout({
         <ColorSchemeScript />
       </head>
       <body
-          // ${geistSans.variable} ${geistMono.variable}
           style={{fontFamily: '"Playwrite DK Uloopet", cursive'}}
-        className={`text-white antialiased`}
+          className={`text-white antialiased`}
       >
         <Background>
             <MantineProvider>{children}</MantineProvider>
