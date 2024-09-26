@@ -18,6 +18,8 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
+
+
 export const metadata: Metadata = {
   title: "Kasper Wedding",
   description: "This is the website for Katie and Spencer's wedding!",
@@ -34,7 +36,9 @@ export default function RootLayout({
         <ColorSchemeScript />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          // ${geistSans.variable} ${geistMono.variable}
+          style={{fontFamily: '"Playwrite DK Uloopet", cursive'}}
+        className={`text-white antialiased`}
       >
         <Background>
             <MantineProvider>{children}</MantineProvider>
