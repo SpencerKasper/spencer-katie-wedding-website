@@ -11,8 +11,8 @@ export default async function AuthenticatedHomePage() {
             const {guests} = await response.json();
             return (
                 <div className={'flex flex-col content-center w-full justify-center min-h-screen'}>
-                    <div className={'text-center'}>
-                        <h1 className={'text-white text-6xl'}>Welcome to Our Wedding Website!</h1>
+                    <div className={'text-center p-8'}>
+                        <h1 className={'text-white text-7xl'}>Spencer & Katie</h1>
                     </div>
                     <div className={'flex justify-center align-center p-8'}>
                         <Button
