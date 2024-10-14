@@ -1,11 +1,10 @@
 'use server';
 import HomePageClient from "@/app/home/homePageClient";
-import {useEffect} from "react";
-import {ButtonGroup, Button} from "@mantine/core";
+import {Button} from "@mantine/core";
 
 export default async function AuthenticatedHomePage() {
     try {
-        const url = `${process.env.WEDDING_API_URL}/api/guestlist`;
+        const url = `${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist`;
         const response = await fetch(url);
         if (response && response.ok) {
             const {guests} = await response.json();

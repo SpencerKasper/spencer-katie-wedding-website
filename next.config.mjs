@@ -5,7 +5,6 @@ const nextConfig = {
             {
                 protocol: 'https',
                 hostname: 'spencer-katie-wedding-website.s3.amazonaws.com',
-
             }
         ]
     }
