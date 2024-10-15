@@ -13,10 +13,9 @@ export default async function AuthenticatedHomePage() {
                     <div className={'text-center p-8'}>
                         <h1 className={'text-white text-7xl'}>Spencer & Katie</h1>
                     </div>
-                    <div className={'flex justify-center align-center p-8'}>
-                        <Button
-                            component={'a'}
-                            href={'/engagement-photos'} variant={'outline'} color={'white'}>Engagement Photos</Button>
+                    <div className={'flex justify-center align-center p-8 gap-4'}>
+                        <Button component={'a'} href={'/rsvp'} variant={'outline'} color={'white'}>RSVP&nbsp; </Button>
+                        <Button component={'a'} href={'/engagement-photos'} variant={'outline'} color={'white'}>Engagement Photos</Button>
                     </div>
                     <HomePageClient guests={guests}/>
                 </div>

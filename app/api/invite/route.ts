@@ -4,7 +4,7 @@ import {NextResponse} from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-export async function POST(request) {
+export async function GET(request) {
     try {
         const dynamo = await getDynamoDbClient();
         const response = await dynamo.send(new ScanCommand({
@@ -19,7 +19,7 @@ export async function POST(request) {
         const isAuthorized = body.password === process.env.WEDDING_PASSWORD && foundGuests.length === 1;
         return NextResponse.json({
             isAuthorized,
-            ...(isAuthorized ? {guest: foundGuests[0]} : {})
+            ...(isAuthorized ? {guests: foundGuests} : {})
         });
     } catch (e) {
         console.error(e);

@@ -2,7 +2,7 @@ import {assumeRole} from "@/app/api/assume-role";
 import {DynamoDBClient} from "@aws-sdk/client-dynamodb";
 
 export default async function getDynamoDbClient() {
-    if (process.env.WEDDING_ENV !== 'local') {
+    if (process.env.NEXT_PUBLIC_WEDDING_ENV !== 'local') {
         const stsResponse = await assumeRole();
         const credentials = stsResponse ? stsResponse['Credentials'] : null;
         const accessKey = credentials ? credentials['AccessKeyId'] : '';
@@ -12,7 +12,7 @@ export default async function getDynamoDbClient() {
             credentials: {
                 accessKeyId: accessKey,
                 secretAccessKey,
-                ...(process.env.WEDDING_ENV !== 'local' ? {sessionToken} : {}),
+                ...(process.env.NEXT_PUBLIC_WEDDING_ENV !== 'local' ? {sessionToken} : {}),
             }
         });
     }
