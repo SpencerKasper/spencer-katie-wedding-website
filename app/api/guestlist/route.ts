@@ -9,7 +9,6 @@ export async function GET(request) {
         const url = new URL(request.url);
         const search = new URLSearchParams(url.search);
         const partyId = search.get('partyId');
-        console.error(partyId);
         const dynamo = await getDynamoDbClient();
         const response = await dynamo.send(new ScanCommand({
             TableName: 'wedding_guest_list',

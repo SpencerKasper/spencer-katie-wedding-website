@@ -119,11 +119,9 @@ export async function DELETE(request) {
             const party = response.Items.filter(f => f.guest.partyId === partyId);
             guestIds.push(party.map(f => f.guest.guestId));
         } else if (guestIdsSearch && guestIdsSearch !== '') {
-            console.error(guestIdsSearch);
             guestIds = [...guestIds, ...guestIdsSearch.split(',')];
         }
         for (let guestId of guestIds) {
-            console.error(`Deleting ${guestId}`);
             const deleteItemCommand = new DeleteItemCommand({
                 TableName: RSVPS_TABLE_NAME,
                 Key: {
