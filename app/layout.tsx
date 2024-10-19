@@ -6,6 +6,7 @@ import '@mantine/core/styles.css';
 
 import { ColorSchemeScript, MantineProvider } from '@mantine/core';
 import Background from "@/app/background";
+import {Button} from "@mantine/core";
 
 export const metadata: Metadata = {
   title: "Kasper Wedding",
@@ -28,7 +29,15 @@ export default function RootLayout({
           className={`antialiased`}
       >
         <Background>
-            <MantineProvider>{children}</MantineProvider>
+            <MantineProvider>
+                <div className={'flex justify-center align-center p-8 gap-4 flex-wrap'}>
+                    <Button component={'a'} href={'/home'} variant={'outline'} color={'white'}>Home</Button>
+                    <Button component={'a'} href={'/engagement-photos'} variant={'outline'} color={'white'}>Engagement Photos</Button>
+                </div>
+                <div>
+                    {children}
+                </div>
+            </MantineProvider>
         </Background>
       </body>
     </html>

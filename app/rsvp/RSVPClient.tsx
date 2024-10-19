@@ -1,7 +1,7 @@
 'use client';
 
-import {useEffect, useState} from "react";
-import {Button, Card, Checkbox, Divider, Pill, SegmentedControl, Select, Skeleton, Textarea} from "@mantine/core";
+import {useEffect, useRef, useState} from "react";
+import {Button, Card, Checkbox, Divider, Select, Skeleton, Textarea} from "@mantine/core";
 import {
     FIRST_NAME_LOCAL_STORAGE_KEY,
     LAST_NAME_LOCAL_STORAGE_KEY,
@@ -10,15 +10,32 @@ import {
 } from "@/app/loginPageClient";
 import axios from "axios";
 import {useForm} from "@mantine/form";
+import {RSVP} from "@/types/rsvp";
+import {Guest} from "@/types/guest";
+import {RSVPPill} from "@/app/rsvp/RSVPPill";
+import {RSVPsReview} from "@/app/rsvp/RSVPsReview";
 
 const NUMBER_OF_PAGES = 2;
 
+const IS_ATTENDING_POSTFIX = '_isAttending';
+
 export default function RSVPClient() {
-    const [guest, setGuest] = useState(null);
-    const [guestsInParty, setGuestsInParty] = useState([]);
+    const [guest, setGuest] = useState(null as Guest);
+    const [guestsInParty, setGuestsInParty] = useState([] as Guest[]);
     const [rsvpPage, setRsvpPage] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
-    const [rsvps, setRsvps] = useState([]);
+    const [rsvps, setRsvps] = useState([] as RSVP[]);
+
+    useEffect(() => {
+        if (guest) {
+            const query = guest.partyId ? `partyId=${guest.partyId}` : `guestIds=${guest.guestId}`;
+            axios.get(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/rsvp?${query}`)
+                .then(getRsvpsResponse => {
+                    setRsvps(getRsvpsResponse.data.rsvps);
+                });
+        }
+    }, [guest]);
+
     const FIELDS = ['isAttending', 'dinnerChoice', 'dietaryRestrictions'];
     const FIELD_DEFAULTS = {
         isAttending: 'Yes',
@@ -33,12 +50,21 @@ export default function RSVPClient() {
     }
 
     const initialValues = getInitialValues();
-    console.error(initialValues);
-
     const form = useForm({
         mode: 'uncontrolled',
         initialValues,
     });
+    const extractValueFromForm = (guest, postfix) => {
+        const valuesWithId = form.getValues();
+        return valuesWithId[`${getGuestPrefix(guest)}${postfix}`];
+
+    }
+    const removeGuestsWhoAreNotAttending = (guest) => {
+        return extractValueFromForm(guest, IS_ATTENDING_POSTFIX);
+    }
+
+    const attendingGuests = guestsInParty
+        .filter(removeGuestsWhoAreNotAttending);
 
     useEffect(() => {
         setIsLoading(true);
@@ -50,7 +76,7 @@ export default function RSVPClient() {
             setGuest(response.guest);
             const partyId = response.guest.partyId;
             if (partyId && partyId !== '') {
-                axios.get(`/api/guestlist?partyId=${partyId}`)
+                axios.get(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist?partyId=${partyId}`)
                     .then(guestListResponse => {
                         setGuestsInParty(guestListResponse.data.guests);
                         setIsLoading(false);
@@ -62,12 +88,12 @@ export default function RSVPClient() {
     const incrementRsvpPage = () => {
         setRsvpPage(rsvpPage + 1);
     }
-
     const decrementRsvpPage = () => {
         setRsvpPage(rsvpPage - 1);
     }
 
     const andYourGuests = !guestsInParty || guestsInParty.length === 0 ? '' : ` and your guest${guestsInParty.length > 2 ? 's' : ''}`;
+
     const PageOneContent = () => {
         return (
             <div className={'flex flex-col gap-4'}>
@@ -81,8 +107,8 @@ export default function RSVPClient() {
                                 <Checkbox
                                     variant={'outline'}
                                     color={'green'}
-                                    key={form.key(`${getGuestPrefix(guestInParty)}_isAttending`)}
-                                    {...form.getInputProps(`${getGuestPrefix(guestInParty)}_isAttending`, {type: 'checkbox'})}
+                                    key={form.key(`${getGuestPrefix(guestInParty)}${IS_ATTENDING_POSTFIX}`)}
+                                    {...form.getInputProps(`${getGuestPrefix(guestInParty)}${IS_ATTENDING_POSTFIX}`, {type: 'checkbox'})}
                                 />
                             </div>
                         </div>
@@ -93,38 +119,66 @@ export default function RSVPClient() {
     };
 
     const PageTwoContent = () => {
+        const ref = useRef();
+        if (attendingGuests.length === 0) {
+            incrementRsvpPage();
+        }
         return (
             <div className={'flex flex-col gap-4'}>
-                {guestsInParty.map((guest, index) => (
-                    <div key={`guest-response-${index}`} className={'flex flex-col gap-4'}>
-                        <div className={'flex justify-between'}>
-                            <p>{guest.firstName} {guest.lastName}</p>
-                            <Select
-                                label={'Dinner choice'}
-                                placeholder={'Select your dinner option'}
-                                data={['Steak', 'Chicken', 'Fish']}
-                                key={form.key(`${getGuestPrefix(guest)}_dinnerChoice`)}
-                                {...form.getInputProps(`${getGuestPrefix(guest)}_dinnerChoice`)}
-                            />
+                {attendingGuests
+                    .map((guest, index) => (
+                        <div key={`guest-response-${index}`} className={'flex flex-col gap-4'}>
+                            <div className={'flex justify-between'}>
+                                <p>{guest.firstName} {guest.lastName}</p>
+                                <Select
+                                    label={'Dinner choice'}
+                                    placeholder={'Select your dinner option'}
+                                    data={['Steak', 'Chicken', 'Fish']}
+                                    key={form.key(`${getGuestPrefix(guest)}_dinnerChoice`)}
+                                    {...form.getInputProps(`${getGuestPrefix(guest)}_dinnerChoice`)}
+                                />
+                            </div>
+                            <div>
+                                <Textarea
+                                    ref={ref}
+                                    resize={'vertical'}
+                                    label={'Dietary Restrictions'}
+                                    placeholder={'Please tell us about any dietary restrictions you may have!'}
+                                    key={form.key(`${getGuestPrefix(guest)}_dietaryRestrictions`)}
+                                    {...form.getInputProps(`${getGuestPrefix(guest)}_dietaryRestrictions`)}
+                                />
+                            </div>
+                            {index + 1 !== attendingGuests.length ? <Divider my={'md'}/> : <></>}
                         </div>
-                        <div>
-                            <Textarea
-                                label={'Dietary Restrictions'}
-                                key={form.key(`${getGuestPrefix(guest)}_dietaryRestrictions`)}
-                                {...form.getInputProps(`${getGuestPrefix(guest)}_dietaryRestrictions`)}
-                            />
-                        </div>
-                        {index + 1 !== guestsInParty.length ? <Divider my={'md'}/> : <></>}
-                    </div>
-                ))}
+                    ))}
             </div>
         );
     }
 
     const ReviewPage = () => {
+        const reviewRsvps = getRsvpsFromForm();
         return (
-            <div>
-                Selections go here
+            <div className={'flex flex-col flex-wrap gap-8'}>
+                {reviewRsvps.map((rsvp, index) => {
+                    return (
+                        <div key={`rsvp-${index}`}>
+                            <div className={'flex flex-wrap justify-between'}>
+                                <p>{`${rsvp.guest.firstName} ${rsvp.guest.lastName}`}</p>
+                                <div><RSVPPill rsvp={rsvp}/></div>
+                            </div>
+                            {rsvp.isAttending ?
+                                <div className={'flex flex-wrap justify-between'}>
+                                    <p>{`Dinner Choice: ${rsvp.dinnerChoice}`}</p>
+                                    <div>
+                                        <p>{`Dietary Restrictions: ${rsvp.dietaryRestrictions && rsvp.dietaryRestrictions !== '' ? rsvp.dietaryRestrictions : 'N/A'}`}</p>
+                                    </div>
+                                    {index + 1 === reviewRsvps.length ? <></> : <Divider my={'md'}/>}
+                                </div> :
+                                <></>
+                            }
+                        </div>
+                    )
+                })}
             </div>
         );
     }
@@ -147,47 +201,34 @@ export default function RSVPClient() {
         return <ReviewPage/>;
     }
 
-    const handleSubmit = () => {
-        const valuesWithId = form.getValues();
-        setRsvps(guestsInParty.map(guestInParty => {
-            console.error(valuesWithId);
-            const isAttending = valuesWithId[`${getGuestPrefix(guestInParty)}_isAttending`];
-            console.error(isAttending)
+    function getRsvpsFromForm() {
+        return guestsInParty.map(guestInParty => {
+            const isAttending = extractValueFromForm(guestInParty, IS_ATTENDING_POSTFIX);
             return {
                 guest: guestInParty,
                 isAttending: Boolean(isAttending),
-                dinnerChoice: valuesWithId[`${getGuestPrefix(guestInParty)}_dinnerChoice`],
-                dietaryRestrictions: valuesWithId[`${getGuestPrefix(guestInParty)}_dietaryRestrictions`],
+                dinnerChoice: extractValueFromForm(guestInParty, '_dinnerChoice'),
+                dietaryRestrictions: extractValueFromForm(guestInParty, '_dietaryRestrictions'),
             }
-        }));
+        });
     }
+
+    const handleSubmit = async () => {
+        const rsvpsFromForm = getRsvpsFromForm();
+        await axios.post(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/rsvp`, {rsvps: rsvpsFromForm});
+        setRsvps(rsvpsFromForm);
+    }
+
     return (
         <div>
             <Skeleton visible={isLoading}>
                 <Card>
                     {rsvps.length ?
-                        <div>
-                            {rsvps.map((rsvp, index) => {
-                                const rsvpGuest = rsvp.guest;
-                                return (
-                                    <div key={`guest-rsvp-${index}`} className={'flex flex-col gap-4'}>
-                                        <div className={'flex justify-between'}>
-                                            <p className={'text-lg'}>{`${rsvpGuest.firstName} ${rsvpGuest.lastName}`}</p>
-                                            {rsvp.isAttending ? <Pill size={'lg'} styles={{root: {backgroundColor: 'green', color: 'white'}}}>Attending</Pill> :
-                                                <Pill size={'lg'} styles={{root: {backgroundColor: 'red', color: 'white'}}}>Not Attending</Pill>}
-                                        </div>
-                                        <div className={'flex justify-between flex-wrap'}>
-                                            <p>Dinner Choice: {rsvp.dinnerChoice}</p>
-                                            {rsvp.dietaryRestrictions && rsvp.dietaryRestrictions !== '' ?
-                                                <p>Dietary Restrictions: {rsvp.dietaryRestrictions}</p> :
-                                                <></>
-                                            }
-                                        </div>
-                                        {index + 1 !== rsvps.length ? <Divider my={'md'}/> : <></>}
-                                    </div>
-                                );
-                            })}
-                        </div> :
+                        <RSVPsReview rsvps={rsvps} setRsvps={(value) => {
+                            setRsvps(value);
+                            form.reset();
+                            setRsvpPage(0);
+                        }}/> :
                         <form>
                             <h2 className={'text-4xl'}>{getPageTitle()}</h2>
                             <Divider my={'md'}/>
@@ -197,13 +238,19 @@ export default function RSVPClient() {
                                 <div></div>
                                 <div className={'flex gap-2'}>
                                     <Button disabled={rsvpPage === 0} variant={'outline'} color={'black'}
-                                            onClick={decrementRsvpPage}>Back</Button>
+                                            onClick={() => {
+                                                if (rsvpPage === 2 && attendingGuests.length === 0) {
+                                                    setRsvpPage(0);
+                                                } else {
+                                                    decrementRsvpPage();
+                                                }
+                                            }}>Back</Button>
                                     {rsvpPage === NUMBER_OF_PAGES ?
                                         <Button variant={'outline'} color={'black'}
                                                 onClick={handleSubmit}>Submit</Button> :
                                         <Button disabled={rsvpPage >= NUMBER_OF_PAGES} variant={'outline'}
                                                 color={'black'}
-                                                onClick={incrementRsvpPage}>Next</Button>
+                                                onClick={() => incrementRsvpPage()}>Next</Button>
                                     }
                                 </div>
                             </div>

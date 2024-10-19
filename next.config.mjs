@@ -7,7 +7,8 @@ const nextConfig = {
                 hostname: 'spencer-katie-wedding-website.s3.amazonaws.com',
             }
         ]
-    }
+    },
+    reactStrictMode: false
 };
 
 export default nextConfig;

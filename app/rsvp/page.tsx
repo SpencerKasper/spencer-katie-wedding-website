@@ -1,4 +1,5 @@
 import RSVPClient from "@/app/rsvp/RSVPClient";
+import axios from "axios";
 
 export default async function RSVP() {
     return (

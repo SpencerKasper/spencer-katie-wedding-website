@@ -15,7 +15,6 @@ export default async function AuthenticatedHomePage() {
                     </div>
                     <div className={'flex justify-center align-center p-8 gap-4'}>
                         <Button component={'a'} href={'/rsvp'} variant={'outline'} color={'white'}>RSVP&nbsp; </Button>
-                        <Button component={'a'} href={'/engagement-photos'} variant={'outline'} color={'white'}>Engagement Photos</Button>
                     </div>
                     <HomePageClient guests={guests}/>
                 </div>
