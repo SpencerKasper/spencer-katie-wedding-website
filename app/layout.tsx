@@ -34,6 +34,7 @@ export default function RootLayout({
                     <div className={'flex justify-center align-center p-8 gap-4 flex-wrap'}>
                         <Button component={'a'} href={'/home'} variant={'outline'} color={'white'}>Home</Button>
                         <Button component={'a'} href={'/rsvp'} variant={'outline'} color={'white'}>RSVP&nbsp; </Button>
+                        <Button component={'a'} href={'/registry'} variant={'outline'} color={'white'}>Registry</Button>
                         <Button component={'a'} href={'/engagement-photos'} variant={'outline'} color={'white'}>Engagement
                             Photos</Button>
                     </div>
