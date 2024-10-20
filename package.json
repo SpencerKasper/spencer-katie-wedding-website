@@ -20,6 +20,7 @@
     "axios": "^1.7.7",
     "encrypt-storage": "^2.13.3",
     "next": "14.2.12",
+    "node-xlsx": "^0.24.0",
     "react": "^18",
     "react-dom": "^18",
     "react-full-screen": "^1.1.1"

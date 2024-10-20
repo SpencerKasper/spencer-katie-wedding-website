@@ -74,6 +74,9 @@ export default function LoginPageClient() {
                     <h1 className={'text-6xl text-white text-center font-bold'}>
                         Katie and Spencer&apos;s Wedding
                     </h1>
+                    <h2>
+                        10.11.25
+                    </h2>
                     {!isLoading ?
                         <form onSubmit={form.onSubmit(handleSubmit)}>
                             <div className={'flex flex-col gap-8 justify-center items-center'}>

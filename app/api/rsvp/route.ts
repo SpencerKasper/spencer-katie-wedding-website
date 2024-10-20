@@ -1,21 +1,15 @@
 import getDynamoDbClient from "@/app/api/dynamodb-client";
 import {ScanCommand} from "@aws-sdk/lib-dynamodb";
-import {NextRequest, NextResponse} from 'next/server';
+import {NextResponse} from 'next/server';
 import {DeleteItemCommand, PutItemCommand} from "@aws-sdk/client-dynamodb";
 import {RSVP} from "@/types/rsvp";
 import {Guest} from "@/types/guest";
+import {getSearchParams} from "@/app/api/helpers/param-util";
 
 export const dynamic = 'force-dynamic';
 
-const RSVPS_TABLE_NAME = 'wedding_rsvps';
-const GUESTLIST_TABLE_NAME = 'wedding_guest_list';
-
-function getSearchParams(request) {
-    const url = new URL(request.url);
-    const search = new URLSearchParams(url.search);
-    return search;
-
-}
+export const RSVPS_TABLE_NAME = 'wedding_rsvps';
+export const GUESTLIST_TABLE_NAME = 'wedding_guest_list';
 
 export async function GET(request) {
     try {

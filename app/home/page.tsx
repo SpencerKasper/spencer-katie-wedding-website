@@ -9,12 +9,10 @@ export default async function AuthenticatedHomePage() {
         if (response && response.ok) {
             const {guests} = await response.json();
             return (
-                <div className={'flex flex-col content-center w-full justify-center min-h-screen'}>
-                    <div className={'text-center p-8'}>
-                        <h1 className={'text-white text-7xl'}>Spencer & Katie</h1>
-                    </div>
-                    <div className={'flex justify-center align-center p-8 gap-4'}>
-                        <Button component={'a'} href={'/rsvp'} variant={'outline'} color={'white'}>RSVP&nbsp; </Button>
+                <div className={'flex flex-col content-center w-full justify-center inset-y-1/2 absolute'}>
+                    <div className={'flex flex-col justify-center align-center full-w text-center p-8 gap-4'}>
+                        <h1 className={'text-white text-7xl'}>Spencer & Katie&apos;s Wedding</h1>
+                        <h2 className={'text-white text-4xl'}>10.11.25</h2>
                     </div>
                     <HomePageClient guests={guests}/>
                 </div>
