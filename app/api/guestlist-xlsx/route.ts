@@ -3,9 +3,9 @@ import {getSearchParams} from "@/app/api/helpers/param-util";
 import xlsx, {WorkSheet} from 'node-xlsx';
 import getDynamoDbClient from "@/app/api/dynamodb-client";
 import {ScanCommand} from "@aws-sdk/lib-dynamodb";
-import {GUESTLIST_TABLE_NAME, RSVPS_TABLE_NAME} from "@/app/api/rsvp/route";
 import {RSVP} from "@/types/rsvp";
 import {Guest} from "@/types/guest";
+import {GUESTLIST_TABLE_NAME, RSVPS_TABLE_NAME} from "@/app/api/constants/dynamo";
 
 function getDefaultValue(value?: string) {
     return value && value !== '' ? value : '-';
@@ -16,6 +16,7 @@ export async function GET(request) {
     const getRSVPFields = () => ['Is Attending', 'Dinner Choice', 'Dietary Restrictions'];
     const getContactFields = () => ['Email Address', 'Phone Number'];
     const getAddressFields = () => ['Address', 'Address 2', 'City', 'State', 'Zip Code'];
+
     function getRSVPsWorksheet(rsvps: RSVP[]): WorkSheet<string> {
         const headerRow = [...getNameFields(), ...getRSVPFields(), ...getContactFields(), ...getAddressFields()];
         const rsvpRows = rsvps.map(rsvp => {
@@ -30,37 +31,30 @@ export async function GET(request) {
         return {name: 'RSVPs', data: rsvpsExcelData, options: null};
     }
 
-    try {
-        const searchParams = getSearchParams(request);
-        const dynamo = await getDynamoDbClient();
-        const guestListResponse = await dynamo.send(new ScanCommand({
-            TableName: GUESTLIST_TABLE_NAME,
-        }));
-        const rsvpResponse = await dynamo.send(new ScanCommand({
-            TableName: RSVPS_TABLE_NAME
-        }));
-        const rsvps = rsvpResponse.Items as RSVP[];
-        const rsvpsWorksheet = getRSVPsWorksheet(rsvps);
-        const noResponse: Guest[] = guestListResponse.Items.filter(guest => !rsvps.find(rsvp => rsvp.guest.guestId === guest.guestId));
-        const noResponseExcelData = [
-            [...getNameFields(), ...getContactFields(), ...getAddressFields()],
-            ...noResponse.map(nr => [nr.firstName, nr.lastName, nr.emailAddress, nr.phoneNumber, nr.address,
-                nr.address2, nr.city, nr.state, nr.zipCode,])
-        ]
-        const noResponseWorksheet: WorkSheet<string> = {name: 'No Response', data: noResponseExcelData, options: null};
-        const buffer = xlsx.build([rsvpsWorksheet, noResponseWorksheet]);
-        return new Response(buffer, {
-            statusCode: 200,
-            headers: {
-                'Content-Disposition': `attachment; filename="spencer-katie-wedding-guestlist-${Date.now()}.xlsx"`,
-                'Content-Type': 'application/vnd.ms-excel',
-            }
-        })
-    } catch (e) {
-        console.error(e);
-        return NextResponse({
-            statusCode: 500,
-            message: e
-        })
-    }
+    const searchParams = getSearchParams(request);
+    const dynamo = await getDynamoDbClient();
+    const guestListResponse = await dynamo.send(new ScanCommand({
+        TableName: GUESTLIST_TABLE_NAME,
+    }));
+    const rsvpResponse = await dynamo.send(new ScanCommand({
+        TableName: RSVPS_TABLE_NAME
+    }));
+    const rsvps = rsvpResponse.Items as RSVP[];
+    const rsvpsWorksheet = getRSVPsWorksheet(rsvps);
+    const guestList = guestListResponse.Items as Guest[];
+    const noResponse = guestList.filter(guest => !rsvps.find(rsvp => rsvp.guest.guestId === guest.guestId));
+    const noResponseExcelData = [
+        [...getNameFields(), ...getContactFields(), ...getAddressFields()],
+        ...noResponse.map(nr => [nr.firstName, nr.lastName, nr.emailAddress, nr.phoneNumber, nr.address,
+            nr.address2, nr.city, nr.state, nr.zipCode,])
+    ]
+    const noResponseWorksheet: WorkSheet<string> = {name: 'No Response', data: noResponseExcelData, options: null};
+    const buffer = xlsx.build([rsvpsWorksheet, noResponseWorksheet]);
+    return new Response(buffer, {
+        status: 200,
+        headers: {
+            'Content-Disposition': `attachment; filename="spencer-katie-wedding-guestlist-${Date.now()}.xlsx"`,
+            'Content-Type': 'application/vnd.ms-excel',
+        }
+    })
 }

@@ -5,11 +5,9 @@ import {DeleteItemCommand, PutItemCommand} from "@aws-sdk/client-dynamodb";
 import {RSVP} from "@/types/rsvp";
 import {Guest} from "@/types/guest";
 import {getSearchParams} from "@/app/api/helpers/param-util";
+import {GUESTLIST_TABLE_NAME, RSVPS_TABLE_NAME} from "@/app/api/constants/dynamo";
 
 export const dynamic = 'force-dynamic';
-
-export const RSVPS_TABLE_NAME = 'wedding_rsvps';
-export const GUESTLIST_TABLE_NAME = 'wedding_guest_list';
 
 export async function GET(request) {
     try {

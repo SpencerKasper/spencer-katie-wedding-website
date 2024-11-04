@@ -5,6 +5,7 @@ import {RSVP} from "@/types/rsvp";
 import {Guest} from "@/types/guest";
 import {Table, Card, Divider} from "@mantine/core";
 import {RSVPPill} from "@/app/rsvp/RSVPPill";
+import AdminAuthorizationRequired from "@/app/AdminAuthorizationRequired";
 
 export default function RSVPReviewPage() {
     const [guestList, setGuestList] = useState([] as Guest[]);
@@ -38,29 +39,34 @@ export default function RSVPReviewPage() {
     })
 
     return (
-        <div className={'p-2 md:p-8'}>
-            <Card>
-                <div>
-                    <a className={'underline cursor-pointer'} href={`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist-xlsx`}>Download Excel Export</a>
-                </div>
-                <Divider my={'md'} />
-                <Table.ScrollContainer minWidth={500}>
-                    <Table>
-                        <Table.Thead>
-                            <Table.Tr>
-                                <Table.Th>Guest Name</Table.Th>
-                                <Table.Th>Is Attending?</Table.Th>
-                                <Table.Th>Dinner Choice</Table.Th>
-                                <Table.Th>Dietary Restrictions</Table.Th>
-                                <Table.Th>Party Number</Table.Th>
-                            </Table.Tr>
-                        </Table.Thead>
-                        <Table.Tbody>
-                            {rows}
-                        </Table.Tbody>
-                    </Table>
-                </Table.ScrollContainer>
-            </Card>
-        </div>
+        <AdminAuthorizationRequired>
+
+            <div className={'p-2 md:p-8'}>
+                <Card>
+                    <div>
+                        <a className={'underline cursor-pointer'}
+                           href={`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist-xlsx`}>Download Excel
+                            Export</a>
+                    </div>
+                    <Divider my={'md'}/>
+                    <Table.ScrollContainer minWidth={500}>
+                        <Table>
+                            <Table.Thead>
+                                <Table.Tr>
+                                    <Table.Th>Guest Name</Table.Th>
+                                    <Table.Th>Is Attending?</Table.Th>
+                                    <Table.Th>Dinner Choice</Table.Th>
+                                    <Table.Th>Dietary Restrictions</Table.Th>
+                                    <Table.Th>Party Number</Table.Th>
+                                </Table.Tr>
+                            </Table.Thead>
+                            <Table.Tbody>
+                                {rows}
+                            </Table.Tbody>
+                        </Table>
+                    </Table.ScrollContainer>
+                </Card>
+            </div>
+        </AdminAuthorizationRequired>
     )
 }

@@ -1,15 +1,16 @@
 import type {Metadata} from "next";
-import localFont from "next/font/local";
 import "./globals.css";
 import '@mantine/core/styles.css';
 // import '@mantine/form/styles.css';
-
 import {ColorSchemeScript, MantineProvider} from '@mantine/core';
 import Background from "@/app/background";
-import {Button} from "@mantine/core";
+import {WebsiteHeader} from "@/app/WebsiteHeader";
+import SaveTheDate from '@/app/SaveTheDate';
+
+const APP_MODE = 'SAVE_THE_DATE2';
 
 export const metadata: Metadata = {
-    title: "Kasper Wedding",
+    title: "Riek + Kasper Wedding",
     description: "This is the website for Katie and Spencer's wedding!",
 };
 
@@ -25,22 +26,19 @@ export default function RootLayout({
             <ColorSchemeScript/>
         </head>
         <body
-            style={{fontFamily: '"Playwrite DK Uloopet", cursive'}}
+            style={{fontFamily: 'Montserrat'}}
             className={`antialiased`}
         >
         <Background>
             <MantineProvider>
-                <div className={'min-h-screen'}>
-                    <div className={'flex justify-center align-center p-8 gap-4 flex-wrap'}>
-                        <Button component={'a'} href={'/home'} variant={'outline'} color={'white'}>Home</Button>
-                        <Button component={'a'} href={'/rsvp'} variant={'outline'} color={'white'}>RSVP&nbsp; </Button>
-                        <Button component={'a'} href={'/registry'} variant={'outline'} color={'white'}>Registry</Button>
-                        <Button component={'a'} href={'/engagement-photos'} variant={'outline'} color={'white'}>Engagement
-                            Photos</Button>
-                    </div>
-                    <div>
-                        {children}
-                    </div>
+                <div className={'min-h-screen fit-content'}>
+                    <WebsiteHeader/>
+                    {APP_MODE === 'SAVE_THE_DATE' ?
+                        <SaveTheDate /> :
+                        <div>
+                            {children}
+                        </div>
+                    }
                 </div>
             </MantineProvider>
         </Background>
