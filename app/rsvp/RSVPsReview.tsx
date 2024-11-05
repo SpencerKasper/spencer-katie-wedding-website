@@ -2,8 +2,7 @@ import {RSVP} from "@/types/rsvp";
 import {RSVPPill} from "@/app/rsvp/RSVPPill";
 import {Divider, Button} from "@mantine/core";
 import axios from "axios";
-
-const CUTOFF_DATE = '2025-9-22';
+import {RSVP_DEADLINE} from "@/constants/app-constants";
 
 export const RSVPsReview = ({rsvps, setRsvps}: { rsvps: RSVP[], setRsvps: (value) => void }) => {
     const deleteRSVPs = async () => {
@@ -34,7 +33,7 @@ export const RSVPsReview = ({rsvps, setRsvps}: { rsvps: RSVP[], setRsvps: (value
         <Divider my={'md'}/>
         <div className={'flex flex-col gap-4'}>
             <div>
-                <p>Need to change your selections? No problem! Just RSVP again before {CUTOFF_DATE}.</p>
+                <p>Need to change your selections? No problem! Just RSVP again before {RSVP_DEADLINE}.</p>
             </div>
             <div className={'flex justify-between'}>
                 <div></div>

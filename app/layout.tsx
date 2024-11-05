@@ -6,8 +6,7 @@ import {ColorSchemeScript, MantineProvider} from '@mantine/core';
 import Background from "@/app/background";
 import {WebsiteHeader} from "@/app/WebsiteHeader";
 import SaveTheDate from '@/app/SaveTheDate';
-
-const APP_MODE = 'SAVE_THE_DATE2';
+import {APP_MODE} from "@/constants/app-constants";
 
 export const metadata: Metadata = {
     title: "Riek + Kasper Wedding",
@@ -33,12 +32,9 @@ export default function RootLayout({
             <MantineProvider>
                 <div className={'min-h-screen fit-content'}>
                     <WebsiteHeader/>
-                    {APP_MODE === 'SAVE_THE_DATE' ?
-                        <SaveTheDate /> :
-                        <div>
-                            {children}
-                        </div>
-                    }
+                    <div>
+                        {children}
+                    </div>
                 </div>
             </MantineProvider>
         </Background>

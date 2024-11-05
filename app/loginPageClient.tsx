@@ -36,10 +36,12 @@ export default function LoginPageClient() {
                 .then(response => {
                     if (response.isAuthorized) {
                         router.push('/home')
+                            .then(x => setIsLoading(false))
+                    } else {
+                        setIsLoading(false);
                     }
                 });
         }
-        setIsLoading(false);
     }, []);
 
     const form = useForm({
@@ -59,7 +61,7 @@ export default function LoginPageClient() {
             setHasError(true);
         }
     };
-    return (
+    return !isLoading ?
         <div
             className="text-white flex flex-col justify-center align-center min-h-screen w-full p-8 gap-8 font-[family-name:var(--font-geist-sans)]">
             {hasError ?
@@ -77,43 +79,40 @@ export default function LoginPageClient() {
                     <h2>
                         10.11.25
                     </h2>
-                    {!isLoading ?
-                        <form onSubmit={form.onSubmit(handleSubmit)}>
-                            <div className={'flex flex-col gap-8 justify-center items-center'}>
-                                <div className={'flex gap-8 flex-wrap justify-center items-center'}>
-                                    <TextInput
-                                        key={form.key('firstName')}
-                                        className={'min-w-80'}
-                                        label={'First Name (As Written On Invite)'}
-                                        placeholder={'Enter First Name Here'}
-                                        {...form.getInputProps('firstName')}
-                                    />
-                                    <TextInput
-                                        key={form.key('lastName')}
-                                        className={'min-w-80'}
-                                        label={'Last Name (As Written On Invite)'}
-                                        placeholder={'Enter Last Name Here'}
-                                        {...form.getInputProps('lastName')}
-                                    />
-                                </div>
-                                <PasswordInput
+                    <form onSubmit={form.onSubmit(handleSubmit)}>
+                        <div className={'flex flex-col gap-8 justify-center items-center'}>
+                            <div className={'flex gap-8 flex-wrap justify-center items-center'}>
+                                <TextInput
+                                    key={form.key('firstName')}
                                     className={'min-w-80'}
-                                    key={form.key('password')}
-                                    label={'Please enter the password provided on your invite to gain access to the website.'}
-                                    placeholder={'Enter password here.'}
-                                    {...form.getInputProps('password')}
+                                    label={'First Name (As Written On Invite)'}
+                                    placeholder={'Enter First Name Here'}
+                                    {...form.getInputProps('firstName')}
                                 />
-                                <Button type={'submit'} variant={'outline'} color={'white'}>
-                                    Enter
-                                </Button>
+                                <TextInput
+                                    key={form.key('lastName')}
+                                    className={'min-w-80'}
+                                    label={'Last Name (As Written On Invite)'}
+                                    placeholder={'Enter Last Name Here'}
+                                    {...form.getInputProps('lastName')}
+                                />
                             </div>
-                        </form> :
-                        <div className={'w-full flex justify-center align-center'}>
-                            <Loader color={'white'} type={'dots'}/>
+                            <PasswordInput
+                                className={'min-w-80'}
+                                key={form.key('password')}
+                                label={'Please enter the password provided on your invite to gain access to the website.'}
+                                placeholder={'Enter password here.'}
+                                {...form.getInputProps('password')}
+                            />
+                            <Button type={'submit'} variant={'outline'} color={'white'}>
+                                Enter
+                            </Button>
                         </div>
-                    }
+                    </form>
                 </div>
             </main>
-        </div>
-    )
+        </div> :
+        <div className={'w-full flex justify-center align-center'}>
+            <Loader color={'white'} type={'dots'}/>
+        </div>;
 }
