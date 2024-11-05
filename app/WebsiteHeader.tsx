@@ -12,6 +12,7 @@ export function WebsiteHeader() {
                                        color={"white"}>Arrangements</Button>;
     const FAQButton = <Button component={"a"} href={"/faq"} variant={"outline"} color={"white"}>FAQ</Button>;
     const HomeButton = <Button component={"a"} href={"/home"} variant={"outline"} color={"white"}>Home</Button>;
+    const EngagementPhotosButton = <Button component={"a"} href={"/engagement-photos"} variant={"outline"} color={"white"}>Engagement Photos</Button>;
     return (
         <OverrideFont>
             <div className={'flex flex-col '}>
@@ -28,13 +29,13 @@ export function WebsiteHeader() {
                                 {FAQButton}
                                 <Button component={"a"} href={"/registry"} variant={"outline"}
                                         color={"white"}>Registry</Button>
-                                <Button component={"a"} href={"/engagement-photos"} variant={"outline"} color={"white"}>Engagement
-                                    Photos</Button>
+                                {EngagementPhotosButton}
                             </> :
                             <>
                                 {HomeButton}
                                 {ArrangementsButton}
                                 {FAQButton}
+                                {EngagementPhotosButton}
                             </>
                         }
                     </div>
