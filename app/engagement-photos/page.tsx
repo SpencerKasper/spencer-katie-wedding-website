@@ -14,7 +14,7 @@ export default function EngagementPhotosPage() {
             </div>
             <EngagementPhotos />
             <div className={'flex p-8 justify-center items-center'}>
-                <a target={'_blank'} href={'https://wdavisphoto.com/'}>Photos by Wendy Davis Photography</a>
+                <a className={'underline'} target={'_blank'} href={'https://wdavisphoto.com/'}>Photos by Wendy Davis Photography</a>
             </div>
         </div>
     )
