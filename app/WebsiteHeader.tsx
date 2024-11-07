@@ -15,7 +15,7 @@ export function WebsiteHeader() {
     const EngagementPhotosButton = <Button component={"a"} href={"/engagement-photos"} variant={"outline"} color={"white"}>Engagement Photos</Button>;
     return (
         <OverrideFont>
-            <div className={'flex flex-col '}>
+            <div className={'flex flex-col'}>
                 <div className={'flex justify-between align-center'}>
                     <div></div>
                     <div className={"flex justify-center align-center p-8 gap-4 flex-wrap"}>
