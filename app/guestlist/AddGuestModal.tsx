@@ -43,7 +43,7 @@ const AddGuestModal = ({guests, opened, onClose}) => {
         <Modal opened={opened} onClose={onClose} title="Add Guest" centered>
             <form onSubmit={form.onSubmit(async (guestToAdd) => {
                 const response = await axios.post(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist`, guestToAdd);
-                console.error(response);
+                console.error(response.data);
                 onClose();
             })}>
                 <div className={'flex flex-col gap-4'}>

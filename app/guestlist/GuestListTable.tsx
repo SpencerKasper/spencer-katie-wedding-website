@@ -10,17 +10,35 @@ export function GuestListTable({guests}: { guests: Guest[] }) {
         .sort((a, b) => a.partyId > b.partyId ? -1 : 1);
     const guestRows = [];
     let currentPartyId = '';
-    let currentColor = 'even';
+    let currentWhiteIndex = 'odd';
     let index = 0;
     for(let guest of sortedGuests) {
         const address2Portion = guest.address2 && guest.address2 !== '' ? ` ${guest.address2}` : '';
         const formattedAddress = guest.address ? `${guest.address}${address2Portion}, ${guest.city}, ${guest.state} ${guest.zipCode}` : '-';
-        const isEmptyAndEven = currentPartyId === '' && currentColor === 'even';
-        const isMemberOfCurrentParty = guest.partyId !== '' && guest.partyId === currentPartyId;
-        const isMemberOfCurrentPartyAndOdd = isMemberOfCurrentParty && currentColor === 'odd';
-        const dataStriped = isEmptyAndEven || isMemberOfCurrentPartyAndOdd ? 'even' : 'odd';
+        let dataStriped = '';
+        if(currentPartyId === '' && currentWhiteIndex === 'even' && index % 2 === 0) {
+            dataStriped = 'odd';
+        } else if(currentPartyId === '' && currentWhiteIndex === 'odd' && index % 2 === 0) {
+            dataStriped = 'even';
+        } else if(currentPartyId === '' && currentWhiteIndex === 'even' && index % 2 !== 0) {
+            dataStriped = 'even';
+        } else if(currentPartyId === '' && currentWhiteIndex === 'odd' && index % 2 !== 0) {
+            dataStriped = 'odd';
+        } else if(currentPartyId === guest.partyId && currentWhiteIndex === 'even') {
+            dataStriped = 'odd';
+        } else if(currentPartyId === guest.partyId && currentWhiteIndex === 'odd') {
+            dataStriped = 'even';
+        } else if(currentPartyId !== guest.partyId && currentWhiteIndex === 'even') {
+            dataStriped = 'even';
+        } else if(currentPartyId !== guest.partyId && currentWhiteIndex === 'odd') {
+            dataStriped = 'odd';
+        } else if(currentPartyId !== '' && guest.partyId === '' && currentWhiteIndex === 'even') {
+            dataStriped = 'even';
+        } else {
+            dataStriped = 'odd';
+        }
         currentPartyId = guest.partyId;
-        currentColor = dataStriped;
+        currentWhiteIndex = dataStriped;
         index++;
         guestRows.push(
             <Table.Tr data-striped={dataStriped} key={`guest-${guest.firstName}-${guest.lastName}`}>
