@@ -2,7 +2,6 @@
 import {InputLabel, NumberInput, TextInput} from "@mantine/core";
 import axios, {AxiosRequestConfig} from "axios";
 import {useEffect, useState} from "react";
-import {UseFormReturnType} from "@mantine/form/lib/types";
 
 const CityStateAndZipCodeInput = ({form}) => {
     const [cities, setCities] = useState([]);
@@ -25,8 +24,8 @@ const CityStateAndZipCodeInput = ({form}) => {
     return (
         <div>
             <TextInput
+                // @ts-ignore
                 onChange={(event) => setZipCode(event.currentTarget.value)}
-                hideControls
                 label={'Zip Code'}
             />
             {cities.length ?

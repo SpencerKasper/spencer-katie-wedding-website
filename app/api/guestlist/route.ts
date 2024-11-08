@@ -4,7 +4,6 @@ import getDynamoDbClient from "@/app/api/dynamodb-client";
 import {PutItemCommand} from "@aws-sdk/client-dynamodb";
 import {Guest} from "@/types/guest";
 import { v4 as uuidv4 } from 'uuid';
-import {found} from "@jridgewell/trace-mapping/dist/types/binary-search";
 
 export const dynamic = 'force-dynamic';
 

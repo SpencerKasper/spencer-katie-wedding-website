@@ -4,8 +4,10 @@ import {useForm} from "@mantine/form";
 import {useState} from "react";
 import CityStateAndZipCodeInput from "@/app/guestlist/CityStateAndZipCodeInput";
 import axios from "axios";
+import {useRouter} from "next/navigation";
 
 const AddGuestModal = ({guests, opened, onClose}) => {
+    const router = useRouter();
     const form = useForm({
         mode: 'uncontrolled',
         initialValues: {
@@ -43,8 +45,8 @@ const AddGuestModal = ({guests, opened, onClose}) => {
         <Modal opened={opened} onClose={onClose} title="Add Guest" centered>
             <form onSubmit={form.onSubmit(async (guestToAdd) => {
                 const response = await axios.post(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist`, guestToAdd);
-                console.error(response.data);
                 onClose();
+                router.refresh()
             })}>
                 <div className={'flex flex-col gap-4'}>
                     <p className={'text-md'}>Name</p>
@@ -70,6 +72,7 @@ const AddGuestModal = ({guests, opened, onClose}) => {
                         {...form.getInputProps('emailAddress')}
                     />
                     <NumberInput
+                        hideControls
                         type={'tel'}
                         label={'Phone Number'}
                         key={form.key('phoneNumber')}

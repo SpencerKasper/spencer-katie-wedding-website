@@ -5,6 +5,7 @@ import {useRouter} from "next/navigation";
 import {useEffect, useState} from "react";
 import {Button, Loader, Notification, PasswordInput, TextInput} from "@mantine/core";
 import axios from "axios";
+import {OverrideFont} from "@/app/components/OverrideFont";
 
 export const FIRST_NAME_LOCAL_STORAGE_KEY = 'WEDDING_FIRST_NAME';
 export const LAST_NAME_LOCAL_STORAGE_KEY = 'WEDDING_LAST_NAME';
@@ -27,6 +28,7 @@ export default function LoginPageClient() {
     const router = useRouter();
     const [hasError, setHasError] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    console.error(isLoading);
     useEffect(() => {
         const firstName = localStorage.getItem(FIRST_NAME_LOCAL_STORAGE_KEY);
         const lastName = localStorage.getItem(LAST_NAME_LOCAL_STORAGE_KEY);
@@ -35,12 +37,15 @@ export default function LoginPageClient() {
             validateLoginInfo({firstName, lastName, password})
                 .then(response => {
                     if (response.isAuthorized) {
-                        router.push('/home')
-                            .then(x => setIsLoading(false))
+                        router.push('/home');
+                        setIsLoading(false);
                     } else {
                         setIsLoading(false);
                     }
                 });
+        } else {
+            console.error('not loading')
+            setIsLoading(false);
         }
     }, []);
 
@@ -73,12 +78,14 @@ export default function LoginPageClient() {
             }
             <main className="flex flex-col gap-8">
                 <div className={'flex flex-col gap-8'}>
-                    <h1 className={'text-6xl text-white text-center font-bold'}>
-                        Katie and Spencer&apos;s Wedding
-                    </h1>
-                    <h2>
-                        10.11.25
-                    </h2>
+                    <OverrideFont>
+                        <h1 className={'text-6xl text-white text-center font-bold'}>
+                            Katie and Spencer&apos;s Wedding
+                        </h1>
+                        <h2 className={'text-4xl text-white text-center font-bold pt-8'}>
+                            10.11.25
+                        </h2>
+                    </OverrideFont>
                     <form onSubmit={form.onSubmit(handleSubmit)}>
                         <div className={'flex flex-col gap-8 justify-center items-center'}>
                             <div className={'flex gap-8 flex-wrap justify-center items-center'}>
