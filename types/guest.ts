@@ -9,5 +9,6 @@ export interface Guest {
     zipCode: string;
     emailAddress: string;
     partyId?: string;
+    guestPartyMember?: string;
     phoneNumber: string;
 }

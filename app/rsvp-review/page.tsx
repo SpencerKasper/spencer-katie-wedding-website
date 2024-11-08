@@ -40,7 +40,6 @@ export default function RSVPReviewPage() {
 
     return (
         <AdminAuthorizationRequired>
-
             <div className={'p-2 md:p-8'}>
                 <Card>
                     <div>
