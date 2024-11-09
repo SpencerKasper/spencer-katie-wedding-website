@@ -16,10 +16,5 @@ export default async function getDynamoDbClient() {
             }
         });
     }
-    return new DynamoDBClient({
-        credentials: {
-            accessKeyId: process.env.WEDDING_AWS_ACCESS_KEY_ID || '',
-            secretAccessKey: process.env.WEDDING_AWS_SECRET_ACCESS_KEY || ''
-        }
-    });
+    return new DynamoDBClient();
 }
