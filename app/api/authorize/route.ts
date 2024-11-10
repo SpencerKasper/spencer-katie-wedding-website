@@ -16,7 +16,7 @@ export async function POST(request) {
             guest.firstName.toLowerCase() === body.firstName.toLowerCase() &&
             guest.lastName.toLowerCase() === body.lastName.toLowerCase()
         );
-        const isAuthorized = body.password === process.env.WEDDING_PASSWORD && foundGuests.length === 1;
+        const isAuthorized = body.password === process.env.NEXT_PUBLIC_WEDDING_PASSWORD && foundGuests.length === 1;
         return NextResponse.json({
             isAuthorized,
             ...(isAuthorized ? {guest: foundGuests[0]} : {})
