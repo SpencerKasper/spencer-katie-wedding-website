@@ -17,6 +17,7 @@
     "@mantine/form": "^7.12.2",
     "@mantine/hooks": "^7.12.2",
     "@tabler/icons-react": "^3.17.0",
+    "aws-amplify": "^6.8.0",
     "axios": "^1.7.7",
     "encrypt-storage": "^2.13.3",
     "next": "14.2.12",
@@ -27,15 +28,22 @@
     "uuid": "^11.0.2"
   },
   "devDependencies": {
+    "@aws-amplify/backend": "^1.6.2",
+    "@aws-amplify/backend-cli": "^1.4.1",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "aws-cdk": "^2.166.0",
+    "aws-cdk-lib": "^2.166.0",
+    "constructs": "^10.4.2",
+    "esbuild": "^0.24.0",
     "eslint": "^8",
     "eslint-config-next": "14.2.12",
     "postcss": "^8.4.47",
     "postcss-preset-mantine": "^1.17.0",
     "postcss-simple-vars": "^7.0.1",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
   }
 }
