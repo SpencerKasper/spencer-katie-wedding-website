@@ -38,7 +38,7 @@ export function GuestListTable() {
     const guestRows = [];
     let currentPartyId = '';
     let index = 0;
-    let currentWhiteIndex = 'odd';
+    let currentWhiteIndex = 'even';
     const getDataStriped = (guest: Guest) => {
         if (currentPartyId === '') {
             return currentWhiteIndex;
