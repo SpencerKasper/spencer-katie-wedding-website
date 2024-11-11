@@ -1,7 +1,7 @@
 'use client';
 import {Autocomplete, Button, Divider, Group, Modal, NumberInput, TextInput} from "@mantine/core";
 import {useForm} from "@mantine/form";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import CityStateAndZipCodeInput from "@/app/guestlist/CityStateAndZipCodeInput";
 import axios from "axios";
 import {Guest} from "@/types/guest";
@@ -23,6 +23,7 @@ const AddEditGuestModal = ({
                                selectedGuest = null,
                                setSelectedGuest
                            }: AddEditGuestModalProps) => {
+    const [zipCode, setZipCode] = useState(selectedGuest ? selectedGuest.zipCode : '');
     const getGuestPartyMember = (initialGuest: Guest) => {
         const foundGuest = guests.find(guest => guest.guestId !== initialGuest.guestId && guest.partyId === initialGuest.partyId);
         return foundGuest ? `${foundGuest.firstName} ${foundGuest.lastName}` : '';
@@ -61,6 +62,7 @@ const AddEditGuestModal = ({
 
     useEffect(() => {
         if (selectedGuest && opened) {
+            setZipCode(selectedGuest.zipCode);
             form.setValues({
                 ...selectedGuest,
                 guestPartyMember: getSelectedGuestsPartyMember()
@@ -76,6 +78,7 @@ const AddEditGuestModal = ({
     function resetModal() {
         form.reset();
         setSelectedGuest(null);
+        setZipCode('');
         onClose();
     }
 
@@ -108,6 +111,18 @@ const AddEditGuestModal = ({
                     <div>
                         <p className={'text-md'}>Party</p>
                         <Autocomplete
+                            onOptionSubmit={(value) => {
+                                const guest = guests.find(g => `${g.firstName} ${g.lastName}` === value);
+                                setZipCode(guest.zipCode);
+                                form.setValues((prev) => ({
+                                    ...prev,
+                                    address: guest.address,
+                                    address2: guest.address2,
+                                    city: guest.city,
+                                    state: guest.state,
+                                    zipCode: guest.zipCode,
+                                }));
+                            }}
                             className={'pt-4'}
                             label={`Guest's Party`}
                             placeholder={`Select a Member of This Guest's Party`}
@@ -130,8 +145,11 @@ const AddEditGuestModal = ({
                         key={form.key('address2')}
                         {...form.getInputProps('address2')}
                     />
-
-                    <CityStateAndZipCodeInput initialValue={selectedGuest ? selectedGuest.zipCode : ''} form={form}/>
+                    <CityStateAndZipCodeInput
+                        zipCode={zipCode}
+                        setZipCode={setZipCode}
+                        form={form}
+                    />
                     <div className={'py-4'}>
                         <Divider/>
                     </div>
