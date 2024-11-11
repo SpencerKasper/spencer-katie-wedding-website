@@ -52,20 +52,23 @@ const AddEditGuestModal = ({guests, setGuests, opened, onClose, selectedGuest = 
     });
 
     useEffect(() => {
-        if(selectedGuest) {
+        if(selectedGuest && opened) {
             form.setValues({
                 ...selectedGuest,
                 guestPartyMember: getSelectedGuestsPartyMember()
             });
         }
-    }, [selectedGuest]);
+    }, [selectedGuest, guests, opened]);
 
     const getValueFromForm = (property: PropertyKey) => form.getValues() && form.getValues().hasOwnProperty(property) ? form.getValues()[property] : '';
 
     const guestNames = guests
         .map(guest => `${guest.firstName} ${guest.lastName}`);
     return (
-        <Modal opened={opened} onClose={onClose} title="Add Guest" centered>
+        <Modal opened={opened} onClose={() => {
+            form.reset();
+            onClose();
+        }} title="Add Guest" centered>
             <form onSubmit={form.onSubmit(async (guestToAdd) => {
                 const response = await axios.post(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist`, guestToAdd);
                 setGuests(response.data.guests);
