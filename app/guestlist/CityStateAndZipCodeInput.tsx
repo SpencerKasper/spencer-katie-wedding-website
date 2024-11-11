@@ -3,9 +3,9 @@ import {InputLabel, NumberInput, TextInput} from "@mantine/core";
 import axios, {AxiosRequestConfig} from "axios";
 import {useEffect, useState} from "react";
 
-const CityStateAndZipCodeInput = ({form}) => {
+const CityStateAndZipCodeInput = ({form, initialValue}) => {
     const [cities, setCities] = useState([]);
-    const [zipCode, setZipCode] = useState(0);
+    const [zipCode, setZipCode] = useState(initialValue);
     useEffect(() => {
         if (zipCode && zipCode.toString().length === 5) {
             const apiKey: string = process.env.NEXT_PUBLIC_WEDDING_ZIPCODE_API_KEY;
@@ -24,6 +24,7 @@ const CityStateAndZipCodeInput = ({form}) => {
     return (
         <div>
             <TextInput
+                value={zipCode}
                 // @ts-ignore
                 onChange={(event) => setZipCode(event.currentTarget.value)}
                 label={'Zip Code'}

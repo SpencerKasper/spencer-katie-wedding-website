@@ -18,7 +18,6 @@ export default async function getDynamoDbClient() {
             }
         });
     }
-    console.error('using local mode')
     return new DynamoDBClient({
         credentials: {
             accessKeyId: process.env.NEXT_PUBLIC_WEDDING_AWS_ACCESS_KEY_ID || '',

@@ -9,6 +9,7 @@ export interface Guest {
     zipCode: string;
     emailAddress: string;
     partyId?: string;
+    // This doesn't save to dynamoDb
     guestPartyMember?: string;
     phoneNumber: string;
 }

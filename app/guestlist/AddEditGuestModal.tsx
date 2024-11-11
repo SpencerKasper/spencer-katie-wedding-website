@@ -1,41 +1,64 @@
 'use client';
-import {Group, Modal, TextInput, Button, NumberInput, InputLabel, Divider, Autocomplete} from "@mantine/core";
+import {Autocomplete, Button, Divider, Group, Modal, NumberInput, TextInput} from "@mantine/core";
 import {useForm} from "@mantine/form";
-import {useState} from "react";
+import {useEffect} from "react";
 import CityStateAndZipCodeInput from "@/app/guestlist/CityStateAndZipCodeInput";
 import axios from "axios";
-import {useRouter} from "next/navigation";
+import {Guest} from "@/types/guest";
 
-const AddGuestModal = ({guests, opened, onClose}) => {
-    const router = useRouter();
+interface AddEditGuestModalProps {
+    guests: Guest[];
+    setGuests: (guests: Guest[]) => void;
+    opened: boolean;
+    onClose: () => void;
+    selectedGuest?: Guest;
+}
+
+const AddEditGuestModal = ({guests, setGuests, opened, onClose, selectedGuest = null}: AddEditGuestModalProps) => {
+    const getGuestPartyMember = (initialGuest: Guest) => {
+        const foundGuest = guests.find(guest => guest.guestId !== initialGuest.guestId && guest.partyId === initialGuest.partyId);
+        return foundGuest ? `${foundGuest.firstName} ${foundGuest.lastName}` : '';
+    };
+    const getSelectedGuestsPartyMember = () => selectedGuest && selectedGuest.partyId && selectedGuest.partyId !== '' ?
+        getGuestPartyMember(selectedGuest) :
+        '';
     const form = useForm({
         mode: 'uncontrolled',
         initialValues: {
-            firstName: '',
-            lastName: '',
-            emailAddress: '',
-            phoneNumber: '',
-            address: '',
-            address2: '',
-            city: '',
-            state: '',
-            zipCode: '',
-            guestPartyMember: '',
+            firstName: selectedGuest ? selectedGuest.firstName : '',
+            lastName: selectedGuest ? selectedGuest.lastName : '',
+            emailAddress: selectedGuest ? selectedGuest.emailAddress : '',
+            phoneNumber: selectedGuest ? selectedGuest.phoneNumber : '',
+            address: selectedGuest ? selectedGuest.address : '',
+            address2: selectedGuest ? selectedGuest.address2 : '',
+            city: selectedGuest ? selectedGuest.city : '',
+            state: selectedGuest ? selectedGuest.state : '',
+            zipCode: selectedGuest ? selectedGuest.zipCode : '',
+            guestPartyMember: getSelectedGuestsPartyMember(),
         },
         validate: {
             emailAddress: (value) => (/^\S+@\S+$/.test(value) || value.trim() === '' ? null : 'Invalid email'),
             firstName: (value) => {
                 const hasLastName = getValueFromForm('lastName').trim() !== '';
                 const isNameInList = guests.filter(guest => `${guest.firstName} ${guest.lastName}` === `${value} ${getValueFromForm('lastName')}`).length;
-                return hasLastName && isNameInList ? 'Guest with this first and last name is already in list.' : null;
+                return hasLastName && isNameInList && !selectedGuest ? 'Guest with this first and last name is already in list.' : null;
             },
             lastName: (value) => {
                 const hasFirstName = getValueFromForm('firstName').trim() !== '';
                 const isNameInList = guests.filter(guest => `${guest.firstName} ${guest.lastName}` === `${getValueFromForm('firstName')} ${value}`).length;
-                return hasFirstName && isNameInList ? 'Guest with this first and last name is already in list.' : null;
+                return hasFirstName && isNameInList && !selectedGuest ? 'Guest with this first and last name is already in list.' : null;
             },
         },
     });
+
+    useEffect(() => {
+        if(selectedGuest) {
+            form.setValues({
+                ...selectedGuest,
+                guestPartyMember: getSelectedGuestsPartyMember()
+            });
+        }
+    }, [selectedGuest]);
 
     const getValueFromForm = (property: PropertyKey) => form.getValues() && form.getValues().hasOwnProperty(property) ? form.getValues()[property] : '';
 
@@ -45,8 +68,8 @@ const AddGuestModal = ({guests, opened, onClose}) => {
         <Modal opened={opened} onClose={onClose} title="Add Guest" centered>
             <form onSubmit={form.onSubmit(async (guestToAdd) => {
                 const response = await axios.post(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist`, guestToAdd);
+                setGuests(response.data.guests);
                 onClose();
-                router.refresh()
             })}>
                 <div className={'flex flex-col gap-4'}>
                     <p className={'text-md'}>Name</p>
@@ -93,7 +116,7 @@ const AddGuestModal = ({guests, opened, onClose}) => {
                         {...form.getInputProps('address2')}
                     />
 
-                    <CityStateAndZipCodeInput form={form}/>
+                    <CityStateAndZipCodeInput initialValue={selectedGuest ? selectedGuest.zipCode : ''} form={form}/>
                     <div className={'py-4'}>
                         <Divider/>
                     </div>
@@ -112,7 +135,7 @@ const AddGuestModal = ({guests, opened, onClose}) => {
                         <Divider/>
                     </div>
                     <Group justify="flex-end" mt="md">
-                        <Button type="submit">Submit</Button>
+                        <Button type="submit">Save</Button>
                     </Group>
                 </div>
             </form>
@@ -120,4 +143,4 @@ const AddGuestModal = ({guests, opened, onClose}) => {
     )
 };
 
-export default AddGuestModal;
+export default AddEditGuestModal;

@@ -28,7 +28,7 @@ export default function LoginPageClient() {
     const router = useRouter();
     const [hasError, setHasError] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    console.error(isLoading);
+    const [isLoggingIn, setIsLoggingIn] = useState(false);
     useEffect(() => {
         const firstName = localStorage.getItem(FIRST_NAME_LOCAL_STORAGE_KEY);
         const lastName = localStorage.getItem(LAST_NAME_LOCAL_STORAGE_KEY);
@@ -58,12 +58,15 @@ export default function LoginPageClient() {
         },
     });
     const handleSubmit = async (loginInfo) => {
+        setIsLoggingIn(true);
         const response = await validateLoginInfo(loginInfo);
         if (response.isAuthorized) {
+            setIsLoggingIn(false);
             router.push('/home');
         } else {
             setIsLoading(false);
             setHasError(true);
+            setIsLoggingIn(false);
         }
     };
     return !isLoading ?
@@ -111,7 +114,7 @@ export default function LoginPageClient() {
                                 placeholder={'Enter password here.'}
                                 {...form.getInputProps('password')}
                             />
-                            <Button type={'submit'} variant={'outline'} color={'white'}>
+                            <Button loading={isLoggingIn} type={'submit'} variant={'outline'} color={'white'}>
                                 Enter
                             </Button>
                         </div>

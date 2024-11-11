@@ -14,8 +14,6 @@ export async function GET(request) {
         const url = new URL(request.url);
         const search = new URLSearchParams(url.search);
         const partyId = search.get('partyId');
-        console.error(partyId);
-        console.error('creating dynamo')
         const dynamo = await getDynamoDbClient();
         const response = await dynamo.send(new ScanCommand({
             TableName: WEDDING_GUEST_LIST_TABLE,
@@ -41,24 +39,18 @@ export async function POST(request) {
         if(isNullOrEmptyString(firstName) || isNullOrEmptyString(lastName)) {
             return NextResponse.json({error: 'You must provide both first and last name.'});
         }
-        const dynamo = await getDynamoDbClient();
-        const response = await dynamo.send(new ScanCommand({
-            TableName: WEDDING_GUEST_LIST_TABLE,
-        }));
-        const guests = response.Items as Guest[];
-
         const getPartyId = async () => {
             const partyMemberIsDefined = guestPartyMember && guestPartyMember.trim() !== '';
             if(!partyMemberIsDefined) {
                 return '';
             }
             const foundPartyMember = guests.find(g => `${g.firstName} ${g.lastName}` === guestPartyMember);
-            console.error(foundPartyMember);
             if(foundPartyMember && foundPartyMember.partyId && foundPartyMember.partyId !== '') {
                 return foundPartyMember.partyId;
             }
+
+            // Handles new parties
             const newPartyId = uuidv4();
-            console.error(foundPartyMember.guestId)
             await dynamo.send(new UpdateCommand({
                 TableName: WEDDING_GUEST_LIST_TABLE,
                 Key: {
@@ -74,23 +66,60 @@ export async function POST(request) {
             }));
             return newPartyId;
         }
-
-        await dynamo.send(new PutItemCommand({
+        const dynamo = await getDynamoDbClient();
+        const response = await dynamo.send(new ScanCommand({
             TableName: WEDDING_GUEST_LIST_TABLE,
-            Item: {
-                guestId: {S: uuidv4()},
-                firstName: {S: firstName},
-                lastName: {S: lastName},
-                phoneNumber: {S: phoneNumber ? phoneNumber.toString() : ''},
-                emailAddress: {S: emailAddress ? emailAddress : ''},
-                address: {S: address ? address : ''},
-                address2: {S: address2 ? address2 : ''},
-                city: {S: city ? city : ''},
-                state: {S: state ? state : ''},
-                zipCode: {S: zipCode ? zipCode : ''},
-                partyId: {S: await getPartyId()}
-            }
         }));
+        const guests = response.Items as Guest[];
+        const foundGuest = guests.find(g => `${g.firstName} ${g.lastName}` === `${firstName} ${lastName}`);
+        if(foundGuest) {
+            console.error('updating guest...');
+            await dynamo.send(new UpdateCommand({
+                TableName: WEDDING_GUEST_LIST_TABLE,
+                Key: {
+                    guestId: foundGuest.guestId
+                },
+                UpdateExpression: "SET #address = :address, #address2 = :address2, #city = :city, #state = :state, #zipCode = :zipCode, #emailAddress = :emailAddress, #partyId = :partyId, #phoneNumber = :phoneNumber",
+                ExpressionAttributeNames: {
+                    "#address": "address",
+                    "#address2": "address2",
+                    "#city": "city",
+                    "#state": "state",
+                    "#zipCode": "zipCode",
+                    "#emailAddress": "emailAddress",
+                    "#phoneNumber": "phoneNumber",
+                    "#partyId": "partyId",
+                },
+                ExpressionAttributeValues: {
+                    ":address": guest && guest.address ? guest.address : '',
+                    ":address2": guest && guest.address2 ? guest.address2 : '',
+                    ":city": guest && guest.city ? guest.city : '',
+                    ":state": guest && guest.state ? guest.state : '',
+                    ":zipCode": guest && guest.zipCode ? guest.zipCode : '',
+                    ":emailAddress": guest && guest.emailAddress ? guest.emailAddress : '',
+                    ":phoneNumber": guest && guest.phoneNumber ? guest.phoneNumber : '',
+                    ":partyId": guest ? await getPartyId() : '',
+                }
+            }));
+        } else {
+            await dynamo.send(new PutItemCommand({
+                TableName: WEDDING_GUEST_LIST_TABLE,
+                Item: {
+                    guestId: {S: uuidv4()},
+                    firstName: {S: firstName},
+                    lastName: {S: lastName},
+                    phoneNumber: {S: phoneNumber ? phoneNumber.toString() : ''},
+                    emailAddress: {S: emailAddress ? emailAddress : ''},
+                    address: {S: address ? address : ''},
+                    address2: {S: address2 ? address2 : ''},
+                    city: {S: city ? city : ''},
+                    state: {S: state ? state : ''},
+                    zipCode: {S: zipCode ? zipCode : ''},
+                    partyId: {S: await getPartyId()}
+                }
+            }));
+        }
+
         const updatedGuestsResponse = await dynamo.send(new ScanCommand({
             TableName: WEDDING_GUEST_LIST_TABLE,
         }));
