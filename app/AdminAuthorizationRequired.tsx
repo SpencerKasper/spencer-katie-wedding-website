@@ -9,7 +9,7 @@ const AdminAuthorizationRequired = ({children}) => {
     return isAdminAuthorized ?
         children :
         <div className={'flex flex-col justify-center items-center p-4 m:p-16 text-white'}>
-            <div className={'w-1/2'}>
+            <div className={'w-full sm:w-1/2'}>
                 <PasswordInput label={'Password'} value={password}
                                onChange={(event) => setPassword(event.currentTarget.value)}/>
             </div>
