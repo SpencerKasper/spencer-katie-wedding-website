@@ -88,9 +88,9 @@ export function GuestListTable() {
 
     return (
         <Card>
-            <div className={'flex justify-between pb-4 gap-4'}>
-                <div></div>
-                <div className={'flex flex-col gap-4 justify-center align-center'}>
+            <div className={'flex flex-wrap justify-between pb-4 gap-4 sm:gap-0'}>
+                <div className={'w-full sm:w-1/4'}></div>
+                <div className={'flex flex-col gap-4 justify-center align-center w-full sm:w-1/2'}>
                     <TextInput
                         value={search.search}
                         onChange={(event) => setSearch({...search, search: event.currentTarget.value})}
@@ -104,7 +104,7 @@ export function GuestListTable() {
                         }}
                     />
                 </div>
-                <div>
+                <div className={'w-full sm:w-1/4 flex justify-end'}>
                     <Button variant={'outline'} color={'green'} onClick={() => setModalOpen(true)}>Add Guest</Button>
                     <AddEditGuestModal
                         selectedGuest={selectedGuest}
