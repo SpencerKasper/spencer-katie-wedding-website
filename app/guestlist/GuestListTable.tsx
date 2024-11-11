@@ -32,8 +32,10 @@ export function GuestListTable() {
                 return g.partyId && g.partyId !== '' && matchingSearchCriteria.find(match => match.partyId === g.partyId);
             }) :
         [];
+    const minItemIndex = (paginationInfo.currentPage - 1) * paginationInfo.guestsPerPage;
+    const maxItemIndex = paginationInfo.currentPage * paginationInfo.guestsPerPage;
     const sortedGuests = [...matchingSearchCriteria, ...includedPartyMembers]
-        .filter((g, index) => index >= (paginationInfo.currentPage - 1) * paginationInfo.guestsPerPage && index < paginationInfo.currentPage * paginationInfo.guestsPerPage)
+        .filter((g, index) => index >= minItemIndex && index < maxItemIndex)
         .sort((a, b) => a.partyId > b.partyId ? -1 : 1);
     const guestRows = [];
     let currentPartyId = '';
@@ -130,7 +132,7 @@ export function GuestListTable() {
                 </Table>
             </Table.ScrollContainer>
             <div className={'flex justify-between items-end flex-wrap'}>
-                <div className={'w-1/4'}></div>
+                <div className={'w-1/4'}><p>Showing Guests {minItemIndex + 1} - {maxItemIndex}</p></div>
                 <Pagination
                     value={paginationInfo.currentPage}
                     onChange={value => setPaginationInfo({...paginationInfo, currentPage: value})}

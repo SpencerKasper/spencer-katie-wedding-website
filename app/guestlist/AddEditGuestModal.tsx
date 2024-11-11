@@ -105,19 +105,17 @@ const AddEditGuestModal = ({
                     <div className={'py-4'}>
                         <Divider/>
                     </div>
-                    <p className={'text-md'}>Contact Info</p>
-                    <TextInput
-                        label={'Email Address'}
-                        key={form.key('emailAddress')}
-                        {...form.getInputProps('emailAddress')}
-                    />
-                    <NumberInput
-                        hideControls
-                        type={'tel'}
-                        label={'Phone Number'}
-                        key={form.key('phoneNumber')}
-                        {...form.getInputProps('phoneNumber')}
-                    />
+                    <div>
+                        <p className={'text-md'}>Party</p>
+                        <Autocomplete
+                            className={'pt-4'}
+                            label={`Guest's Party`}
+                            placeholder={`Select a Member of This Guest's Party`}
+                            data={guestNames}
+                            key={form.key('guestPartyMember')}
+                            {...form.getInputProps('guestPartyMember')}
+                        />
+                    </div>
                     <div className={'py-4'}>
                         <Divider/>
                     </div>
@@ -137,17 +135,19 @@ const AddEditGuestModal = ({
                     <div className={'py-4'}>
                         <Divider/>
                     </div>
-                    <div>
-                        <p className={'text-md'}>Party</p>
-                        <Autocomplete
-                            className={'pt-4'}
-                            label={`Guest's Party`}
-                            placeholder={`Select a Member of This Guest's Party`}
-                            data={guestNames}
-                            key={form.key('guestPartyMember')}
-                            {...form.getInputProps('guestPartyMember')}
-                        />
-                    </div>
+                    <p className={'text-md'}>Contact Info</p>
+                    <TextInput
+                        label={'Email Address'}
+                        key={form.key('emailAddress')}
+                        {...form.getInputProps('emailAddress')}
+                    />
+                    <NumberInput
+                        hideControls
+                        type={'tel'}
+                        label={'Phone Number'}
+                        key={form.key('phoneNumber')}
+                        {...form.getInputProps('phoneNumber')}
+                    />
                     <div className={'py-4'}>
                         <Divider/>
                     </div>
