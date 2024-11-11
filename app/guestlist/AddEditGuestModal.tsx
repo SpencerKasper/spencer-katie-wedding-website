@@ -12,9 +12,10 @@ interface AddEditGuestModalProps {
     opened: boolean;
     onClose: () => void;
     selectedGuest?: Guest;
+    setSelectedGuest: (guest: Guest) => void;
 }
 
-const AddEditGuestModal = ({guests, setGuests, opened, onClose, selectedGuest = null}: AddEditGuestModalProps) => {
+const AddEditGuestModal = ({guests, setGuests, opened, onClose, selectedGuest = null, setSelectedGuest}: AddEditGuestModalProps) => {
     const getGuestPartyMember = (initialGuest: Guest) => {
         const foundGuest = guests.find(guest => guest.guestId !== initialGuest.guestId && guest.partyId === initialGuest.partyId);
         return foundGuest ? `${foundGuest.firstName} ${foundGuest.lastName}` : '';
@@ -67,6 +68,7 @@ const AddEditGuestModal = ({guests, setGuests, opened, onClose, selectedGuest = 
     return (
         <Modal opened={opened} onClose={() => {
             form.reset();
+            setSelectedGuest(null);
             onClose();
         }} title="Add Guest" centered>
             <form onSubmit={form.onSubmit(async (guestToAdd) => {

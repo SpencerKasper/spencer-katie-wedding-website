@@ -83,6 +83,7 @@ export function GuestListTable() {
                 <Button variant={'outline'} color={'green'} onClick={() => setModalOpen(true)}>Add Guest</Button>
                 <AddEditGuestModal
                     selectedGuest={selectedGuest}
+                    setSelectedGuest={setSelectedGuest}
                     guests={guests}
                     setGuests={setGuests}
                     opened={modalOpen}
