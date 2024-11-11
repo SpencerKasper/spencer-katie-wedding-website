@@ -132,12 +132,12 @@ export function GuestListTable() {
                 </Table>
             </Table.ScrollContainer>
             <div className={'flex justify-between items-end flex-wrap gap-4 sm:gap-0'}>
-                <div className={'w-full sm:w-1/4 text-center sm:text-left'}><p>Showing Guests {minItemIndex + 1} - {maxItemIndex}</p></div>
+                <div className={'w-full sm:w-1/4 text-center sm:text-left'}><p>Showing Guests {minItemIndex + 1} - {maxItemIndex} of {guests.length}</p></div>
                 <div className={'w-full sm:w-1/2 flex justify-center'}>
                     <Pagination
                         value={paginationInfo.currentPage}
                         onChange={value => setPaginationInfo({...paginationInfo, currentPage: value})}
-                        total={paginationInfo.guestsPerPage ? Number((guests.length / Number(paginationInfo.guestsPerPage)).toFixed(0)) : 1}
+                        total={paginationInfo.guestsPerPage ? Number(Math.ceil(guests.length / Number(paginationInfo.guestsPerPage)).toFixed(0)) : 1}
                     />
                 </div>
                 <Select
