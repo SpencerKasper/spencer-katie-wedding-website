@@ -15,7 +15,14 @@ interface AddEditGuestModalProps {
     setSelectedGuest: (guest: Guest) => void;
 }
 
-const AddEditGuestModal = ({guests, setGuests, opened, onClose, selectedGuest = null, setSelectedGuest}: AddEditGuestModalProps) => {
+const AddEditGuestModal = ({
+                               guests,
+                               setGuests,
+                               opened,
+                               onClose,
+                               selectedGuest = null,
+                               setSelectedGuest
+                           }: AddEditGuestModalProps) => {
     const getGuestPartyMember = (initialGuest: Guest) => {
         const foundGuest = guests.find(guest => guest.guestId !== initialGuest.guestId && guest.partyId === initialGuest.partyId);
         return foundGuest ? `${foundGuest.firstName} ${foundGuest.lastName}` : '';
@@ -53,7 +60,7 @@ const AddEditGuestModal = ({guests, setGuests, opened, onClose, selectedGuest = 
     });
 
     useEffect(() => {
-        if(selectedGuest && opened) {
+        if (selectedGuest && opened) {
             form.setValues({
                 ...selectedGuest,
                 guestPartyMember: getSelectedGuestsPartyMember()
@@ -65,17 +72,22 @@ const AddEditGuestModal = ({guests, setGuests, opened, onClose, selectedGuest = 
 
     const guestNames = guests
         .map(guest => `${guest.firstName} ${guest.lastName}`);
+
+    function resetModal() {
+        form.reset();
+        setSelectedGuest(null);
+        onClose();
+    }
+
     return (
-        <Modal opened={opened} onClose={() => {
-            form.reset();
-            setSelectedGuest(null);
-            onClose();
-        }} title="Add Guest" centered>
-            <form onSubmit={form.onSubmit(async (guestToAdd) => {
-                const response = await axios.post(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist`, guestToAdd);
-                setGuests(response.data.guests);
-                onClose();
-            })}>
+        <Modal opened={opened} onClose={() => resetModal()} title="Add Guest" centered>
+            <form
+                onSubmit={form.onSubmit(async (guestToAdd) => {
+                    const response = await axios.post(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist`, guestToAdd);
+                    setGuests(response.data.guests);
+                    resetModal();
+                })}
+            >
                 <div className={'flex flex-col gap-4'}>
                     <p className={'text-md'}>Name</p>
                     <TextInput
