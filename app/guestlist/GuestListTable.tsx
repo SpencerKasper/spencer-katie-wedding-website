@@ -131,20 +131,22 @@ export function GuestListTable() {
                     </Table.Tbody>
                 </Table>
             </Table.ScrollContainer>
-            <div className={'flex justify-between items-end flex-wrap'}>
-                <div className={'w-1/4'}><p>Showing Guests {minItemIndex + 1} - {maxItemIndex}</p></div>
-                <Pagination
-                    value={paginationInfo.currentPage}
-                    onChange={value => setPaginationInfo({...paginationInfo, currentPage: value})}
-                    total={paginationInfo.guestsPerPage ? Number((guests.length / Number(paginationInfo.guestsPerPage)).toFixed(0)) : 1}
-                />
+            <div className={'flex justify-between items-end flex-wrap gap-4 sm:gap-0'}>
+                <div className={'w-full sm:w-1/4 text-center sm:text-left'}><p>Showing Guests {minItemIndex + 1} - {maxItemIndex}</p></div>
+                <div className={'w-full sm:w-1/2 flex justify-center'}>
+                    <Pagination
+                        value={paginationInfo.currentPage}
+                        onChange={value => setPaginationInfo({...paginationInfo, currentPage: value})}
+                        total={paginationInfo.guestsPerPage ? Number((guests.length / Number(paginationInfo.guestsPerPage)).toFixed(0)) : 1}
+                    />
+                </div>
                 <Select
                     value={paginationInfo.guestsPerPage.toString()}
                     onChange={value => {
                         setPaginationInfo({...paginationInfo, guestsPerPage: Number(value)});
                     }}
                     label={'Guests Per Page'}
-                    className={'w-1/4'}
+                    className={'w-full sm:w-1/4'}
                     data={['10', '20', '50', '100', '200']}
                     placeholder={'Guests Per Page'}
                     defaultValue={'20'}
