@@ -1,6 +1,6 @@
 'use client';
 import {Guest} from "@/types/guest";
-import {Button, Card, Checkbox, Pagination, Select, Table, TextInput} from "@mantine/core";
+import {Button, Card, Checkbox, Pagination, Select, Table, TextInput, Highlight} from "@mantine/core";
 import AddEditGuestModal from "@/app/guestlist/AddEditGuestModal";
 import {useEffect, useState} from "react";
 import axios from "axios";
@@ -68,6 +68,7 @@ export function GuestListTable() {
         currentPartyId = guest.partyId;
         currentWhiteIndex = dataStriped;
         index++;
+        const guestName = `${guest.firstName} ${guest.lastName}`;
         guestRows.push(
             <Table.Tr
                 className={'cursor-pointer hover:bg-yellow-100'}
@@ -78,7 +79,7 @@ export function GuestListTable() {
                 data-striped={dataStriped}
                 key={`guest-${guest.firstName}-${guest.lastName}`}
             >
-                <Table.Td>{guest.firstName} {guest.lastName}</Table.Td>
+                <Table.Td><Highlight highlight={search.search}>{guestName}</Highlight></Table.Td>
                 <Table.Td className={'min-w-48'}>{formattedAddress}</Table.Td>
                 <Table.Td>{guest.phoneNumber ? guest.phoneNumber : '-'}</Table.Td>
                 <Table.Td>{guest.emailAddress ? guest.emailAddress : '-'}</Table.Td>
