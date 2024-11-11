@@ -38,14 +38,8 @@ export function GuestListTable() {
     let index = 0;
     let currentWhiteIndex = 'odd';
     const getDataStriped = (guest: Guest) => {
-        if (currentPartyId === '' && currentWhiteIndex === 'even' && index % 2 === 0) {
-            return 'odd';
-        } else if (currentPartyId === '' && currentWhiteIndex === 'odd' && index % 2 === 0) {
-            return 'even';
-        } else if (currentPartyId === '' && currentWhiteIndex === 'even' && index % 2 !== 0) {
-            return 'even';
-        } else if (currentPartyId === '' && currentWhiteIndex === 'odd' && index % 2 !== 0) {
-            return 'odd';
+        if (currentPartyId === '') {
+            return currentWhiteIndex;
         } else if (currentPartyId === guest.partyId && currentWhiteIndex === 'even') {
             return 'odd';
         } else if (currentPartyId === guest.partyId && currentWhiteIndex === 'odd') {
