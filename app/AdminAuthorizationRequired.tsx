@@ -10,8 +10,14 @@ const AdminAuthorizationRequired = ({children}) => {
         children :
         <div className={'flex flex-col justify-center items-center p-4 m:p-16 text-white'}>
             <div className={'w-1/2'}>
-                <PasswordInput label={'Password'} value={password} onChange={(event) => setPassword(event.currentTarget.value)}/>
-                <Button onClick={async () => {
+                <PasswordInput label={'Password'} value={password}
+                               onChange={(event) => setPassword(event.currentTarget.value)}/>
+            </div>
+            <div className={'pt-4'}>
+                <Button
+                    color={'white'}
+                    variant={'outline'}
+                    onClick={async () => {
                     const response = await validateAdminAuthorizationRequest(password);
                     setIsAdminAuthorized(response);
                 }}>Submit</Button>
