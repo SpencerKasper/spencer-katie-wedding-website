@@ -79,7 +79,7 @@ export function GuestListTable() {
                 key={`guest-${guest.firstName}-${guest.lastName}`}
             >
                 <Table.Td>{guest.firstName} {guest.lastName}</Table.Td>
-                <Table.Td>{formattedAddress}</Table.Td>
+                <Table.Td className={'min-w-48'}>{formattedAddress}</Table.Td>
                 <Table.Td>{guest.phoneNumber ? guest.phoneNumber : '-'}</Table.Td>
                 <Table.Td>{guest.emailAddress ? guest.emailAddress : '-'}</Table.Td>
             </Table.Tr>
@@ -121,7 +121,7 @@ export function GuestListTable() {
                     <Table.Thead>
                         <Table.Tr>
                             <Table.Th>Name</Table.Th>
-                            <Table.Th>Address</Table.Th>
+                            <Table.Th className={'min-w-36'}>Address</Table.Th>
                             <Table.Th>Phone Number</Table.Th>
                             <Table.Th>Email Address</Table.Th>
                         </Table.Tr>

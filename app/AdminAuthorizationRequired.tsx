@@ -22,7 +22,7 @@ const AdminAuthorizationRequired = ({children}) => {
     return isAdminAuthorized && !isAuthorizing ?
         children :
         isAuthorizing ?
-            <div className={'flex flex-col justify-center items-center'}>
+            <div className={'flex flex-col justify-center items-center p-4 md:p-16'}>
                 <p className={'text-white text-4xl'}>We are checking if you have access!</p>
                 <p className={'text-white text-2xl'}>This page requires authorization to access.</p>
                 <Loader type={'dots'} color={'white'}/>
