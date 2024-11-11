@@ -1,6 +1,6 @@
 'use client';
 import {Guest} from "@/types/guest";
-import {Button, Card, Checkbox, Table, TextInput} from "@mantine/core";
+import {Button, Card, Checkbox, Pagination, Select, Table, TextInput} from "@mantine/core";
 import AddEditGuestModal from "@/app/guestlist/AddEditGuestModal";
 import {useEffect, useState} from "react";
 import axios from "axios";
@@ -8,6 +8,7 @@ import axios from "axios";
 export function GuestListTable() {
     const [search, setSearch] = useState({search: '', includePartyMembers: false});
     const [guests, setGuests] = useState([] as Guest[]);
+    const [paginationInfo, setPaginationInfo] = useState({guestsPerPage: 20, currentPage: 1});
 
     const refreshGuests = () => {
         const url = `${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist`;
@@ -32,6 +33,7 @@ export function GuestListTable() {
             }) :
         [];
     const sortedGuests = [...matchingSearchCriteria, ...includedPartyMembers]
+        .filter((g, index) => index >= (paginationInfo.currentPage - 1) * paginationInfo.guestsPerPage && index < paginationInfo.currentPage * paginationInfo.guestsPerPage)
         .sort((a, b) => a.partyId > b.partyId ? -1 : 1);
     const guestRows = [];
     let currentPartyId = '';
@@ -127,6 +129,25 @@ export function GuestListTable() {
                     </Table.Tbody>
                 </Table>
             </Table.ScrollContainer>
+            <div className={'flex justify-between items-end flex-wrap'}>
+                <div className={'w-1/4'}></div>
+                <Pagination
+                    value={paginationInfo.currentPage}
+                    onChange={value => setPaginationInfo({...paginationInfo, currentPage: value})}
+                    total={paginationInfo.guestsPerPage ? Number((guests.length / Number(paginationInfo.guestsPerPage)).toFixed(0)) : 1}
+                />
+                <Select
+                    value={paginationInfo.guestsPerPage.toString()}
+                    onChange={value => {
+                        setPaginationInfo({...paginationInfo, guestsPerPage: Number(value)});
+                    }}
+                    label={'Guests Per Page'}
+                    className={'w-1/4'}
+                    data={['10', '20', '50', '100', '200']}
+                    placeholder={'Guests Per Page'}
+                    defaultValue={'20'}
+                />
+            </div>
         </Card>
     );
 }
