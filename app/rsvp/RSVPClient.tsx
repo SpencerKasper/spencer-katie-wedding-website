@@ -222,41 +222,43 @@ export default function RSVPClient() {
     return (
         <div>
             <Skeleton visible={isLoading}>
-                <Card>
-                    {rsvps.length ?
-                        <RSVPsReview rsvps={rsvps} setRsvps={(value) => {
-                            setRsvps(value);
-                            form.reset();
-                            setRsvpPage(0);
-                        }}/> :
-                        <form>
-                            <h2 className={'text-4xl'}>{getPageTitle()}</h2>
-                            <Divider my={'md'}/>
-                            {getPageContent()}
-                            <Divider my={'md'}/>
-                            <div className={'flex justify-between'}>
-                                <div></div>
-                                <div className={'flex gap-2'}>
-                                    <Button disabled={rsvpPage === 0} variant={'outline'} color={'black'}
-                                            onClick={() => {
-                                                if (rsvpPage === 2 && attendingGuests.length === 0) {
-                                                    setRsvpPage(0);
-                                                } else {
-                                                    decrementRsvpPage();
-                                                }
-                                            }}>Back</Button>
-                                    {rsvpPage === NUMBER_OF_PAGES ?
-                                        <Button variant={'outline'} color={'black'}
-                                                onClick={handleSubmit}>Submit</Button> :
-                                        <Button disabled={rsvpPage >= NUMBER_OF_PAGES} variant={'outline'}
-                                                color={'black'}
-                                                onClick={() => incrementRsvpPage()}>Next</Button>
-                                    }
+                <div className={'flex justify-center'}>
+                    <Card className={'max-w-lg'}>
+                        {rsvps.length ?
+                            <RSVPsReview rsvps={rsvps} setRsvps={(value) => {
+                                setRsvps(value);
+                                form.reset();
+                                setRsvpPage(0);
+                            }}/> :
+                            <form>
+                                <h2 className={'text-4xl'}>{getPageTitle()}</h2>
+                                <Divider my={'md'}/>
+                                {getPageContent()}
+                                <Divider my={'md'}/>
+                                <div className={'flex justify-between'}>
+                                    <div></div>
+                                    <div className={'flex gap-2'}>
+                                        <Button disabled={rsvpPage === 0} variant={'outline'} color={'black'}
+                                                onClick={() => {
+                                                    if (rsvpPage === 2 && attendingGuests.length === 0) {
+                                                        setRsvpPage(0);
+                                                    } else {
+                                                        decrementRsvpPage();
+                                                    }
+                                                }}>Back</Button>
+                                        {rsvpPage === NUMBER_OF_PAGES ?
+                                            <Button variant={'outline'} color={'black'}
+                                                    onClick={handleSubmit}>Submit</Button> :
+                                            <Button disabled={rsvpPage >= NUMBER_OF_PAGES} variant={'outline'}
+                                                    color={'black'}
+                                                    onClick={() => incrementRsvpPage()}>Next</Button>
+                                        }
+                                    </div>
                                 </div>
-                            </div>
-                        </form>
-                    }
-                </Card>
+                            </form>
+                        }
+                    </Card>
+                </div>
             </Skeleton>
         </div>
     )
