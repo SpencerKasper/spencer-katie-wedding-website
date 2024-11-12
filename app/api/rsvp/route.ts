@@ -1,4 +1,4 @@
-import getDynamoDbClient from "@/app/api/dynamodb-client";
+import getDynamoDbClient from "@/app/api/aws-clients/dynamodb-client";
 import {ScanCommand} from "@aws-sdk/lib-dynamodb";
 import {NextResponse} from 'next/server';
 import {DeleteItemCommand, PutItemCommand} from "@aws-sdk/client-dynamodb";
@@ -6,6 +6,7 @@ import {RSVP} from "@/types/rsvp";
 import {Guest} from "@/types/guest";
 import {getSearchParams} from "@/app/api/helpers/param-util";
 import {GUESTLIST_TABLE_NAME, RSVPS_TABLE_NAME} from "@/app/api/constants/dynamo";
+import {sendEmail} from "@/app/api/aws-clients/send-email";
 
 export const dynamic = 'force-dynamic';
 
@@ -89,6 +90,11 @@ export async function POST(request) {
             }));
             console.error(response);
         }
+        await sendEmail({
+            subject: `You have successfully sent your RSVP to Katie and Spencer's wedding!`,
+            text: `Thanks for RSVPing to Katie and Spencer's wedding.  Your options will be listed below eventually.`,
+            toAddresses: ['spencer.kasper@gmail.com'],
+        });
         return NextResponse.json({
             rsvps,
             statusCode: 200

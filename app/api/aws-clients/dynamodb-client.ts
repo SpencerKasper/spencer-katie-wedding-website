@@ -1,4 +1,4 @@
-import {assumeRole} from "@/app/api/assume-role";
+import {assumeRole} from "@/app/api/aws-clients/assume-role";
 import {DynamoDBClient} from "@aws-sdk/client-dynamodb";
 
 export default async function getDynamoDbClient() {

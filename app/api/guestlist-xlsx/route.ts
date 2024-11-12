@@ -1,7 +1,7 @@
 import {NextResponse} from "next/server";
 import {getSearchParams} from "@/app/api/helpers/param-util";
 import xlsx, {WorkSheet} from 'node-xlsx';
-import getDynamoDbClient from "@/app/api/dynamodb-client";
+import getDynamoDbClient from "@/app/api/aws-clients/dynamodb-client";
 import {ScanCommand} from "@aws-sdk/lib-dynamodb";
 import {RSVP} from "@/types/rsvp";
 import {Guest} from "@/types/guest";

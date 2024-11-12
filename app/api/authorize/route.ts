@@ -1,4 +1,4 @@
-import getDynamoDbClient from "@/app/api/dynamodb-client";
+import getDynamoDbClient from "@/app/api/aws-clients/dynamodb-client";
 import {ScanCommand} from "@aws-sdk/lib-dynamodb";
 import {NextResponse} from 'next/server';
 
