@@ -1,5 +1,5 @@
 'use client';
-import {Autocomplete, Button, Divider, Group, Modal, NumberInput, TextInput} from "@mantine/core";
+import {Autocomplete, Button, Divider, Group, List, Modal, NumberInput, TextInput} from "@mantine/core";
 import {useForm} from "@mantine/form";
 import {useEffect, useState} from "react";
 import CityStateAndZipCodeInput from "@/app/guestlist/CityStateAndZipCodeInput";
@@ -44,6 +44,7 @@ const AddEditGuestModal = ({
             state: selectedGuest ? selectedGuest.state : '',
             zipCode: selectedGuest ? selectedGuest.zipCode : '',
             guestPartyMember: getSelectedGuestsPartyMember(),
+            tableNumber: 1,
         },
         validate: {
             emailAddress: (value) => (/^\S+@\S+$/.test(value) || value.trim() === '' ? null : 'Invalid email'),
@@ -57,6 +58,9 @@ const AddEditGuestModal = ({
                 const isNameInList = guests.filter(guest => `${guest.firstName} ${guest.lastName}` === `${getValueFromForm('firstName')} ${value}`).length;
                 return hasFirstName && isNameInList && !selectedGuest ? 'Guest with this first and last name is already in list.' : null;
             },
+            tableNumber: (value) => {
+                return isNaN(value) || value <= 0 ? 'Table number must be at least 1' : null;
+            }
         },
     });
 
@@ -82,6 +86,8 @@ const AddEditGuestModal = ({
         onClose();
     }
 
+    const guestsAtTable = guests
+        .filter(g => g.tableNumber === form.getValues().tableNumber);
     return (
         <Modal opened={opened} onClose={() => resetModal()} title="Add Guest" centered>
             <form
@@ -149,6 +155,28 @@ const AddEditGuestModal = ({
                         zipCode={zipCode}
                         setZipCode={setZipCode}
                         form={form}
+                    />
+                    <div className={'py-4'}>
+                        <Divider/>
+                    </div>
+                    <p className={'text-md'}>Table</p>
+                    {form.getValues() && form.getValues().tableNumber && guestsAtTable.length ?
+                        <div>
+                            <p className={'text-sm'}>People at Table</p>
+                            <List>
+                                {guestsAtTable
+                                    .map((g, index) => (
+                                        <List.Item key={`guest-at-table-${index}`}>{`- ${g.firstName} ${g.lastName}`}</List.Item>))
+                                }
+                            </List>
+                        </div> :
+                        <></>
+                    }
+                    <NumberInput
+                        label={'Table Number'}
+                        placeholder={'Enter a Table Number'}
+                        key={form.key('tableNumber')}
+                        {...form.getInputProps('tableNumber')}
                     />
                     <div className={'py-4'}>
                         <Divider/>

@@ -12,4 +12,5 @@ export interface Guest {
     // This doesn't save to dynamoDb
     guestPartyMember?: string;
     phoneNumber: string;
+    tableNumber?: number;
 }

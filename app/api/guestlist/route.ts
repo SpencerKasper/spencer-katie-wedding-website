@@ -35,7 +35,7 @@ const isNullOrEmptyString = (value) => {
 export async function POST(request) {
     try {
         const guest = await request.json() as Guest;
-        const {firstName, lastName, phoneNumber, emailAddress, address, address2, city, state, zipCode, guestPartyMember} = guest;
+        const {firstName, lastName, phoneNumber, emailAddress, address, address2, city, state, zipCode, guestPartyMember, tableNumber} = guest;
         if(isNullOrEmptyString(firstName) || isNullOrEmptyString(lastName)) {
             return NextResponse.json({error: 'You must provide both first and last name.'});
         }
@@ -73,13 +73,12 @@ export async function POST(request) {
         const guests = response.Items as Guest[];
         const foundGuest = guests.find(g => `${g.firstName} ${g.lastName}` === `${firstName} ${lastName}`);
         if(foundGuest) {
-            console.error('updating guest...');
             await dynamo.send(new UpdateCommand({
                 TableName: WEDDING_GUEST_LIST_TABLE,
                 Key: {
                     guestId: foundGuest.guestId
                 },
-                UpdateExpression: "SET #address = :address, #address2 = :address2, #city = :city, #state = :state, #zipCode = :zipCode, #emailAddress = :emailAddress, #partyId = :partyId, #phoneNumber = :phoneNumber",
+                UpdateExpression: "SET #address = :address, #address2 = :address2, #city = :city, #state = :state, #zipCode = :zipCode, #emailAddress = :emailAddress, #partyId = :partyId, #phoneNumber = :phoneNumber, #tableNumber = :tableNumber",
                 ExpressionAttributeNames: {
                     "#address": "address",
                     "#address2": "address2",
@@ -89,6 +88,7 @@ export async function POST(request) {
                     "#emailAddress": "emailAddress",
                     "#phoneNumber": "phoneNumber",
                     "#partyId": "partyId",
+                    "#tableNumber": "tableNumber",
                 },
                 ExpressionAttributeValues: {
                     ":address": guest && guest.address ? guest.address : '',
@@ -99,6 +99,7 @@ export async function POST(request) {
                     ":emailAddress": guest && guest.emailAddress ? guest.emailAddress : '',
                     ":phoneNumber": guest && guest.phoneNumber ? guest.phoneNumber : '',
                     ":partyId": guest ? await getPartyId() : '',
+                    ":tableNumber": guest && guest.tableNumber ? guest.tableNumber : '',
                 }
             }));
         } else {
@@ -115,7 +116,8 @@ export async function POST(request) {
                     city: {S: city ? city : ''},
                     state: {S: state ? state : ''},
                     zipCode: {S: zipCode ? zipCode : ''},
-                    partyId: {S: await getPartyId()}
+                    partyId: {S: await getPartyId()},
+                    tableNumber: {N: tableNumber ? tableNumber.toString() : '-1'}
                 }
             }));
         }
