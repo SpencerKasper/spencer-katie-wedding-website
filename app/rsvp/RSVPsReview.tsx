@@ -21,6 +21,8 @@ export const RSVPsReview = ({rsvps, setRsvps}: { rsvps: RSVP[], setRsvps: (value
                     </div>
                     <div className={'flex justify-between flex-wrap'}>
                         {rsvp.isAttending ? <p>Dinner Choice: {rsvp.dinnerChoice}</p> : <></>}
+                    </div>
+                    <div>
                         {rsvp.dietaryRestrictions && rsvp.dietaryRestrictions !== '' ?
                             <p>Dietary Restrictions: {rsvp.dietaryRestrictions}</p> :
                             <></>
