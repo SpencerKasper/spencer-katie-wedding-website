@@ -1,4 +1,10 @@
-import {SendEmailCommand, SendTemplatedEmailCommand, SESClient} from '@aws-sdk/client-ses';
+import {
+    CreateTemplateCommand,
+    SendEmailCommand,
+    SendTemplatedEmailCommand,
+    SESClient,
+    UpdateTemplateCommand
+} from '@aws-sdk/client-ses';
 
 const getSESClient = () => new SESClient({
     region: 'us-east-1',
@@ -52,3 +58,29 @@ export const sendTemplateEmail = async ({template, templateData, toAddresses}) =
     const command = new SendTemplatedEmailCommand(input);
     return sesClient.send(command);
 };
+
+export const createEmailTemplate = async ({name, subject, html}) => {
+    const sesClient = getSESClient();
+    const input = {
+        Template: {
+            TemplateName: name,
+            SubjectPart: subject,
+            HtmlPart: html,
+        },
+    };
+    const command = new CreateTemplateCommand(input);
+    return sesClient.send(command);
+}
+
+export const updateEmailTemplate = async ({name, subject, html}) => {
+    const sesClient = getSESClient();
+    const input = {
+        Template: {
+            TemplateName: name,
+            SubjectPart: subject,
+            HtmlPart: html,
+        },
+    };
+    const command = new UpdateTemplateCommand(input);
+    return sesClient.send(command);
+}

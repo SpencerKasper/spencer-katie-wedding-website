@@ -6,7 +6,7 @@ import {RSVP} from "@/types/rsvp";
 import {Guest} from "@/types/guest";
 import {getSearchParams} from "@/app/api/helpers/param-util";
 import {GUESTLIST_TABLE_NAME, RSVPS_TABLE_NAME} from "@/app/api/constants/dynamo";
-import {sendEmail} from "@/app/api/aws-clients/send-email";
+import {sendTemplateEmail} from "@/app/api/aws-clients/send-email";
 
 export const dynamic = 'force-dynamic';
 
@@ -39,6 +39,10 @@ export async function GET(request) {
         return NextResponse.json({error: e});
     }
 
+}
+
+function getGuestName(rsvp: RSVP) {
+    return `${rsvp.guest.firstName} ${rsvp.guest.lastName}`;
 }
 
 export async function POST(request) {
@@ -79,7 +83,8 @@ export async function POST(request) {
                             zipCode: {S: rsvpGuest.zipCode},
                             state: {S: rsvpGuest.state},
                             emailAddress: {S: rsvpGuest.emailAddress},
-                            phoneNumber: {S: rsvpGuest.phoneNumber},
+                            phoneNumber: {S: rsvpGuest.phoneNumber.toString()},
+                            tableNumber: {N: rsvpGuest.tableNumber ? rsvpGuest.tableNumber.toString() : '-1'},
                             ...(rsvpGuest.partyId && rsvpGuest.partyId !== '' ? {partyId: {S: rsvpGuest.partyId}} : {}),
                         }
                     },
@@ -88,12 +93,24 @@ export async function POST(request) {
                     dietaryRestrictions: {S: rsvp.dietaryRestrictions ? rsvp.dietaryRestrictions : ''}
                 }
             }));
-            console.error(response);
         }
-        console.error('sending email...')
-        await sendEmail({
-            subject: `You have successfully sent your RSVP to Katie and Spencer's wedding!`,
-            text: `Thanks for RSVPing to Katie and Spencer's wedding.  Your options will be listed below eventually.`,
+        // console.error('sending email...');
+        const guestNames = rsvps.map(rsvp => getGuestName(rsvp));
+        const allGuestsButLastPart = `${guestNames.slice(0, -1).join(', ')}`;
+        const lastGuestName = guestNames[guestNames.length - 1];
+        const lastGuest = rsvps.length === 2 ? ` and ${lastGuestName}` : `, and ${lastGuestName}`;
+        const greetingName = rsvps.length === 1 ? getGuestName(rsvps[0]) : `${allGuestsButLastPart}${lastGuest}`;
+        await sendTemplateEmail({
+            template: 'wedding-rsvp-response-template',
+            templateData: JSON.stringify({
+                greetingName: greetingName,
+                rsvps: rsvps.map(rsvp => ({
+                    name: getGuestName(rsvp),
+                    isAttending: rsvp.isAttending ? 'Yes' : 'No',
+                    dinnerChoice: rsvp.dinnerChoice ? rsvp.dinnerChoice : 'N/A',
+                    dietaryRestrictions: rsvp.dietaryRestrictions ? rsvp.dietaryRestrictions : 'N/A',
+                }))
+            }),
             toAddresses: ['spencer.kasper@gmail.com'],
         });
         return NextResponse.json({
