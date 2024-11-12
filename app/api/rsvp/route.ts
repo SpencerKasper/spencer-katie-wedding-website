@@ -90,6 +90,7 @@ export async function POST(request) {
             }));
             console.error(response);
         }
+        console.error('sending email...')
         await sendEmail({
             subject: `You have successfully sent your RSVP to Katie and Spencer's wedding!`,
             text: `Thanks for RSVPing to Katie and Spencer's wedding.  Your options will be listed below eventually.`,
