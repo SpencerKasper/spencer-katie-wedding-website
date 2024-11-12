@@ -94,7 +94,6 @@ export async function POST(request) {
                 }
             }));
         }
-        // console.error('sending email...');
         const guestNames = rsvps.map(rsvp => getGuestName(rsvp));
         const allGuestsButLastPart = `${guestNames.slice(0, -1).join(', ')}`;
         const lastGuestName = guestNames[guestNames.length - 1];
@@ -111,8 +110,22 @@ export async function POST(request) {
                     dietaryRestrictions: rsvp.dietaryRestrictions ? rsvp.dietaryRestrictions : 'N/A',
                 }))
             }),
-            toAddresses: ['spencer.kasper@gmail.com'],
+            toAddresses: rsvps
+                .map(rsvp => rsvp.guest.emailAddress)
+                .filter(email => email !== ''),
         });
+        await sendTemplateEmail({
+            template: 'wedding-rsvp-alert-template',
+            templateData: JSON.stringify({
+                rsvps: rsvps.map(rsvp => ({
+                    name: getGuestName(rsvp),
+                    isAttending: rsvp.isAttending ? 'Yes' : 'No',
+                    dinnerChoice: rsvp.dinnerChoice ? rsvp.dinnerChoice : 'N/A',
+                    dietaryRestrictions: rsvp.dietaryRestrictions ? rsvp.dietaryRestrictions : 'N/A',
+                }))
+            }),
+            toAddresses: ['skkasper7@gmail.com'],
+        })
         return NextResponse.json({
             rsvps,
             statusCode: 200
