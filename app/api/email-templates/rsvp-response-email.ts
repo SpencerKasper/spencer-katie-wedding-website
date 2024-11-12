@@ -10,16 +10,22 @@ const emailTemplate = {
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <style>
-                    /*body {*/
-                    /*    background-image: linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url(https://spencer-katie-wedding-website.s3.amazonaws.com/engagement-photos/compressed/spencer-katie-engagement-10.jpg);*/
-                    /*}*/
+                    .body {
+                        padding:8px;
+                        background-size: 516px;
+                        background-image: linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url(https://spencer-katie-wedding-website.s3.amazonaws.com/engagement-photos/compressed/spencer-katie-engagement-10.jpg);
+                        color: white;
+                        width: 509px;
+                        height: 754px;
+                        font-size: 14px;
+                    }
                     .guest-name {
                         font-size: 14px;
                         font-weight: bold;
                     }
                 </style>
             </head>
-            <body>
+            <body class="body">
                 <div>
                     <p>Hi {{greetingName}},</p>
                     <p>Thanks for sending in your RSVP for Katie and Spencer's wedding!  We have received it.  Here are the responses we got:</p>

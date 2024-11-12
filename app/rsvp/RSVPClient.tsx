@@ -167,8 +167,10 @@ export default function RSVPClient() {
                                 <div><RSVPPill rsvp={rsvp}/></div>
                             </div>
                             {rsvp.isAttending ?
-                                <div className={'flex flex-wrap justify-between'}>
-                                    <p>{`Dinner Choice: ${rsvp.dinnerChoice}`}</p>
+                                <div className={'flex flex-col'}>
+                                    <div>
+                                        <p>{`Dinner Choice: ${rsvp.dinnerChoice}`}</p>
+                                    </div>
                                     <div>
                                         <p>{`Dietary Restrictions: ${rsvp.dietaryRestrictions && rsvp.dietaryRestrictions !== '' ? rsvp.dietaryRestrictions : 'N/A'}`}</p>
                                     </div>

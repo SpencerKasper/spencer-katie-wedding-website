@@ -7,6 +7,8 @@ import {Guest} from "@/types/guest";
 import {getSearchParams} from "@/app/api/helpers/param-util";
 import {GUESTLIST_TABLE_NAME, RSVPS_TABLE_NAME} from "@/app/api/constants/dynamo";
 import {sendTemplateEmail} from "@/app/api/aws-clients/send-email";
+import {updateRsvpResponseEmailTemplate} from "@/app/api/email-templates/rsvp-response-email";
+import {APP_MODE} from "@/constants/app-constants";
 
 export const dynamic = 'force-dynamic';
 
@@ -47,6 +49,7 @@ function getGuestName(rsvp: RSVP) {
 
 export async function POST(request) {
     try {
+        await updateRsvpResponseEmailTemplate();
         const dynamo = await getDynamoDbClient();
         const guestListResponse = await dynamo.send(new ScanCommand({
             TableName: GUESTLIST_TABLE_NAME,
@@ -110,22 +113,22 @@ export async function POST(request) {
                     dietaryRestrictions: rsvp.dietaryRestrictions ? rsvp.dietaryRestrictions : 'N/A',
                 }))
             }),
-            toAddresses: rsvps
-                .map(rsvp => rsvp.guest.emailAddress)
-                .filter(email => email !== ''),
+            toAddresses: ['spencer.kasper@gmail.com'],
         });
-        await sendTemplateEmail({
-            template: 'wedding-rsvp-alert-template',
-            templateData: JSON.stringify({
-                rsvps: rsvps.map(rsvp => ({
-                    name: getGuestName(rsvp),
-                    isAttending: rsvp.isAttending ? 'Yes' : 'No',
-                    dinnerChoice: rsvp.dinnerChoice ? rsvp.dinnerChoice : 'N/A',
-                    dietaryRestrictions: rsvp.dietaryRestrictions ? rsvp.dietaryRestrictions : 'N/A',
-                }))
-            }),
-            toAddresses: ['skkasper7@gmail.com'],
-        })
+        if (APP_MODE !== 'SAVE_THE_DATE') {
+            await sendTemplateEmail({
+                template: 'wedding-rsvp-alert-template',
+                templateData: JSON.stringify({
+                    rsvps: rsvps.map(rsvp => ({
+                        name: getGuestName(rsvp),
+                        isAttending: rsvp.isAttending ? 'Yes' : 'No',
+                        dinnerChoice: rsvp.dinnerChoice ? rsvp.dinnerChoice : 'N/A',
+                        dietaryRestrictions: rsvp.dietaryRestrictions ? rsvp.dietaryRestrictions : 'N/A',
+                    }))
+                }),
+                toAddresses: ['skkasper7@gmail.com'],
+            });
+        }
         return NextResponse.json({
             rsvps,
             statusCode: 200
