@@ -30,18 +30,16 @@ export default function RootLayout({
         >
         <Background>
             <MantineProvider>
-                <div className={'min-h-screen fit-content flex flex-col'}>
+                <div className={'min-h-screen flex flex-col'}>
                     <WebsiteHeader/>
                     <div>
                         {children}
                     </div>
-                    <footer>
-                        <div className={'flex p-4 text-white justify-center'}>
-                            <p>If you have any issues with the site at all, please text Spencer at 224-567-9847 ASAP and
-                                he will
-                                help!</p>
-                        </div>
-                    </footer>
+                    <div className={'p-4 text-white text-center mt-auto'}>
+                        <p>If you have any issues with the site at all, please text Spencer at 224-567-9847 ASAP and
+                            he will
+                            help!</p>
+                    </div>
                 </div>
             </MantineProvider>
         </Background>

@@ -12,7 +12,7 @@ const emailTemplate = {
                 <style>
                     .body {
                         padding:8px;
-                        background-size: 516px;
+                        background-size: contain;
                         background-image: linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url(https://spencer-katie-wedding-website.s3.amazonaws.com/engagement-photos/compressed/spencer-katie-engagement-10.jpg);
                         color: white;
                         width: 509px;

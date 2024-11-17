@@ -8,7 +8,7 @@ import {getSearchParams} from "@/app/api/helpers/param-util";
 import {GUESTLIST_TABLE_NAME, RSVPS_TABLE_NAME} from "@/app/api/constants/dynamo";
 import {sendTemplateEmail} from "@/app/api/aws-clients/send-email";
 import {updateRsvpResponseEmailTemplate} from "@/app/api/email-templates/rsvp-response-email";
-import {APP_MODE} from "@/constants/app-constants";
+import {APP_MODE, KATIE_SPENCER_EMAIL, SPENCER_EMAIL} from "@/constants/app-constants";
 
 export const dynamic = 'force-dynamic';
 
@@ -113,7 +113,11 @@ export async function POST(request) {
                     dietaryRestrictions: rsvp.dietaryRestrictions ? rsvp.dietaryRestrictions : 'N/A',
                 }))
             }),
-            toAddresses: ['spencer.kasper@gmail.com'],
+            toAddresses: APP_MODE === 'SAVE_THE_DATE' ?
+                [SPENCER_EMAIL] :
+                rsvps
+                    .map(rsvp => rsvp.guest.emailAddress)
+                    .filter(emailAddress => emailAddress && emailAddress.trim() !== ''),
         });
         if (APP_MODE !== 'SAVE_THE_DATE') {
             await sendTemplateEmail({
@@ -126,7 +130,7 @@ export async function POST(request) {
                         dietaryRestrictions: rsvp.dietaryRestrictions ? rsvp.dietaryRestrictions : 'N/A',
                     }))
                 }),
-                toAddresses: ['skkasper7@gmail.com'],
+                toAddresses: [KATIE_SPENCER_EMAIL],
             });
         }
         return NextResponse.json({
