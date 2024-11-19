@@ -16,6 +16,7 @@ const EmailModal = ({loggedInGuest}: {loggedInGuest: Guest}) => {
         }
     });
     const [isOpen, setIsOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         const hasInvalidEmailAddress = loggedInGuest && (!loggedInGuest.emailAddress || loggedInGuest.emailAddress === '');
@@ -30,7 +31,9 @@ const EmailModal = ({loggedInGuest}: {loggedInGuest: Guest}) => {
             <form
                 className={'flex flex-col justify-center items-center p-4 gap-4'}
                 onSubmit={form.onSubmit(async (formValues) => {
+                    setIsLoading(true);
                     await axios.patch(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist`, {guestId: loggedInGuest.guestId, emailAddress: formValues.emailAddress});
+                    setIsLoading(false);
                     setIsOpen(false);
                 })}
             >
@@ -41,6 +44,7 @@ const EmailModal = ({loggedInGuest}: {loggedInGuest: Guest}) => {
                 </p>
                 <div className={'w-full'}>
                     <TextInput
+                        disabled={isLoading}
                         required
                         placeholder={'Please Enter Your Email'}
                         key={form.key('emailAddress')}
@@ -48,7 +52,7 @@ const EmailModal = ({loggedInGuest}: {loggedInGuest: Guest}) => {
                     />
                 </div>
                 <div>
-                    <Button type='submit' variant={'outline'}>Save</Button>
+                    <Button loading={isLoading} type='submit' variant={'outline'}>Save</Button>
                 </div>
             </form>
         </Modal>
