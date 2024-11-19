@@ -1,6 +1,6 @@
 'use client';
 import {Button, Modal, TextInput} from "@mantine/core";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {useForm} from "@mantine/form";
 import {Guest} from "@/types/guest";
 import axios from "axios";
@@ -15,10 +15,12 @@ const EmailModal = ({loggedInGuest}: {loggedInGuest: Guest}) => {
             emailAddress: (value) => (/^\S+@\S+$/.test(value) || value.trim() === '' ? null : 'Invalid email'),
         }
     });
-    console.error(loggedInGuest);
-    const hasInvalidEmailAddress = loggedInGuest && (!loggedInGuest.emailAddress || loggedInGuest.emailAddress === '');
-    console.error(hasInvalidEmailAddress);
-    const [isOpen, setIsOpen] = useState(hasInvalidEmailAddress);
+    const [isOpen, setIsOpen] = useState(false);
+
+    useEffect(() => {
+        const hasInvalidEmailAddress = loggedInGuest && (!loggedInGuest.emailAddress || loggedInGuest.emailAddress === '');
+        setIsOpen(hasInvalidEmailAddress);
+    }, [loggedInGuest]);
     return (
         <Modal
             opened={isOpen}

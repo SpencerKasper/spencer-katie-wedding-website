@@ -14,6 +14,7 @@ import {Guest} from "@/types/guest";
 import {RSVPPill} from "@/app/rsvp/RSVPPill";
 import {RSVPsReview} from "@/app/rsvp/RSVPsReview";
 import useLoggedInGuest from "@/app/hooks/useLoggedInGuest";
+import EmailModal from "@/app/EmailModal";
 
 const NUMBER_OF_PAGES = 2;
 
@@ -213,6 +214,7 @@ export default function RSVPClient() {
     return (
         <div>
             <Skeleton visible={isLoading}>
+                <EmailModal loggedInGuest={loggedInGuest}/>
                 <div className={'flex justify-center'}>
                     <Card className={'max-w-lg'}>
                         {rsvps.length ?

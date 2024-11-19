@@ -1,8 +1,11 @@
 import {QuestionAndAnswer} from "@/app/faq/QuestionAndAnswer";
 import {Divider} from "@mantine/core";
 import {APP_MODE, RSVP_DEADLINE} from "@/constants/app-constants";
+import EmailModal from "@/app/EmailModal";
+import useLoggedInGuest from "@/app/hooks/useLoggedInGuest";
 
 export default async function FAQPage() {
+    const {loggedInGuest} = useLoggedInGuest();
     const isSaveTheDateMode = APP_MODE === 'SAVE_THE_DATE';
     const questionsAndAnswers = [
         {
@@ -48,6 +51,7 @@ export default async function FAQPage() {
     ]
     return (
         <div className={'text-white'}>
+            <EmailModal loggedInGuest={loggedInGuest}/>
             <div className={'w-full text-center'}>
                 <h1 className={'text-7xl'}>FAQ</h1>
             </div>
