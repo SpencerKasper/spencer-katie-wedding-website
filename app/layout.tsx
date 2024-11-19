@@ -5,8 +5,6 @@ import '@mantine/core/styles.css';
 import {ColorSchemeScript, MantineProvider} from '@mantine/core';
 import Background from "@/app/background";
 import {WebsiteHeader} from "@/app/WebsiteHeader";
-import SaveTheDate from '@/app/SaveTheDate';
-import {APP_MODE} from "@/constants/app-constants";
 
 export const metadata: Metadata = {
     title: "Riek + Kasper Wedding",

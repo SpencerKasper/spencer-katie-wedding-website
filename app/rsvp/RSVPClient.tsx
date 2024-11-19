@@ -6,7 +6,6 @@ import {
     FIRST_NAME_LOCAL_STORAGE_KEY,
     LAST_NAME_LOCAL_STORAGE_KEY,
     PASSWORD_LOCAL_STORAGE_KEY,
-    validateLoginInfo
 } from "@/app/loginPageClient";
 import axios from "axios";
 import {useForm} from "@mantine/form";
@@ -14,27 +13,36 @@ import {RSVP} from "@/types/rsvp";
 import {Guest} from "@/types/guest";
 import {RSVPPill} from "@/app/rsvp/RSVPPill";
 import {RSVPsReview} from "@/app/rsvp/RSVPsReview";
+import useLoggedInGuest from "@/app/hooks/useLoggedInGuest";
 
 const NUMBER_OF_PAGES = 2;
 
 const IS_ATTENDING_POSTFIX = '_isAttending';
 
 export default function RSVPClient() {
-    const [guest, setGuest] = useState(null as Guest);
+    const {loggedInGuest} = useLoggedInGuest();
     const [guestsInParty, setGuestsInParty] = useState([] as Guest[]);
     const [rsvpPage, setRsvpPage] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [rsvps, setRsvps] = useState([] as RSVP[]);
 
     useEffect(() => {
-        if (guest) {
-            const query = guest.partyId ? `partyId=${guest.partyId}` : `guestIds=${guest.guestId}`;
+        if (loggedInGuest) {
+            const partyId = loggedInGuest.partyId;
+            if (partyId && partyId !== '') {
+                axios.get(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist?partyId=${partyId}`)
+                    .then(guestListResponse => {
+                        setGuestsInParty(guestListResponse.data.guests);
+                        setIsLoading(false);
+                    });
+            }
+            const query = loggedInGuest.partyId ? `partyId=${loggedInGuest.partyId}` : `guestIds=${loggedInGuest.guestId}`;
             axios.get(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/rsvp?${query}`)
                 .then(getRsvpsResponse => {
                     setRsvps(getRsvpsResponse.data.rsvps);
                 });
         }
-    }, [guest]);
+    }, [loggedInGuest]);
 
     const FIELDS = ['isAttending', 'dinnerChoice', 'dietaryRestrictions'];
     const FIELD_DEFAULTS = {
@@ -65,25 +73,6 @@ export default function RSVPClient() {
 
     const attendingGuests = guestsInParty
         .filter(removeGuestsWhoAreNotAttending);
-
-    useEffect(() => {
-        setIsLoading(true);
-        validateLoginInfo({
-            firstName: localStorage.getItem(FIRST_NAME_LOCAL_STORAGE_KEY),
-            lastName: localStorage.getItem(LAST_NAME_LOCAL_STORAGE_KEY),
-            password: localStorage.getItem(PASSWORD_LOCAL_STORAGE_KEY),
-        }).then(response => {
-            setGuest(response.guest);
-            const partyId = response.guest.partyId;
-            if (partyId && partyId !== '') {
-                axios.get(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist?partyId=${partyId}`)
-                    .then(guestListResponse => {
-                        setGuestsInParty(guestListResponse.data.guests);
-                        setIsLoading(false);
-                    });
-            }
-        });
-    }, []);
 
     const incrementRsvpPage = () => {
         setRsvpPage(rsvpPage + 1);

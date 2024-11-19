@@ -3,7 +3,7 @@ import {useState} from "react";
 import {Button, ActionIcon, MantineColor, Loader} from "@mantine/core";
 import {IconArrowLeft, IconArrowRight} from '@tabler/icons-react';
 import {useHotkeys} from "@mantine/hooks";
-import useSwipe from "@/app/effects/useSwipe";
+import useSwipe from "@/app/hooks/useSwipe";
 import {FullScreen, useFullScreenHandle} from "react-full-screen";
 
 const EngagementPhotos = () => {

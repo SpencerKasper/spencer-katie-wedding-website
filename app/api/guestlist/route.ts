@@ -3,7 +3,7 @@ import {NextRequest, NextResponse} from 'next/server';
 import getDynamoDbClient from "@/app/api/aws-clients/dynamodb-client";
 import {PutItemCommand} from "@aws-sdk/client-dynamodb";
 import {Guest} from "@/types/guest";
-import { v4 as uuidv4 } from 'uuid';
+import {v4 as uuidv4} from 'uuid';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,17 +35,29 @@ const isNullOrEmptyString = (value) => {
 export async function POST(request) {
     try {
         const guest = await request.json() as Guest;
-        const {firstName, lastName, phoneNumber, emailAddress, address, address2, city, state, zipCode, guestPartyMember, tableNumber} = guest;
-        if(isNullOrEmptyString(firstName) || isNullOrEmptyString(lastName)) {
+        const {
+            firstName,
+            lastName,
+            phoneNumber,
+            emailAddress,
+            address,
+            address2,
+            city,
+            state,
+            zipCode,
+            guestPartyMember,
+            tableNumber
+        } = guest;
+        if (isNullOrEmptyString(firstName) || isNullOrEmptyString(lastName)) {
             return NextResponse.json({error: 'You must provide both first and last name.'});
         }
         const getPartyId = async () => {
             const partyMemberIsDefined = guestPartyMember && guestPartyMember.trim() !== '';
-            if(!partyMemberIsDefined) {
+            if (!partyMemberIsDefined) {
                 return '';
             }
             const foundPartyMember = guests.find(g => `${g.firstName} ${g.lastName}` === guestPartyMember);
-            if(foundPartyMember && foundPartyMember.partyId && foundPartyMember.partyId !== '') {
+            if (foundPartyMember && foundPartyMember.partyId && foundPartyMember.partyId !== '') {
                 return foundPartyMember.partyId;
             }
 
@@ -72,7 +84,7 @@ export async function POST(request) {
         }));
         const guests = response.Items as Guest[];
         const foundGuest = guests.find(g => `${g.firstName} ${g.lastName}` === `${firstName} ${lastName}`);
-        if(foundGuest) {
+        if (foundGuest) {
             await dynamo.send(new UpdateCommand({
                 TableName: WEDDING_GUEST_LIST_TABLE,
                 Key: {
@@ -129,6 +141,40 @@ export async function POST(request) {
         return NextResponse.json({guests: updatedGuests});
     } catch (e) {
         console.error(e);
-        return NextResponse.json({error: e})
+        return NextResponse.json({statusCode: 500, message: e})
+    }
+}
+
+export const PATCH = async (request) => {
+    try {
+        const body = await request.json() as Partial<Guest>;
+        if(!body.guestId) {
+            return NextResponse.json({statusCode: 400, message: 'The "guestId" you wish to update is required.'});
+        }
+        if(!body.emailAddress) {
+            return NextResponse.json({statusCode: 400, message: 'At least one field to update is required of the following: emailAddress.'})
+        }
+        const dynamo = await getDynamoDbClient();
+        await dynamo.send(new UpdateCommand({
+            TableName: WEDDING_GUEST_LIST_TABLE,
+            Key: {
+                guestId: body.guestId
+            },
+            UpdateExpression: `set #emailAddress = :emailAddress`,
+            ExpressionAttributeNames: {
+                "#emailAddress": "emailAddress"
+            },
+            ExpressionAttributeValues: {
+                ":emailAddress": body.emailAddress
+            }
+        }));
+        const response = await dynamo.send(new ScanCommand({
+            TableName: WEDDING_GUEST_LIST_TABLE,
+        }));
+        const guests = response.Items;
+        return NextResponse.json({guests, statusCode: 200});
+    } catch (e) {
+        console.error(e);
+        return NextResponse.json({statusCode: 500, message: e});
     }
 }

@@ -26,8 +26,8 @@ export default async function FAQPage() {
             answer: 'Cocktail attire. We suggest that men wear a suit or dress shirt with tie and women wear a dress or dressy separates.'
         },
         {
-            question: 'Will the wedding being indoors or outdoors?',
-            answer: 'The ceremony will be outdoors if weather permits followed by an indoor reception.  The cocktail hour will take place outdoors if weather permits as well.'
+            question: 'Will the wedding be indoors or outdoors?',
+            answer: 'The ceremony will be outdoors if weather permits followed by an indoor reception.  The cocktail hour will take place outdoors if weather permits as well. Please dress comfortably and plan for the weather.'
         },
         ...(isSaveTheDateMode ? [] : [{
             question: 'What time should I arrive for the ceremony?',
@@ -35,11 +35,11 @@ export default async function FAQPage() {
         }]),
         {
             question: 'Are children invited to attend the wedding and reception?',
-            answer: 'This is going to be an 18+ event. We respectfully request no children under 18 at the reception.'
+            answer: 'While we love your little ones, we have chosen to make this event an adults only celebration.'
         },
         {
             question: 'Can I bring a plus one?',
-            answer: 'If your invite was addressed with a plus one, then yes! Otherwise, no. Save the date may not include plus ones so wait for the invite for that.'
+            answer: 'We are only able to accommodate those listed on your invitation. Thank you for your understanding and we can\'t wait to celebrate with you!'
         },
         ...(isSaveTheDateMode ? [] : [{
             question: 'What if I have food allergies or dietary restrictions?',

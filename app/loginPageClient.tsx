@@ -6,6 +6,7 @@ import {useEffect, useState} from "react";
 import {Button, Loader, Notification, PasswordInput, TextInput} from "@mantine/core";
 import axios from "axios";
 import {OverrideFont} from "@/app/components/OverrideFont";
+import useLoggedInGuest from "@/app/hooks/useLoggedInGuest";
 
 export const FIRST_NAME_LOCAL_STORAGE_KEY = 'WEDDING_FIRST_NAME';
 export const LAST_NAME_LOCAL_STORAGE_KEY = 'WEDDING_LAST_NAME';
@@ -27,27 +28,8 @@ export const validateLoginInfo = async (loginInfo) => {
 export default function LoginPageClient() {
     const router = useRouter();
     const [hasError, setHasError] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
     const [isLoggingIn, setIsLoggingIn] = useState(false);
-    useEffect(() => {
-        const firstName = localStorage.getItem(FIRST_NAME_LOCAL_STORAGE_KEY);
-        const lastName = localStorage.getItem(LAST_NAME_LOCAL_STORAGE_KEY);
-        const password = localStorage.getItem(PASSWORD_LOCAL_STORAGE_KEY);
-        if (firstName && lastName && password && firstName !== '' && lastName !== '' && password !== '') {
-            validateLoginInfo({firstName, lastName, password})
-                .then(response => {
-                    if (response.isAuthorized) {
-                        router.push('/home');
-                        setIsLoading(false);
-                    } else {
-                        setIsLoading(false);
-                    }
-                });
-        } else {
-            console.error('not loading')
-            setIsLoading(false);
-        }
-    }, []);
+    const {validateLoginInfo, isLoading} = useLoggedInGuest()
 
     const form = useForm({
         mode: 'uncontrolled',
@@ -64,7 +46,6 @@ export default function LoginPageClient() {
             setIsLoggingIn(false);
             router.push('/home');
         } else {
-            setIsLoading(false);
             setHasError(true);
             setIsLoggingIn(false);
         }

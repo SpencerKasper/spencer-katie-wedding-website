@@ -33,8 +33,9 @@ export function GuestListTable() {
             }) :
         [];
     const minItemIndex = (paginationInfo.currentPage - 1) * paginationInfo.guestsPerPage;
-    const maxItemIndex = paginationInfo.currentPage * paginationInfo.guestsPerPage;
-    const sortedGuests = [...matchingSearchCriteria, ...includedPartyMembers]
+    const allMatchingGuests = [...matchingSearchCriteria, ...includedPartyMembers];
+    const maxItemIndex = Math.min(paginationInfo.currentPage * paginationInfo.guestsPerPage, allMatchingGuests.length);
+    const sortedGuests = allMatchingGuests
         .sort((a, b) => a.partyId > b.partyId ? -1 : 1)
         .filter((g, index) => index >= minItemIndex && index < maxItemIndex);
     const guestRows = [];

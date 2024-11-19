@@ -1,7 +1,7 @@
 'use client';
 import EngagementPhotos from "@/app/components/EngagementPhotos";
 import {Button} from '@mantine/core';
-import useSwipe from "@/app/effects/useSwipe";
+import useSwipe from "@/app/hooks/useSwipe";
 
 export default function EngagementPhotosPage() {
     return (
