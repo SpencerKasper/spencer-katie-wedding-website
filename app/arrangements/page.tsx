@@ -4,10 +4,8 @@ import EmailModal from "@/app/EmailModal";
 import useLoggedInGuest from "@/app/hooks/useLoggedInGuest";
 
 export default function ArrangementsPage() {
-    const {loggedInGuest} = useLoggedInGuest();
     return (
         <div className={'flex flex-col justify-center items-center auto-rows-fr gap-4 md:gap-8 p-4 md:p-16'}>
-            <EmailModal loggedInGuest={loggedInGuest}/>
             <HotelImage
                 isVenue
                 notes={'This is where the wedding and reception is happening! We have a wedding block here.'}

@@ -4,10 +4,13 @@ import {useLocalStorage} from "@mantine/hooks";
 import {useEffect} from "react";
 import {OverrideFont} from "@/app/components/OverrideFont";
 import {APP_MODE} from "@/constants/app-constants";
+import useLoggedInGuest from "@/app/hooks/useLoggedInGuest";
+import EmailModal from "@/app/EmailModal";
 
 export const IS_CURSIVE_KEY = 'WEDDING_WEBSITE_IS_CURSIVE';
 
 export function WebsiteHeader() {
+    const {loggedInGuest} = useLoggedInGuest();
     const ArrangementsButton = <Button component={"a"} href={"/arrangements"} variant={"outline"}
                                        color={"white"}>Arrangements</Button>;
     const FAQButton = <Button component={"a"} href={"/faq"} variant={"outline"} color={"white"}>FAQ</Button>;
@@ -15,10 +18,11 @@ export function WebsiteHeader() {
     const EngagementPhotosButton = <Button component={"a"} href={"/engagement-photos"} variant={"outline"} color={"white"}>Engagement Photos</Button>;
     return (
         <OverrideFont>
-            <div className={'flex flex-col'}>
-                <div className={'flex justify-between align-center'}>
-                    <div></div>
-                    <div className={"flex justify-center align-center p-8 gap-4 flex-wrap"}>
+            <EmailModal loggedInGuest={loggedInGuest}/>
+            <div className={'flex flex-col text-white'}>
+                <div className={'flex flex-col sm:flex-row sm:justify-between sm:align-center'}>
+                    <div className={'sm:w-1/4'}></div>
+                    <div className={"flex justify-center align-center p-8 gap-4 flex-wrap sm:w-1/2"}>
                         {APP_MODE === 'FULL' ?
                             <>
                                 {HomeButton}
@@ -39,7 +43,7 @@ export function WebsiteHeader() {
                             </>
                         }
                     </div>
-                    <div></div>
+                    <div className={'sm:w-1/4 flex justify-center pt-8'}>{loggedInGuest ? `Welcome, ${loggedInGuest.firstName} ${loggedInGuest.lastName}!` : ''}</div>
                 </div>
             </div>
         </OverrideFont>
