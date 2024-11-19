@@ -5,6 +5,7 @@ import '@mantine/core/styles.css';
 import {ColorSchemeScript, MantineProvider} from '@mantine/core';
 import Background from "@/app/background";
 import {WebsiteHeader} from "@/app/WebsiteHeader";
+import StoreProvider from "@/app/StoreProvider";
 
 export const metadata: Metadata = {
     title: "Riek + Kasper Wedding",
@@ -28,17 +29,19 @@ export default function RootLayout({
         >
         <Background>
             <MantineProvider>
-                <div className={'min-h-screen flex flex-col'}>
-                    <WebsiteHeader/>
-                    <div>
-                        {children}
+                <StoreProvider>
+                    <div className={'min-h-screen flex flex-col'}>
+                        <WebsiteHeader/>
+                        <div>
+                            {children}
+                        </div>
+                        <div className={'p-4 text-white text-center mt-auto'}>
+                            <p>If you have any issues with the site at all, please text Spencer at 224-567-9847 ASAP and
+                                he will
+                                help!</p>
+                        </div>
                     </div>
-                    <div className={'p-4 text-white text-center mt-auto'}>
-                        <p>If you have any issues with the site at all, please text Spencer at 224-567-9847 ASAP and
-                            he will
-                            help!</p>
-                    </div>
-                </div>
+                </StoreProvider>
             </MantineProvider>
         </Background>
         </body>

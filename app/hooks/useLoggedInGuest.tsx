@@ -9,6 +9,9 @@ import {
 } from "@/app/loginPageClient";
 import axios from "axios";
 import {useRouter} from "next/navigation";
+import {useAppDispatch, useAppSelector} from "@/lib/hooks";
+import {setLoggedInGuest} from "@/lib/reducers/appReducer";
+import {RootState} from "@/lib/store";
 
 
 interface AuthorizationResponse {isAuthorized: boolean; guest: Guest}
@@ -20,8 +23,9 @@ interface UseLoggedInGuestOutput {
 }
 
 export default (): UseLoggedInGuestOutput => {
+    const loggedInGuest = useAppSelector((state) => state.app.loggedInGuest);
     const router = useRouter();
-    const [loggedInGuest, setLoggedInGuest] = useState(null as Guest);
+    const dispatch = useAppDispatch();
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -32,7 +36,8 @@ export default (): UseLoggedInGuestOutput => {
             validateLoginInfo({firstName, lastName, password})
                 .then(response => {
                     if (response.isAuthorized) {
-                        setLoggedInGuest(response.guest);
+                        const guest = response.guest as Guest;
+                        dispatch(setLoggedInGuest({loggedInGuest: guest}));
                         setIsLoading(false);
                     } else {
                         setIsLoading(false);
