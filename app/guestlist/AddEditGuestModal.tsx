@@ -23,6 +23,7 @@ const AddEditGuestModal = ({
                                selectedGuest = null,
                                setSelectedGuest
                            }: AddEditGuestModalProps) => {
+    const [guestsAtTable, setGuestsAtTable] = useState(guests.filter(g => g.tableNumber === 1));
     const [zipCode, setZipCode] = useState(selectedGuest ? selectedGuest.zipCode : '');
     const getGuestPartyMember = (initialGuest: Guest) => {
         const foundGuest = guests.find(guest => guest.guestId !== initialGuest.guestId && guest.partyId === initialGuest.partyId);
@@ -62,6 +63,11 @@ const AddEditGuestModal = ({
                 return isNaN(value) || value <= 0 ? 'Table number must be at least 1' : null;
             }
         },
+        onValuesChange: (values, previous) => {
+            if (values.tableNumber !== previous.tableNumber) {
+                setGuestsAtTable(guests.filter(g => g.tableNumber === values.tableNumber));
+            }
+        }
     });
 
     useEffect(() => {
@@ -86,8 +92,6 @@ const AddEditGuestModal = ({
         onClose();
     }
 
-    const guestsAtTable = guests
-        .filter(g => g.tableNumber === form.getValues().tableNumber);
     return (
         <Modal opened={opened} onClose={() => resetModal()} title="Add Guest" centered>
             <form
@@ -160,24 +164,25 @@ const AddEditGuestModal = ({
                         <Divider/>
                     </div>
                     <p className={'text-md'}>Table</p>
-                    {form.getValues() && form.getValues().tableNumber && guestsAtTable.length ?
-                        <div>
-                            <p className={'text-sm'}>People at Table</p>
-                            <List>
-                                {guestsAtTable
-                                    .map((g, index) => (
-                                        <List.Item key={`guest-at-table-${index}`}>{`- ${g.firstName} ${g.lastName}`}</List.Item>))
-                                }
-                            </List>
-                        </div> :
-                        <></>
-                    }
                     <NumberInput
                         label={'Table Number'}
                         placeholder={'Enter a Table Number'}
                         key={form.key('tableNumber')}
                         {...form.getInputProps('tableNumber')}
                     />
+                    {guestsAtTable.length ?
+                        <div>
+                            <p className={'text-sm'}>People at Table</p>
+                            <List>
+                                {guestsAtTable
+                                    .map((g, index) => (
+                                        <List.Item
+                                            key={`guest-at-table-${index}`}>{`- ${g.firstName} ${g.lastName}`}</List.Item>))
+                                }
+                            </List>
+                        </div> :
+                        <></>
+                    }
                     <div className={'py-4'}>
                         <Divider/>
                     </div>

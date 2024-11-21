@@ -4,13 +4,14 @@ import {useEffect, useState} from "react";
 import {useForm} from "@mantine/form";
 import {Guest} from "@/types/guest";
 import axios from "axios";
+import {booleanIsDefined} from "@/app/util/general-util";
 
 const EmailModal = ({loggedInGuest}: {loggedInGuest: Guest}) => {
     const form = useForm({
         mode: 'uncontrolled',
         initialValues: {
             emailAddress: loggedInGuest && loggedInGuest.emailAddress ? loggedInGuest.emailAddress : '',
-            emailOptOut: loggedInGuest && loggedInGuest.optOutOfEmail ? loggedInGuest.optOutOfEmail : false,
+            emailOptOut: loggedInGuest && booleanIsDefined(loggedInGuest.optOutOfEmail) ? loggedInGuest.optOutOfEmail : false,
         },
         validate: {
             emailAddress: (value) => (form.getValues().emailOptOut || /^\S+@\S+$/.test(value) || (value.trim() === '') ? null : 'Invalid email'),
@@ -39,7 +40,7 @@ const EmailModal = ({loggedInGuest}: {loggedInGuest: Guest}) => {
                 })}
             >
                 <p>
-                    We will use your email address only to send you notifications when you or your party RSVPs and
+                    Your email will only be seen by Spencer Kasper and Katie Riek. We will use your email address only to send you notifications when you or your party RSVPs and
                     alerts
                     related to the wedding.
                 </p>

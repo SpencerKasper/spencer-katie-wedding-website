@@ -4,6 +4,7 @@ import {Button, Card, Checkbox, Pagination, Select, Table, TextInput, Highlight}
 import AddEditGuestModal from "@/app/guestlist/AddEditGuestModal";
 import {useEffect, useState} from "react";
 import axios from "axios";
+import {booleanIsDefined} from "@/app/util/general-util";
 
 export function GuestListTable() {
     const [search, setSearch] = useState({search: '', includePartyMembers: false});
@@ -85,6 +86,7 @@ export function GuestListTable() {
                 <Table.Td>{guest.tableNumber > 0 ? guest.tableNumber : '-'}</Table.Td>
                 <Table.Td>{guest.phoneNumber ? guest.phoneNumber : '-'}</Table.Td>
                 <Table.Td>{guest.emailAddress ? guest.emailAddress : '-'}</Table.Td>
+                <Table.Td>{booleanIsDefined(guest.optOutOfEmail) ? (guest.optOutOfEmail ? 'Yes' : 'No') : '-'}</Table.Td>
             </Table.Tr>
         );
     }
@@ -128,6 +130,7 @@ export function GuestListTable() {
                             <Table.Th>Table Number</Table.Th>
                             <Table.Th>Phone Number</Table.Th>
                             <Table.Th>Email Address</Table.Th>
+                            <Table.Th>Opted Out of Email</Table.Th>
                         </Table.Tr>
                     </Table.Thead>
                     <Table.Tbody>
