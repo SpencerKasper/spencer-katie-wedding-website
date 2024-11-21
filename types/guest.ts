@@ -8,6 +8,7 @@ export interface Guest {
     state: string;
     zipCode: string;
     emailAddress: string;
+    optOutOfEmail?: boolean;
     partyId?: string;
     // This doesn't save to dynamoDb
     guestPartyMember?: string;

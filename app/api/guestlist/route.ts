@@ -4,6 +4,7 @@ import getDynamoDbClient from "@/app/api/aws-clients/dynamodb-client";
 import {PutItemCommand} from "@aws-sdk/client-dynamodb";
 import {Guest} from "@/types/guest";
 import {v4 as uuidv4} from 'uuid';
+import {booleanIsUndefined} from "@/app/util/general-util";
 
 export const dynamic = 'force-dynamic';
 
@@ -46,7 +47,8 @@ export async function POST(request) {
             state,
             zipCode,
             guestPartyMember,
-            tableNumber
+            tableNumber,
+            optOutOfEmail
         } = guest;
         if (isNullOrEmptyString(firstName) || isNullOrEmptyString(lastName)) {
             return NextResponse.json({error: 'You must provide both first and last name.'});
@@ -90,7 +92,7 @@ export async function POST(request) {
                 Key: {
                     guestId: foundGuest.guestId
                 },
-                UpdateExpression: "SET #address = :address, #address2 = :address2, #city = :city, #state = :state, #zipCode = :zipCode, #emailAddress = :emailAddress, #partyId = :partyId, #phoneNumber = :phoneNumber, #tableNumber = :tableNumber",
+                UpdateExpression: "SET #address = :address, #address2 = :address2, #city = :city, #state = :state, #zipCode = :zipCode, #emailAddress = :emailAddress, #optOutOfEmail = :optOutOfEmail, #partyId = :partyId, #phoneNumber = :phoneNumber, #tableNumber = :tableNumber",
                 ExpressionAttributeNames: {
                     "#address": "address",
                     "#address2": "address2",
@@ -98,6 +100,7 @@ export async function POST(request) {
                     "#state": "state",
                     "#zipCode": "zipCode",
                     "#emailAddress": "emailAddress",
+                    "#optOutOfEmail": "optOutOfEmail",
                     "#phoneNumber": "phoneNumber",
                     "#partyId": "partyId",
                     "#tableNumber": "tableNumber",
@@ -109,6 +112,7 @@ export async function POST(request) {
                     ":state": guest && guest.state ? guest.state : '',
                     ":zipCode": guest && guest.zipCode ? guest.zipCode : '',
                     ":emailAddress": guest && guest.emailAddress ? guest.emailAddress : '',
+                    ":optOutOfEmail": guest && !booleanIsUndefined(guest.optOutOfEmail) ? guest.optOutOfEmail : false,
                     ":phoneNumber": guest && guest.phoneNumber ? guest.phoneNumber : '',
                     ":partyId": guest ? await getPartyId() : '',
                     ":tableNumber": guest && guest.tableNumber ? guest.tableNumber : '',
@@ -123,6 +127,7 @@ export async function POST(request) {
                     lastName: {S: lastName},
                     phoneNumber: {S: phoneNumber ? phoneNumber.toString() : ''},
                     emailAddress: {S: emailAddress ? emailAddress : ''},
+                    optOutOfEmail: {BOOL: booleanIsUndefined(optOutOfEmail) ? false : optOutOfEmail},
                     address: {S: address ? address : ''},
                     address2: {S: address2 ? address2 : ''},
                     city: {S: city ? city : ''},
@@ -151,8 +156,8 @@ export const PATCH = async (request) => {
         if(!body.guestId) {
             return NextResponse.json({statusCode: 400, message: 'The "guestId" you wish to update is required.'});
         }
-        if(!body.emailAddress) {
-            return NextResponse.json({statusCode: 400, message: 'At least one field to update is required of the following: emailAddress.'})
+        if(!body.emailAddress && booleanIsUndefined(body.optOutOfEmail)) {
+            return NextResponse.json({statusCode: 400, message: 'At least one field to update is required of the following: emailAddress, optOutOfEmail.'})
         }
         const dynamo = await getDynamoDbClient();
         await dynamo.send(new UpdateCommand({
@@ -160,12 +165,14 @@ export const PATCH = async (request) => {
             Key: {
                 guestId: body.guestId
             },
-            UpdateExpression: `set #emailAddress = :emailAddress`,
+            UpdateExpression: `set #emailAddress = :emailAddress, #optOutOfEmail = :optOutOfEmail`,
             ExpressionAttributeNames: {
-                "#emailAddress": "emailAddress"
+                "#emailAddress": "emailAddress",
+                "#optOutOfEmail": "optOutOfEmail",
             },
             ExpressionAttributeValues: {
-                ":emailAddress": body.emailAddress
+                ":emailAddress": body.emailAddress,
+                ":optOutOfEmail": body.optOutOfEmail,
             }
         }));
         const response = await dynamo.send(new ScanCommand({

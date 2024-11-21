@@ -1,5 +1,5 @@
 'use client';
-import {Button, Modal, TextInput} from "@mantine/core";
+import {Button, Checkbox, Modal, TextInput} from "@mantine/core";
 import {useEffect, useState} from "react";
 import {useForm} from "@mantine/form";
 import {Guest} from "@/types/guest";
@@ -9,10 +9,11 @@ const EmailModal = ({loggedInGuest}: {loggedInGuest: Guest}) => {
     const form = useForm({
         mode: 'uncontrolled',
         initialValues: {
-            emailAddress: '',
+            emailAddress: loggedInGuest && loggedInGuest.emailAddress ? loggedInGuest.emailAddress : '',
+            emailOptOut: loggedInGuest && loggedInGuest.optOutOfEmail ? loggedInGuest.optOutOfEmail : false,
         },
         validate: {
-            emailAddress: (value) => (/^\S+@\S+$/.test(value) || value.trim() === '' ? null : 'Invalid email'),
+            emailAddress: (value) => (form.getValues().emailOptOut || /^\S+@\S+$/.test(value) || (value.trim() === '') ? null : 'Invalid email'),
         }
     });
     const [isOpen, setIsOpen] = useState(false);
@@ -20,7 +21,7 @@ const EmailModal = ({loggedInGuest}: {loggedInGuest: Guest}) => {
 
     useEffect(() => {
         const hasInvalidEmailAddress = loggedInGuest && (!loggedInGuest.emailAddress || loggedInGuest.emailAddress === '');
-        setIsOpen(hasInvalidEmailAddress);
+        setIsOpen(hasInvalidEmailAddress && !loggedInGuest.optOutOfEmail);
     }, [loggedInGuest]);
     return (
         <Modal
@@ -32,7 +33,7 @@ const EmailModal = ({loggedInGuest}: {loggedInGuest: Guest}) => {
                 className={'flex flex-col justify-center items-center p-4 gap-4'}
                 onSubmit={form.onSubmit(async (formValues) => {
                     setIsLoading(true);
-                    await axios.patch(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist`, {guestId: loggedInGuest.guestId, emailAddress: formValues.emailAddress});
+                    await axios.patch(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist`, {guestId: loggedInGuest.guestId, emailAddress: formValues.emailAddress, optOutOfEmail: formValues.emailOptOut});
                     setIsLoading(false);
                     setIsOpen(false);
                 })}
@@ -45,10 +46,18 @@ const EmailModal = ({loggedInGuest}: {loggedInGuest: Guest}) => {
                 <div className={'w-full'}>
                     <TextInput
                         disabled={isLoading}
-                        required
                         placeholder={'Please Enter Your Email'}
                         key={form.key('emailAddress')}
                         {...form.getInputProps('emailAddress')}
+                    />
+                </div>
+                <div>
+                    <Checkbox
+                        label={'Opt out and do not send reminders to RSVP and update about the wedding via email.'}
+                        variant={'outline'}
+                        color={'green'}
+                        key={form.key(`emailOptOut`)}
+                        {...form.getInputProps('emailOptOut', {type: 'checkbox'})}
                     />
                 </div>
                 <div>

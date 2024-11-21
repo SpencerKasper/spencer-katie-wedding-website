@@ -1,0 +1,1 @@
+export const booleanIsUndefined = (value: boolean) => value === undefined || value === null;
