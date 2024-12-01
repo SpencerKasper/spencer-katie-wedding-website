@@ -20,9 +20,9 @@ export function WebsiteHeader() {
         <OverrideFont>
             <EmailModal loggedInGuest={loggedInGuest}/>
             <div className={'flex flex-col text-white'}>
-                <div className={'flex flex-col sm:flex-row sm:justify-between sm:align-center'}>
-                    <div className={'sm:w-1/4'}></div>
-                    <div className={"flex justify-center align-center p-8 gap-4 flex-wrap sm:w-1/2"}>
+                <div className={'flex justify-end pt-8 px-8'}>{loggedInGuest ? `Welcome, ${loggedInGuest.firstName} ${loggedInGuest.lastName}!` : ''}</div>
+                <div className={'flex flex-col '}>
+                    <div className={"flex justify-center align-center p-8 gap-4 flex-wrap"}>
                         {APP_MODE === 'FULL' ?
                             <>
                                 {HomeButton}
@@ -43,7 +43,6 @@ export function WebsiteHeader() {
                             </>
                         }
                     </div>
-                    <div className={'sm:w-1/4 flex justify-center pt-8'}>{loggedInGuest ? `Welcome, ${loggedInGuest.firstName} ${loggedInGuest.lastName}!` : ''}</div>
                 </div>
             </div>
         </OverrideFont>
