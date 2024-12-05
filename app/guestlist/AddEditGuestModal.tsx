@@ -71,7 +71,12 @@ const AddEditGuestModal = ({
     });
 
     useEffect(() => {
+        setGuestsAtTable(guests.filter(g => g.tableNumber === 1));
+    }, [guests]);
+
+    useEffect(() => {
         if (selectedGuest && opened) {
+            setGuestsAtTable(guests.filter(g => g.tableNumber === selectedGuest.tableNumber));
             setZipCode(selectedGuest.zipCode);
             form.setValues({
                 ...selectedGuest,
