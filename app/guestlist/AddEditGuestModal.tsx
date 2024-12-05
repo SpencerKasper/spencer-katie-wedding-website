@@ -34,6 +34,7 @@ const AddEditGuestModal = ({
         '';
     const form = useForm({
         mode: 'uncontrolled',
+        // @ts-ignore
         initialValues: {
             firstName: selectedGuest ? selectedGuest.firstName : '',
             lastName: selectedGuest ? selectedGuest.lastName : '',
@@ -47,6 +48,7 @@ const AddEditGuestModal = ({
             guestPartyMember: getSelectedGuestsPartyMember(),
             tableNumber: 1,
         },
+        // @ts-ignore
         validate: {
             emailAddress: (value) => (/^\S+@\S+$/.test(value) || value.trim() === '' ? null : 'Invalid email'),
             firstName: (value) => {
