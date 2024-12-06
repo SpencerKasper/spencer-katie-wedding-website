@@ -4,7 +4,6 @@ import {DynamoDBClient} from "@aws-sdk/client-dynamodb";
 export default async function getDynamoDbClient() {
     if (process.env.NEXT_PUBLIC_WEDDING_ENV !== 'local') {
         const stsResponse = await assumeRole();
-        console.error('assumed');
         const credentials = stsResponse ? stsResponse['Credentials'] : null;
         const accessKey = credentials ? credentials['AccessKeyId'] : '';
         const secretAccessKey = credentials ? credentials['SecretAccessKey'] : '';
