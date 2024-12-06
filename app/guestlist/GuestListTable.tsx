@@ -98,7 +98,10 @@ export function GuestListTable() {
                 <div className={'flex flex-col gap-4 justify-center align-center w-full sm:w-1/2'}>
                     <TextInput
                         value={search.search}
-                        onChange={(event) => setSearch({...search, search: event.currentTarget.value})}
+                        onChange={(event) => {
+                            setPaginationInfo({...paginationInfo, currentPage: 1})
+                            setSearch({...search, search: event.currentTarget.value});
+                        }}
                         placeholder={'Search for Names'}
                     />
                     <Checkbox
@@ -139,12 +142,12 @@ export function GuestListTable() {
                 </Table>
             </Table.ScrollContainer>
             <div className={'flex justify-between items-end flex-wrap gap-4 sm:gap-0'}>
-                <div className={'w-full sm:w-1/4 text-center sm:text-left'}><p>Showing Guests {minItemIndex + 1} - {maxItemIndex} of {guests.length}</p></div>
+                <div className={'w-full sm:w-1/4 text-center sm:text-left'}><p>Showing Guests {minItemIndex + 1} - {maxItemIndex} of {allMatchingGuests.length}</p></div>
                 <div className={'w-full sm:w-1/2 flex justify-center'}>
                     <Pagination
                         value={paginationInfo.currentPage}
                         onChange={value => setPaginationInfo({...paginationInfo, currentPage: value})}
-                        total={paginationInfo.guestsPerPage ? Number(Math.ceil(guests.length / Number(paginationInfo.guestsPerPage)).toFixed(0)) : 1}
+                        total={paginationInfo.guestsPerPage ? Number(Math.ceil(allMatchingGuests.length / Number(paginationInfo.guestsPerPage)).toFixed(0)) : 1}
                     />
                 </div>
                 <Select
