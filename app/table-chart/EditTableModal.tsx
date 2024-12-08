@@ -67,6 +67,7 @@ const EditTableModal = ({isOpen, setIsOpen, tableNumber, setTableNumber}: EditTa
                             min={1}
                             label={'Table Number'}
                             value={updatedTableNumber}
+                            // @ts-ignore
                             onChange={(value) => setUpdatedTableNumber(value)}
                         />
                     </div>
@@ -77,6 +78,7 @@ const EditTableModal = ({isOpen, setIsOpen, tableNumber, setTableNumber}: EditTa
                                 label={'New Table Number'}
                                 value={newTableNumberForMovingTable}
                                 description={`Table ${updatedTableNumber} is already assigned to other guests. Please select a new table number for that table.`}
+                                // @ts-ignore
                                 onChange={(value) => setNewTableNumberForMovingTable(value)}
                                 error={isNewTableNumberForMovingTableInvalid ?
                                     'People are already assigned to this table. Please select a table number that is not already in use.' :
