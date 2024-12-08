@@ -14,7 +14,6 @@ const TABLE_COLOR = '#614051';
 function TableNode({data}) {
     const {guests} = useGuestList();
     const [opened, {close, open}] = useDisclosure(false);
-    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const guestsAtTable = guests.filter(g => g.tableNumber === data.tableNumber);
 
@@ -22,14 +21,9 @@ function TableNode({data}) {
     return (
         <>
             <Popover position={'top'} withArrow shadow="md" opened={opened}>
-                <EditTableModal
-                    tableNumber={data.tableNumber}
-                    isOpen={isModalOpen}
-                    setIsOpen={setIsModalOpen}
-                />
                 <Popover.Target>
                     <div
-                        onClick={() => setIsModalOpen(true)}
+                        onClick={() => data.setTableNumberToEdit(data.tableNumber)}
                         onMouseEnter={open}
                         onMouseLeave={close}
                     >

@@ -34,11 +34,16 @@ export async function POST(request) {
         const guestsWithUpdates = await getGuestsWithUpdatedTableNumbers();
         const groupedByParty = groupBy(guestsWithUpdates, 'partyId');
         for (let partyId of Object.keys(groupedByParty)) {
-            const uniqueTableNumbersInParty = Array.from(new Set(groupedByParty[partyId].map(g => g.tableNumber)));
+            if(partyId === '') {
+                continue;
+            }
+            const guestsForParty = groupedByParty[partyId];
+            const uniqueTableNumbersInParty = Array.from(new Set(guestsForParty.map(g => g.tableNumber)));
             if (uniqueTableNumbersInParty.length !== 1) {
+                const guestErrorInfo = guestsForParty.reduce((acc, curr) => `${acc}; ${curr.firstName} ${curr.lastName} is at table ${curr.tableNumber}`, '')
                 return NextResponse.json({
                     statusCode: 400,
-                    message: 'All members of the same party must be sat at the same table.'
+                    message: `All members of the same party must be sat at the same table. ${guestErrorInfo}`
                 })
             }
         }

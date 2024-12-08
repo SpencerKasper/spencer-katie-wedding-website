@@ -5,10 +5,12 @@ import '@xyflow/react/dist/style.css';
 import {useCallback, useEffect, useMemo, useState} from "react";
 import TableNode from "@/app/table-chart/TableNode";
 import useGuestList from "@/app/hooks/useGuestList";
+import EditTableModal from "@/app/table-chart/EditTableModal";
 
 export default function TableChartPage() {
     const {guests} = useGuestList({getGuestsOnInstantiation: true});
     const [nodes, setNodes] = useState([]);
+    const [tableNumberToEdit, setTableNumberToEdit] = useState(-1);
 
     useEffect(() => {
         const groupedByTable = Object.groupBy(guests.filter(g => g.tableNumber), ({tableNumber}) => tableNumber);
@@ -16,7 +18,7 @@ export default function TableChartPage() {
             id: `table-${tableNumber}`,
             type: 'table',
             position: {x: 300 * index, y: 300},
-            data: {tableNumber: Number(tableNumber), shape: 'circle'}
+            data: {tableNumber: Number(tableNumber), setTableNumberToEdit, shape: 'circle'}
         }));
         setNodes(updatedNodes);
     }, [guests]);
@@ -30,6 +32,12 @@ export default function TableChartPage() {
     return (
         <div className={'sm:p-4 md:p-8'}>
             <Card className={'h-96'}>
+                <EditTableModal
+                    tableNumber={tableNumberToEdit}
+                    setTableNumber={setTableNumberToEdit}
+                    isOpen={tableNumberToEdit > 0}
+                    setIsOpen={(value) => setTableNumberToEdit(value ? tableNumberToEdit : -1)}
+                />
                 <ReactFlow nodeTypes={nodeTypes} nodes={nodes} onNodesChange={onNodesChange}>
                     <Background/>
                     <Controls/>
