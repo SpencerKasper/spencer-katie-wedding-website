@@ -1,25 +1,32 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Button, Divider, Modal, NumberInput, Text} from "@mantine/core";
 import {Guest} from "@/types/guest";
 import {GuestAtTableRow} from "@/app/table-chart/GuestAtTableRow";
+import useGuestList from "@/app/hooks/useGuestList";
 
 interface EditTableModalProps {
     isOpen: boolean;
     setIsOpen: (value: boolean) => void;
-    allGuests: Guest[];
-    guestsAtTable: Guest[];
+    tableNumber: number;
 }
 
-const EditTableModal = ({isOpen, setIsOpen, tableNumber, allGuests, guestsAtTable}: EditTableModalProps) => {
+const EditTableModal = ({isOpen, setIsOpen, tableNumber}: EditTableModalProps) => {
+    const {guests} = useGuestList();
+    const guestsAtTable = guests.filter(g => g.tableNumber === tableNumber);
     const [updatedTableNumber, setUpdatedTableNumber] = useState(Number(tableNumber));
     const [removingGuests, setRemovingGuests] = useState([] as Guest[]);
-    const usedTableNumbers = allGuests
+    const usedTableNumbers = guests
         .map(x => x.tableNumber)
         .filter(x => x);
     const firstEmptyTableNumber = Math.max(...usedTableNumbers) + 1;
     const [newTableNumberForMovingTable, setNewTableNumberForMovingTable] = useState(firstEmptyTableNumber);
+
+    useEffect(() => {
+        setRemovingGuests([]);
+    }, [guests]);
+
     const guestsAtUpdatedTable = tableNumber !== updatedTableNumber ?
-        allGuests.filter(g => g.tableNumber === updatedTableNumber) :
+        guests.filter(g => g.tableNumber === updatedTableNumber) :
         guestsAtTable;
     const isNewTableNumberForMovingTableInvalid = usedTableNumbers.includes(newTableNumberForMovingTable) && Number(tableNumber) !== Number(newTableNumberForMovingTable);
     const isNonEmptyTable = Number(tableNumber) !== Number(updatedTableNumber) && guestsAtUpdatedTable.length;
@@ -75,7 +82,7 @@ const EditTableModal = ({isOpen, setIsOpen, tableNumber, allGuests, guestsAtTabl
                                 <GuestAtTableRow
                                     key={`guest-${index}`}
                                     guest={guest}
-                                    guests={removingGuests}
+                                    removingGuests={removingGuests}
                                     guestsAtTable={guestsAtTable}
                                     setRemovingGuests={setRemovingGuests}
                                 />

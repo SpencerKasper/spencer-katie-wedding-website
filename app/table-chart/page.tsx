@@ -4,32 +4,23 @@ import {Card} from '@mantine/core';
 import '@xyflow/react/dist/style.css';
 import {useCallback, useEffect, useMemo, useState} from "react";
 import TableNode from "@/app/table-chart/TableNode";
-import {Guest} from "@/types/guest";
-import axios from "axios";
+import useGuestList from "@/app/hooks/useGuestList";
 
 export default function TableChartPage() {
-    const [guests, setGuests] = useState([] as Guest[]);
+    const {guests} = useGuestList({getGuestsOnInstantiation: true});
     const [nodes, setNodes] = useState([]);
 
     useEffect(() => {
-        const refreshGuests = () => {
-            const url = `${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist`;
-            axios.get(url)
-                .then(guestListResponse => setGuests(guestListResponse.data.guests));
-        };
-        refreshGuests();
-    }, []);
-
-    useEffect(() => {
         const groupedByTable = Object.groupBy(guests.filter(g => g.tableNumber), ({tableNumber}) => tableNumber);
-        const updatedNodes = Object.keys(groupedByTable).map(tableNumber => ({
-            id: tableNumber,
+        const updatedNodes = Object.keys(groupedByTable).map((tableNumber, index) => ({
+            id: `table-${tableNumber}`,
             type: 'table',
-            position: {x: 300 * tableNumber, y: 300},
-            data: {tableNumber, allGuests: guests,  guestsAtTable: groupedByTable[tableNumber], shape: 'rectangle'}
+            position: {x: 300 * index, y: 300},
+            data: {tableNumber: Number(tableNumber), shape: 'circle'}
         }));
-        setNodes(updatedNodes)
+        setNodes(updatedNodes);
     }, [guests]);
+
     const onNodesChange = useCallback(
         (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
         [],

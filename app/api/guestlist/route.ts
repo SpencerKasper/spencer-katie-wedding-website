@@ -48,12 +48,16 @@ export async function POST(request) {
             zipCode,
             guestPartyMember,
             tableNumber,
-            optOutOfEmail
+            optOutOfEmail,
+            partyId
         } = guest;
         if (isNullOrEmptyString(firstName) || isNullOrEmptyString(lastName)) {
             return NextResponse.json({error: 'You must provide both first and last name.'});
         }
         const getPartyId = async () => {
+            if(partyId && partyId !== '') {
+                return partyId;
+            }
             const partyMemberIsDefined = guestPartyMember && guestPartyMember.trim() !== '';
             if (!partyMemberIsDefined) {
                 return '';

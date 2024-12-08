@@ -5,23 +5,25 @@ import {useDisclosure} from "@mantine/hooks";
 import Circle from "@/app/table-chart/shapes/Circle";
 import EditTableModal from "@/app/table-chart/EditTableModal";
 import Rectangle from "@/app/table-chart/shapes/Rectangle";
+import useGuestList from "@/app/hooks/useGuestList";
 
 const handleStyle = {left: 10};
 
 const TABLE_COLOR = '#614051';
 
 function TableNode({data}) {
+    const {guests} = useGuestList();
     const [opened, {close, open}] = useDisclosure(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const tableText = `Table ${data.tableNumber} - ${data.guestsAtTable.length} Guests`;
+    const guestsAtTable = guests.filter(g => g.tableNumber === data.tableNumber);
+
+    const tableText = `Table ${data.tableNumber} - ${guestsAtTable.length} Guests`;
     return (
         <>
             <Popover position={'top'} withArrow shadow="md" opened={opened}>
                 <EditTableModal
-                    allGuests={data.allGuests}
                     tableNumber={data.tableNumber}
-                    guestsAtTable={data.guestsAtTable}
                     isOpen={isModalOpen}
                     setIsOpen={setIsModalOpen}
                 />
@@ -50,7 +52,7 @@ function TableNode({data}) {
                     <div className={'p-4'}>
                         <Text size="lg" className={'y-0'}>Table {data.tableNumber}</Text>
                         <ol>
-                            {data.guestsAtTable.map(guest => {
+                            {guestsAtTable.map(guest => {
                                 return (
                                     <li key={guest.firstName}>{guest.firstName} {guest.lastName}</li>
                                 )
