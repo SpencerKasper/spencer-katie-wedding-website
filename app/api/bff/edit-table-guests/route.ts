@@ -1,6 +1,6 @@
 import axios from "axios";
 import {NextResponse} from "next/server";
-import {getGuestListEndpointUrl, getTablesEndpointUrl} from "@/app/util/api-util";
+import {getGuestListEndpointUrl} from "@/app/util/api-util";
 
 const groupBy = (xs, key) => xs.reduce((rv, x) => {
     (rv[x[key]] = rv[x[key]] || []).push(x);
@@ -52,9 +52,6 @@ export async function POST(request) {
         }
         const updatedGuestsResponse = await axios.get(getGuestListEndpointUrl());
         const updatedGuests = updatedGuestsResponse.data.guests;
-        const tableNumbers = Array.from(new Set(updatedGuests.map(g => g.tableNumber)));
-        const tablesResponse = await axios.get(getTablesEndpointUrl());
-        const tables = tablesResponse.data.tables;
         return NextResponse.json({
             statusCode: 200,
             guests: updatedGuests

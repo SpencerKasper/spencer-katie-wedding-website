@@ -3,6 +3,7 @@ import getDynamoDbClient from "@/app/api/aws-clients/dynamodb-client";
 import {PutItemCommand} from "@aws-sdk/client-dynamodb";
 import {ScanCommand, UpdateCommand} from "@aws-sdk/lib-dynamodb";
 import {Table} from "@/types/table";
+import {v4 as uuidv4} from 'uuid';
 
 const WEDDING_TABLES_TABLE = 'wedding_tables';
 
@@ -31,15 +32,17 @@ export async function POST(request) {
             await dynamo.send(new UpdateCommand({
                 TableName: WEDDING_TABLES_TABLE,
                 Key: {
-                    tableNumber: body.tableNumber
+                    tableId: body.tableId
                 },
-                UpdateExpression: "SET #coordinates = :coordinates, #shape = :shape, #color = :color",
+                UpdateExpression: "SET #tableNumber = :tableNumber, #coordinates = :coordinates, #shape = :shape, #color = :color",
                 ExpressionAttributeNames: {
+                    '#tableNumber': 'tableNumber',
                     "#coordinates": "coordinates",
                     "#shape": "shape",
                     "#color": "color"
                 },
                 ExpressionAttributeValues: {
+                    ':tableNumber': body.tableNumber,
                     ":coordinates": body.coordinates,
                     ":shape": body.shape,
                     ":color": body.color
@@ -49,6 +52,7 @@ export async function POST(request) {
             await dynamo.send(new PutItemCommand({
                 TableName: WEDDING_TABLES_TABLE,
                 Item: {
+                    tableId: {S: uuidv4()},
                     tableNumber: {N: body.tableNumber.toString()},
                     coordinates: {
                         M: {
