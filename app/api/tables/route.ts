@@ -1,18 +1,10 @@
 import {NextResponse} from "next/server";
 import getDynamoDbClient from "@/app/api/aws-clients/dynamodb-client";
 import {PutItemCommand} from "@aws-sdk/client-dynamodb";
-import {QueryCommand, ScanCommand, UpdateCommand} from "@aws-sdk/lib-dynamodb";
+import {ScanCommand, UpdateCommand} from "@aws-sdk/lib-dynamodb";
+import {Table} from "@/types/table";
 
 const WEDDING_TABLES_TABLE = 'wedding_tables';
-
-interface Table {
-    tableNumber: number;
-    coordinates: {
-        x: number;
-        y: number;
-    };
-    shape: string;
-}
 
 export async function GET(request) {
     const dynamo = await getDynamoDbClient();
@@ -41,29 +33,31 @@ export async function POST(request) {
                 Key: {
                     tableNumber: body.tableNumber
                 },
-                UpdateExpression: "SET #coordinates = :coordinates, #shape = :shape",
+                UpdateExpression: "SET #coordinates = :coordinates, #shape = :shape, #color = :color",
                 ExpressionAttributeNames: {
                     "#coordinates": "coordinates",
-                    "#shape": "shape"
+                    "#shape": "shape",
+                    "#color": "color"
                 },
                 ExpressionAttributeValues: {
                     ":coordinates": body.coordinates,
-                    ":shape": body.shape
+                    ":shape": body.shape,
+                    ":color": body.color
                 }
             }));
         } else {
-            console.error('adding new item')
             await dynamo.send(new PutItemCommand({
                 TableName: WEDDING_TABLES_TABLE,
                 Item: {
-                    tableNumber: body.tableNumber,
+                    tableNumber: {N: body.tableNumber.toString()},
                     coordinates: {
                         M: {
                             x: {N: body.coordinates.x.toString()},
                             y: {N: body.coordinates.y.toString()}
                         }
                     },
-                    shape: {S: body.shape}
+                    shape: {S: body.shape ? body.shape : 'circle'},
+                    color: {S: body.color ? body.color : ''},
                 }
             }));
         }

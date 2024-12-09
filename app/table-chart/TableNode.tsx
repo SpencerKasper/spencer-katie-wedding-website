@@ -6,10 +6,10 @@ import Circle from "@/app/table-chart/shapes/Circle";
 import EditTableModal from "@/app/table-chart/EditTableModal";
 import Rectangle from "@/app/table-chart/shapes/Rectangle";
 import useGuestList from "@/app/hooks/useGuestList";
+import {DEFAULT_TABLE_COLOR} from "@/constants/app-constants";
 
 const handleStyle = {left: 10};
 
-const TABLE_COLOR = '#614051';
 
 function TableNode({data}) {
     const {guests} = useGuestList();
@@ -32,10 +32,10 @@ function TableNode({data}) {
                                 width={150}
                                 height={100}
                                 text={tableText}
-                                color={TABLE_COLOR}
+                                color={DEFAULT_TABLE_COLOR}
                             /> :
                             <Circle
-                                color={TABLE_COLOR}
+                                color={DEFAULT_TABLE_COLOR}
                                 size={150}
                                 text={tableText}
                             />
