@@ -24,9 +24,27 @@ const EditTableModal = ({isOpen, setIsOpen, tableNumber, setTableNumber}: EditTa
         .map(x => x.tableNumber)
         .filter(x => x);
 
+    const getFirstMissingInteger = (setOfNumbers: number[]) => {
+        if(setOfNumbers.length === 0) {
+            return 1;
+        }
+        const orderedSetOfNumbers = setOfNumbers.sort((a, b) => a > b ? 1 : -1);
+        if(orderedSetOfNumbers[0] !== 1) {
+            return 1;
+        }
+        let index = 0;
+        for(let num of orderedSetOfNumbers) {
+            if(num + 1 !== orderedSetOfNumbers[index + 1]) {
+                return num + 1;
+            }
+            index++;
+        }
+        return orderedSetOfNumbers.length + 1;
+    }
+
     useEffect(() => {
         const usedTableNumbers = getUsedTableNumbers();
-        const firstEmptyTableNumber = usedTableNumbers.length ? Math.max(...usedTableNumbers) + 1 : 1;
+        const firstEmptyTableNumber = getFirstMissingInteger(usedTableNumbers);
         setNewTableNumberForMovingTable(firstEmptyTableNumber)
     }, [guests]);
 
