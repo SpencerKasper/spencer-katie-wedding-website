@@ -29,14 +29,14 @@ function TableNode({data}) {
                     >
                         {data.shape && data.shape === 'rectangle' ?
                             <Rectangle
-                                width={250}
+                                width={150}
                                 height={100}
                                 text={tableText}
                                 color={TABLE_COLOR}
                             /> :
                             <Circle
                                 color={TABLE_COLOR}
-                                size={250}
+                                size={150}
                                 text={tableText}
                             />
                         }

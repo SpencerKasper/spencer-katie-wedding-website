@@ -38,7 +38,12 @@ export default function TableChartPage() {
                     isOpen={tableNumberToEdit > 0}
                     setIsOpen={(value) => setTableNumberToEdit(value ? tableNumberToEdit : -1)}
                 />
-                <ReactFlow nodeTypes={nodeTypes} nodes={nodes} onNodesChange={onNodesChange}>
+                <ReactFlow
+                    nodeTypes={nodeTypes}
+                    nodes={nodes}
+                    onNodesChange={onNodesChange}
+                    panOnScroll
+                >
                     <Background/>
                     <Controls/>
                 </ReactFlow>
