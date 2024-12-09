@@ -11,6 +11,7 @@ import useTables from "@/app/hooks/useTables";
 export default function TableChartPage() {
     const {guests} = useGuestList({getGuestsOnInstantiation: true});
     const {tables, setOrUpdateTable} = useTables({fetchTablesOnInit: true});
+    const [originalNodes, setOriginalNodes] = useState([]);
     const [nodes, setNodes] = useState([]);
     const [tableNumberToEdit, setTableNumberToEdit] = useState(-1);
     const hasChanges = nodes.filter(nwt =>
@@ -36,6 +37,7 @@ export default function TableChartPage() {
                 });
             });
             setNodes(updatedNodes);
+            setOriginalNodes(updatedNodes);
         }
     }, [guests, tables]);
 
@@ -76,7 +78,6 @@ export default function TableChartPage() {
                                                 )
                                             )
                                         ) {
-                                            console.error(`update node ${node.id}`)
                                             await setOrUpdateTable({
                                                 ...(node.table ? node.table : {tableNumber: node.data.tableNumber, shape: node.data.shape}),
                                                 coordinates: {
@@ -94,6 +95,9 @@ export default function TableChartPage() {
                                 color={'red'}
                                 variant={'outline'}
                                 className={'z-50'}
+                                onClick={() => {
+                                    setNodes(originalNodes);
+                                }}
                             >
                                 Reset
                             </Button>
