@@ -1,6 +1,7 @@
 export interface Table {
-    tableId: string;
+    tableId?: string;
     tableNumber: number;
+    guests: string[];
     coordinates: {
         x: number;
         y: number;

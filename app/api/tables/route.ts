@@ -27,25 +27,27 @@ export async function POST(request) {
             TableName: WEDDING_TABLES_TABLE
         }));
         const tables = response.Items as Table[];
-        const foundTable = tables.find(t => t.tableNumber === body.tableNumber);
+        const foundTable = body.tableId ? tables.find(t => t.tableId === body.tableId) : null;
         if (foundTable) {
             await dynamo.send(new UpdateCommand({
                 TableName: WEDDING_TABLES_TABLE,
                 Key: {
                     tableId: body.tableId
                 },
-                UpdateExpression: "SET #tableNumber = :tableNumber, #coordinates = :coordinates, #shape = :shape, #color = :color",
+                UpdateExpression: "SET #tableNumber = :tableNumber, #coordinates = :coordinates, #shape = :shape, #color = :color, #guests = :guests",
                 ExpressionAttributeNames: {
                     '#tableNumber': 'tableNumber',
                     "#coordinates": "coordinates",
                     "#shape": "shape",
-                    "#color": "color"
+                    "#color": "color",
+                    "#guests": 'guests'
                 },
                 ExpressionAttributeValues: {
                     ':tableNumber': body.tableNumber,
                     ":coordinates": body.coordinates,
                     ":shape": body.shape,
-                    ":color": body.color
+                    ":color": body.color,
+                    ":guests": body.guests,
                 }
             }));
         } else {
@@ -54,6 +56,7 @@ export async function POST(request) {
                 Item: {
                     tableId: {S: uuidv4()},
                     tableNumber: {N: body.tableNumber.toString()},
+                    guests: {L: body.guests.map(g => ({S: g.guestId}))},
                     coordinates: {
                         M: {
                             x: {N: body.coordinates.x.toString()},

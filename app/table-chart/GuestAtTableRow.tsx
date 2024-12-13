@@ -1,16 +1,18 @@
 import {Guest} from "@/types/guest";
 import {Button, ButtonGroup, Popover, Text} from "@mantine/core";
-import {TiCancelOutline, TiDeleteOutline} from "react-icons/ti";
+import {TiDeleteOutline} from "react-icons/ti";
 import React, {useState} from "react";
 import {FaRegCheckCircle} from "react-icons/fa";
 import {MdOutlineCancel} from "react-icons/md";
 import {useDisclosure} from "@mantine/hooks";
 import axios from "axios";
-import {getEditTableGuestsEndpointUrl, getGuestListEndpointUrl} from "@/app/util/api-util";
+import {getTablesEndpointUrl} from "@/app/util/api-util";
 import useGuestList from "@/app/hooks/useGuestList";
+import {Table} from "@/types/table";
 
 interface GuestAtTableRowProps {
     guest: Guest;
+    table: Table;
     removingGuests: Guest[];
     guestsAtTable: Guest[];
     setRemovingGuests: (guests: Guest[]) => void;
@@ -18,19 +20,19 @@ interface GuestAtTableRowProps {
 
 export const GuestAtTableRow = ({
                                     guest,
+                                    table,
                                     removingGuests,
-                                    guestsAtTable,
                                     setRemovingGuests
                                 }: GuestAtTableRowProps) => {
-    const {setGuests} = useGuestList();
+    const {guests, setGuests} = useGuestList();
     const [opened, {close, open}] = useDisclosure(false);
     const [cancelOpened, {close: cancelClose, open: cancelOpen}] = useDisclosure(false);
     const [isRemoving, setIsRemoving] = useState(false);
+    const guestsAtTable = guests.filter(g => table.guests.includes(g.guestId));
     const handleRemoveGuestsFromTable = async () => {
         setIsRemoving(true);
         try {
-            const guestTableUpdates = [{...guest, tableNumber: null}];
-            const response = await axios.post(getEditTableGuestsEndpointUrl(), {guestTableUpdates});
+            const response = await axios.post(getTablesEndpointUrl(), {...table, tableNumber: null});
             setGuests(response.data.guests);
             setRemovingGuests([]);
             cancelClose();

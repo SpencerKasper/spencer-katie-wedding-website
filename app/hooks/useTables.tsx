@@ -4,26 +4,29 @@ import {getTablesEndpointUrl} from "@/app/util/api-util";
 import {Table} from "@/types/table";
 import {useEffect} from "react";
 import {setTables} from "@/lib/reducers/appReducer";
+import {getUsedTableNumbers} from "@/app/util/table-util";
 
 const useTables = ({fetchTablesOnInit = false} = {fetchTablesOnInit: false}) => {
     const tables = useAppSelector(state => state.app.tables);
     const dispatch = useAppDispatch();
+
+    const extractTablesFromResponseAndSetInRedux = (response: axios.AxiosResponse<{ tables: Table[] }>) => {
+        const extractedTables = response.data.tables;
+        dispatch(setTables({tables: extractedTables}));
+        return extractedTables;
+    };
 
     const getTables = async () => {
         const response = await axios.get(getTablesEndpointUrl());
         return extractTablesFromResponseAndSetInRedux(response);
     };
 
-    const setOrUpdateTable = async (table: Table) => {
+    const createOrUpdateTable = async (table: Table) => {
         const response = await axios.post(getTablesEndpointUrl(), table);
         return extractTablesFromResponseAndSetInRedux(response);
     }
 
-    function extractTablesFromResponseAndSetInRedux(response: axios.AxiosResponse<{ tables: Table[] }>) {
-        const extractedTables = response.data.tables;
-        dispatch(setTables({tables: extractedTables}));
-        return extractedTables;
-    }
+    const tableNumberExists = (tableNumber: number) => getUsedTableNumbers(tables).includes(tableNumber);
 
     useEffect(() => {
         if (fetchTablesOnInit) {
@@ -34,7 +37,8 @@ const useTables = ({fetchTablesOnInit = false} = {fetchTablesOnInit: false}) => 
     return {
         tables,
         getTables,
-        setOrUpdateTable,
+        createOrUpdateTable,
+        tableNumberExists
     };
 }
 

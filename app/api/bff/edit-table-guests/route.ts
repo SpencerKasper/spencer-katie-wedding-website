@@ -1,6 +1,6 @@
 import axios from "axios";
 import {NextResponse} from "next/server";
-import {getGuestListEndpointUrl} from "@/app/util/api-util";
+import {getGuestListEndpointUrl, getTablesEndpointUrl} from "@/app/util/api-util";
 
 const groupBy = (xs, key) => xs.reduce((rv, x) => {
     (rv[x[key]] = rv[x[key]] || []).push(x);
@@ -47,8 +47,9 @@ export async function POST(request) {
                 })
             }
         }
-        for (let guest of guestsWithUpdates) {
-            await axios.post(getGuestListEndpointUrl(), guest);
+        const groupedByTableNumber = groupBy(guestsWithUpdates, 'tableNumber');
+        for (let tableNumber of Object.keys(groupedByTableNumber)) {
+            await axios.post(getTablesEndpointUrl(), );
         }
         const updatedGuestsResponse = await axios.get(getGuestListEndpointUrl());
         const updatedGuests = updatedGuestsResponse.data.guests;

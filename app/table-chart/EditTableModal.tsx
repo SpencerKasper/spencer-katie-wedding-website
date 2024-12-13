@@ -3,121 +3,153 @@ import {Button, Divider, Modal, NumberInput, Text} from "@mantine/core";
 import {Guest} from "@/types/guest";
 import {GuestAtTableRow} from "@/app/table-chart/GuestAtTableRow";
 import useGuestList from "@/app/hooks/useGuestList";
-import axios from "axios";
-import {getEditTableGuestsEndpointUrl} from "@/app/util/api-util";
+import useTables from "@/app/hooks/useTables";
+import {getFirstMissingInteger, getFirstMissingTableNumber, getUsedTableNumbers} from "@/app/util/table-util";
+import {Table} from "@/types/table";
 
 interface EditTableModalProps {
+    table: Table;
     isOpen: boolean;
     setIsOpen: (value: boolean) => void;
-    tableNumber: number;
-    setTableNumber: (value: number) => void;
+    setTableToEdit: (value: Table) => void;
 }
 
-const EditTableModal = ({isOpen, setIsOpen, tableNumber, setTableNumber}: EditTableModalProps) => {
-    const {guests, setGuests} = useGuestList();
-    const [updatedTableNumber, setUpdatedTableNumber] = useState(Number(tableNumber));
-    const [removingGuests, setRemovingGuests] = useState([] as Guest[]);
-    const [isUpdatingTableNumber, setIsUpdatingTableNumber] = useState(false);
-    const [newTableNumberForMovingTable, setNewTableNumberForMovingTable] = useState(1);
+interface UpdateTableNumberButtonProps {
+    table: Table;
+    updatedTableNumber: number;
+    isNewTableNumberForMovingTableInvalid: boolean;
+    isNonEmptyTable: boolean;
+    setTableToEdit: (value: Table) => void;
+    newTableNumberForMovingTable: number;
+}
 
-    const getUsedTableNumbers = () => guests
-        .map(x => x.tableNumber)
-        .filter(x => x);
+const UpdateTableNumberButton = ({
+                                     table,
+                                     updatedTableNumber,
+                                     isNewTableNumberForMovingTableInvalid,
+                                     isNonEmptyTable,
+                                     setTableToEdit,
+                                     newTableNumberForMovingTable,
+                                 }: UpdateTableNumberButtonProps) => {
+    const [isUpdating, setIsUpdating] = useState(false);
 
-    const getFirstMissingInteger = (setOfNumbers: number[]) => {
-        if(setOfNumbers.length === 0) {
-            return 1;
-        }
-        const orderedSetOfNumbers = setOfNumbers.sort((a, b) => a > b ? 1 : -1);
-        if(orderedSetOfNumbers[0] !== 1) {
-            return 1;
-        }
-        let index = 0;
-        for(let num of orderedSetOfNumbers) {
-            if(num + 1 !== orderedSetOfNumbers[index + 1]) {
-                return num + 1;
-            }
-            index++;
-        }
-        return orderedSetOfNumbers.length + 1;
-    }
-
-    useEffect(() => {
-        const usedTableNumbers = getUsedTableNumbers();
-        const firstEmptyTableNumber = getFirstMissingInteger(usedTableNumbers);
-        setNewTableNumberForMovingTable(firstEmptyTableNumber)
-    }, [guests]);
-
-    useEffect(() => {
-        setUpdatedTableNumber(Number(tableNumber));
-    }, [tableNumber]);
-
-    const guestsAtTable = guests.filter(g => g.tableNumber === tableNumber);
-    const guestsAtUpdatedTable = tableNumber !== updatedTableNumber ?
-        guests.filter(g => g.tableNumber === updatedTableNumber) :
-        guestsAtTable;
-    const isNewTableNumberForMovingTableInvalid = getUsedTableNumbers().includes(newTableNumberForMovingTable) &&
-        Number(tableNumber) !== Number(newTableNumberForMovingTable);
-    const isNonEmptyTable = Number(tableNumber) !== Number(updatedTableNumber) && guestsAtUpdatedTable.length;
+    const {tables, createOrUpdateTable} = useTables();
 
     const handleTableNumberUpdates = async () => {
-        setIsUpdatingTableNumber(true);
+        setIsUpdating(true);
         try {
-            const guestTableUpdates = [
-                ...guestsAtTable.map(g => ({guestId: g.guestId, tableNumber: updatedTableNumber})),
-                ...guestsAtUpdatedTable.map(g => ({guestId: g.guestId, tableNumber: newTableNumberForMovingTable})),
-            ]
-            const response = await axios.post(getEditTableGuestsEndpointUrl(), {guestTableUpdates});
-            setGuests(response.data.guests);
-            setTableNumber(updatedTableNumber);
+            const movingTable = tables.find(t => t.tableNumber === updatedTableNumber)
+            const updatedTable = {
+                ...table,
+                tableNumber: updatedTableNumber
+            };
+            await createOrUpdateTable(updatedTable);
+            if (isNonEmptyTable && !isNewTableNumberForMovingTableInvalid && movingTable) {
+                await createOrUpdateTable({
+                    ...movingTable,
+                    tableNumber: newTableNumberForMovingTable
+                });
+            }
+            setTableToEdit(updatedTable);
         } catch (e) {
             console.error(e);
         }
-        setIsUpdatingTableNumber(false);
+        setIsUpdating(false);
     }
+
+    const isUpdateTableNumberButtonDisabled = isNewTableNumberForMovingTableInvalid || Number(table.tableNumber) === Number(newTableNumberForMovingTable) || Number(table.tableNumber) === Number(updatedTableNumber);
+    return (
+        <Button
+            color={'green'}
+            variant={'outline'}
+            disabled={isUpdateTableNumberButtonDisabled}
+            onClick={handleTableNumberUpdates}
+            loading={isUpdating}
+        >
+            Update Table Number{isNonEmptyTable ? 's' : ''}
+        </Button>
+    );
+}
+
+const UpdateTableNumber = ({table, setTableToEdit}: { table: Table; setTableToEdit: (table: Table) => void; }) => {
+    const [updatedTableNumber, setUpdatedTableNumber] = useState(Number(table ? table.tableNumber : 1));
+    const [newTableNumberForMovingTable, setNewTableNumberForMovingTable] = useState(1);
+
+    const {tables, tableNumberExists} = useTables();
+
+    useEffect(() => {
+        if (table) {
+            setUpdatedTableNumber(Number(table.tableNumber));
+        }
+    }, [table]);
+
+
+    useEffect(() => {
+        setNewTableNumberForMovingTable(getFirstMissingTableNumber(tables))
+    }, [tables]);
+
+    const isNewTableNumberForMovingTableInvalid = tableNumberExists(newTableNumberForMovingTable) &&
+        Number(table.tableNumber) !== Number(newTableNumberForMovingTable);
+    const movingTable = tables.find(t => t.tableNumber === updatedTableNumber);
+    const isNonEmptyTable = movingTable && movingTable.guests.length > 0;
+
+    return (
+        <div className={'w-full flex flex-col gap-4 px-8'}>
+            <div>
+                <NumberInput
+                    min={1}
+                    label={'Table Number'}
+                    value={updatedTableNumber}
+                    // @ts-ignore
+                    onChange={(value) => setUpdatedTableNumber(value)}
+                />
+            </div>
+            {isNonEmptyTable ?
+                <div>
+                    <NumberInput
+                        min={1}
+                        label={'New Table Number'}
+                        value={newTableNumberForMovingTable}
+                        description={`Table ${updatedTableNumber} is already assigned to other guests. Please select a new table number for that table.`}
+                        // @ts-ignore
+                        onChange={(value) => setNewTableNumberForMovingTable(value)}
+                        error={isNewTableNumberForMovingTableInvalid ?
+                            'People are already assigned to this table. Please select a table number that is not already in use.' :
+                            null
+                        }
+                    />
+                </div> :
+                <></>
+            }
+            <div className={'flex justify-end'}>
+                <UpdateTableNumberButton
+                    table={table}
+                    setTableToEdit={setTableToEdit}
+                    newTableNumberForMovingTable={newTableNumberForMovingTable}
+                    updatedTableNumber={updatedTableNumber}
+                    isNonEmptyTable={isNonEmptyTable}
+                    isNewTableNumberForMovingTableInvalid={isNewTableNumberForMovingTableInvalid}
+                />
+            </div>
+        </div>
+    );
+}
+
+const EditTableModal = ({table, isOpen, setIsOpen, setTableToEdit}: EditTableModalProps) => {
+    const {guests} = useGuestList();
+    const [removingGuests, setRemovingGuests] = useState([] as Guest[]);
+    const tableNumber = table ? table.tableNumber : -1;
+    const guestsAtTable = table && table.guests ?
+        table.guests.map(guestId => guests.find(g => g.guestId === guestId)) :
+        [];
 
     return (
         <Modal title={`Table ${tableNumber}`} opened={isOpen} onClose={() => setIsOpen(false)}>
             <div className={'flex flex-col justify-center items-center gap-4'}>
-                <div className={'w-full flex flex-col gap-4 px-8'}>
-                    <div>
-                        <NumberInput
-                            min={1}
-                            label={'Table Number'}
-                            value={updatedTableNumber}
-                            // @ts-ignore
-                            onChange={(value) => setUpdatedTableNumber(value)}
-                        />
-                    </div>
-                    {isNonEmptyTable ?
-                        <div>
-                            <NumberInput
-                                min={1}
-                                label={'New Table Number'}
-                                value={newTableNumberForMovingTable}
-                                description={`Table ${updatedTableNumber} is already assigned to other guests. Please select a new table number for that table.`}
-                                // @ts-ignore
-                                onChange={(value) => setNewTableNumberForMovingTable(value)}
-                                error={isNewTableNumberForMovingTableInvalid ?
-                                    'People are already assigned to this table. Please select a table number that is not already in use.' :
-                                    null
-                                }
-                            />
-                        </div> :
-                        <></>
-                    }
-                    <div className={'flex justify-end'}>
-                        <Button
-                            color={'green'}
-                            variant={'outline'}
-                            disabled={isNewTableNumberForMovingTableInvalid || Number(tableNumber) === Number(newTableNumberForMovingTable) || Number(tableNumber) === Number(updatedTableNumber)}
-                            onClick={handleTableNumberUpdates}
-                            loading={isUpdatingTableNumber}
-                        >
-                            Update Table Number{isNonEmptyTable ? 's' : ''}
-                        </Button>
-                    </div>
-                </div>
+                <UpdateTableNumber
+                    table={table}
+                    setTableToEdit={setTableToEdit}
+                />
                 <div className={'text-center w-full px-8'}>
                     <Text size={'lg'}>Guests at Table</Text>
                     <Divider className={'pb-4'}/>
@@ -128,8 +160,8 @@ const EditTableModal = ({isOpen, setIsOpen, tableNumber, setTableNumber}: EditTa
                                 <GuestAtTableRow
                                     key={`guest-${index}`}
                                     guest={guest}
+                                    table={table}
                                     removingGuests={removingGuests}
-                                    guestsAtTable={guestsAtTable}
                                     setRemovingGuests={setRemovingGuests}
                                 />
                             )}

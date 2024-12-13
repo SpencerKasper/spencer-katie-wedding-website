@@ -1,29 +1,22 @@
-import {useCallback, useState} from 'react';
-import {Handle, Position} from '@xyflow/react';
-import {Popover, Button, Text, Modal} from "@mantine/core";
+import {Popover, Text} from "@mantine/core";
 import {useDisclosure} from "@mantine/hooks";
 import Circle from "@/app/table-chart/shapes/Circle";
-import EditTableModal from "@/app/table-chart/EditTableModal";
 import Rectangle from "@/app/table-chart/shapes/Rectangle";
 import useGuestList from "@/app/hooks/useGuestList";
 import {DEFAULT_TABLE_COLOR} from "@/constants/app-constants";
 
-const handleStyle = {left: 10};
-
-
 function TableNode({data}) {
     const {guests} = useGuestList();
     const [opened, {close, open}] = useDisclosure(false);
+    const guestsAtTable = guests.filter(g => data.table.guests.includes(g.guestId));
 
-    const guestsAtTable = guests.filter(g => g.tableNumber === data.tableNumber);
-
-    const tableText = `Table ${data.tableNumber} - ${guestsAtTable.length} Guests`;
+    const tableText = `Table ${data.table.tableNumber} - ${guestsAtTable.length} Guests`;
     return (
         <>
             <Popover position={'top'} withArrow shadow="md" opened={opened}>
                 <Popover.Target>
                     <div
-                        onClick={() => data.setTableNumberToEdit(data.tableNumber)}
+                        onClick={() => data.setTableToEdit(data.table)}
                         onMouseEnter={open}
                         onMouseLeave={close}
                     >
@@ -44,7 +37,7 @@ function TableNode({data}) {
                 </Popover.Target>
                 <Popover.Dropdown style={{pointerEvents: 'none'}} className={'max-h-96 overflow-y-scroll'}>
                     <div className={'p-4'}>
-                        <Text size="lg" className={'y-0'}>Table {data.tableNumber}</Text>
+                        <Text size="lg" className={'y-0'}>Table {data.table.tableNumber}</Text>
                         <ol>
                             {guestsAtTable.map(guest => {
                                 return (
