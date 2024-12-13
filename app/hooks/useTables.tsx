@@ -2,12 +2,13 @@ import {useAppDispatch, useAppSelector} from "@/lib/hooks";
 import axios from "axios";
 import {getTablesEndpointUrl} from "@/app/util/api-util";
 import {Table} from "@/types/table";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {setTables as setTablesAction} from "@/lib/reducers/appReducer";
 import {getUsedTableNumbers} from "@/app/util/table-util";
 import {Guest} from "@/types/guest";
 
 const useTables = ({fetchTablesOnInit = false} = {fetchTablesOnInit: false}) => {
+    const [isLoadingTables, setIsLoadingTables] = useState(false);
     const tables = useAppSelector(state => state.app.tables);
     const dispatch = useAppDispatch();
 
@@ -22,8 +23,11 @@ const useTables = ({fetchTablesOnInit = false} = {fetchTablesOnInit: false}) => 
     }
 
     const getTables = async () => {
+        setIsLoadingTables(true);
         const response = await axios.get(getTablesEndpointUrl());
-        return extractTablesFromResponseAndSetInRedux(response);
+        const updatedTables = extractTablesFromResponseAndSetInRedux(response);
+        setIsLoadingTables(false);
+        return updatedTables;
     };
 
     const createOrUpdateTable = async (table: Table) => {
@@ -46,7 +50,8 @@ const useTables = ({fetchTablesOnInit = false} = {fetchTablesOnInit: false}) => 
         setTables,
         createOrUpdateTable,
         tableNumberExists,
-        getGuestsTable
+        getGuestsTable,
+        isLoadingTables
     };
 }
 

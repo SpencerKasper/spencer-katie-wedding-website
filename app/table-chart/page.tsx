@@ -1,6 +1,6 @@
 'use client';
 import {applyNodeChanges, Background, Controls, ReactFlow} from "@xyflow/react";
-import {Card, Button} from '@mantine/core';
+import {Card, Button, Skeleton} from '@mantine/core';
 import '@xyflow/react/dist/style.css';
 import {useCallback, useEffect, useMemo, useState} from "react";
 import TableNode from "@/app/table-chart/TableNode";
@@ -9,6 +9,7 @@ import useTables from "@/app/hooks/useTables";
 import {Table} from "@/types/table";
 import {DEFAULT_TABLE_COLOR} from "@/constants/app-constants";
 import {getFirstMissingInteger, getFirstMissingTableNumber, getUsedTableNumbers} from "@/app/util/table-util";
+import useGuestList from "@/app/hooks/useGuestList";
 
 const getDefaultTable = (tableNumber: number): Table => ({
     tableNumber,
@@ -22,7 +23,8 @@ const getDefaultTable = (tableNumber: number): Table => ({
 });
 
 export default function TableChartPage() {
-    const {tables, createOrUpdateTable} = useTables({fetchTablesOnInit: true});
+    const {isLoadingGuests, getGuests} = useGuestList({getGuestsOnInstantiation: true})
+    const {tables, createOrUpdateTable, getTables} = useTables({fetchTablesOnInit: true});
     const [originalNodes, setOriginalNodes] = useState([]);
     const [nodes, setNodes] = useState([]);
     const [tableToEdit, setTableToEdit] = useState(null as Table);
@@ -31,6 +33,13 @@ export default function TableChartPage() {
             return !tableForNode || (tableForNode.coordinates.x !== nwt.position.x || tableForNode.coordinates.y !== nwt.position.y);
         }
     ).length > 0;
+
+    useEffect(() => {
+        window.onfocus = async () => {
+            await getTables();
+            await getGuests();
+        }
+    }, []);
 
     useEffect(() => {
         if (tables) {
@@ -82,65 +91,67 @@ export default function TableChartPage() {
                     isOpen={Boolean(tableToEdit)}
                     setIsOpen={(value) => setTableToEdit(value ? tableToEdit : null)}
                 />
-                <ReactFlow
-                    nodeTypes={nodeTypes}
-                    nodes={nodes}
-                    onNodesChange={onNodesChange}
-                    panOnScroll
-                >
-                    {hasChanges ?
-                        <div className={'flex gap-2 w-full justify-end'}>
-                            <CreateTableButton/>
-                            <Button
-                                color={'green'}
-                                variant={'outline'}
-                                className={'z-50'}
-                                onClick={async () => {
-                                    for (let node of nodes) {
-                                        const tableForNode = node.data.table;
-                                        if (
-                                            !tableForNode ||
-                                            (tableForNode &&
-                                                (
-                                                    tableForNode.coordinates.x !== node.position.x ||
-                                                    tableForNode.coordinates.y !== node.position.y
+                <Skeleton height={'100%'} visible={isLoadingGuests}>
+                    <ReactFlow
+                        nodeTypes={nodeTypes}
+                        nodes={nodes}
+                        onNodesChange={onNodesChange}
+                        panOnScroll
+                    >
+                        {hasChanges ?
+                            <div className={'flex gap-2 w-full justify-end'}>
+                                <CreateTableButton/>
+                                <Button
+                                    color={'green'}
+                                    variant={'outline'}
+                                    className={'z-50'}
+                                    onClick={async () => {
+                                        for (let node of nodes) {
+                                            const tableForNode = node.data.table;
+                                            if (
+                                                !tableForNode ||
+                                                (tableForNode &&
+                                                    (
+                                                        tableForNode.coordinates.x !== node.position.x ||
+                                                        tableForNode.coordinates.y !== node.position.y
+                                                    )
                                                 )
-                                            )
-                                        ) {
-                                            await createOrUpdateTable({
-                                                ...(tableForNode ? tableForNode : {
-                                                    tableNumber: node.data.tableNumber,
-                                                    shape: node.data.shape
-                                                }),
-                                                coordinates: {
-                                                    x: node.position.x,
-                                                    y: node.position.y
-                                                }
-                                            });
+                                            ) {
+                                                await createOrUpdateTable({
+                                                    ...(tableForNode ? tableForNode : {
+                                                        tableNumber: node.data.tableNumber,
+                                                        shape: node.data.shape
+                                                    }),
+                                                    coordinates: {
+                                                        x: node.position.x,
+                                                        y: node.position.y
+                                                    }
+                                                });
+                                            }
                                         }
-                                    }
-                                }}
-                            >
-                                Save
-                            </Button>
-                            <Button
-                                color={'red'}
-                                variant={'outline'}
-                                className={'z-50'}
-                                onClick={() => {
-                                    setNodes(originalNodes);
-                                }}
-                            >
-                                Reset
-                            </Button>
-                        </div> :
-                        <div className={'flex gap-2 w-full justify-end'}>
-                            <CreateTableButton/>
-                        </div>
-                    }
-                    <Background/>
-                    <Controls/>
-                </ReactFlow>
+                                    }}
+                                >
+                                    Save
+                                </Button>
+                                <Button
+                                    color={'red'}
+                                    variant={'outline'}
+                                    className={'z-50'}
+                                    onClick={() => {
+                                        setNodes(originalNodes);
+                                    }}
+                                >
+                                    Reset
+                                </Button>
+                            </div> :
+                            <div className={'flex gap-2 w-full justify-end'}>
+                                <CreateTableButton/>
+                            </div>
+                        }
+                        <Background/>
+                        <Controls/>
+                    </ReactFlow>
+                </Skeleton>
             </Card>
         </div>
     )

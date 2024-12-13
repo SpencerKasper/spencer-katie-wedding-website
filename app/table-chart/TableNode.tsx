@@ -6,11 +6,10 @@ import useGuestList from "@/app/hooks/useGuestList";
 import {DEFAULT_TABLE_COLOR} from "@/constants/app-constants";
 
 function TableNode({data}) {
-    const {guests} = useGuestList();
+    const {guests, getGuestsAtTable} = useGuestList();
     const [opened, {close, open}] = useDisclosure(false);
-    const guestsAtTable = guests.filter(g => data.table.guests.includes(g.guestId));
 
-    const tableText = `Table ${data.table.tableNumber} - ${guestsAtTable.length} Guests`;
+    const tableText = `Table ${data.table.tableNumber} - ${data.table.guests.length} Guests`;
     return (
         <>
             <Popover position={'top'} withArrow shadow="md" opened={opened}>
@@ -39,7 +38,7 @@ function TableNode({data}) {
                     <div className={'p-4'}>
                         <Text size="lg" className={'y-0'}>Table {data.table.tableNumber}</Text>
                         <ol>
-                            {guestsAtTable.map(guest => {
+                            {getGuestsAtTable(data.table).map(guest => {
                                 return (
                                     <li key={guest.firstName}>{guest.firstName} {guest.lastName}</li>
                                 )

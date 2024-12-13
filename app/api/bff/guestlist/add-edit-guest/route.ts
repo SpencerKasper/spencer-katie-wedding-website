@@ -23,15 +23,32 @@ export async function POST(request) {
             });
         }
         const addUpdateGuestResponse = await axios.post(getGuestListEndpointUrl(), guest);
+        const getGuestsResponse = await axios.get(getGuestListEndpointUrl());
+        const guests = getGuestsResponse.data.guests;
         const guestIdsAtTable = tableToUpdate.guests ? tableToUpdate.guests : [];
+        const partyGuestIds = guest.partyId && guest.partyId !== '' ?
+            guests.filter(g => g.partyId === guest.partyId).map(g => g.guestId) :
+            [];
+        const previousTable = tables.find(t => t.guests.includes(guest.guestId));
+        await axios.post(
+            getTablesEndpointUrl(),
+            {
+                ...previousTable,
+                guests: previousTable.guests.filter(g => ![guest.guestId, ...partyGuestIds].includes(g))
+            }
+        );
         const addUpdateTableResponse = await axios.post(
             getTablesEndpointUrl(),
-            {...tableToUpdate, guests: [...guestIdsAtTable, guest.guestId]}
+            {...tableToUpdate, guests: Array.from(new Set([...guestIdsAtTable, guest.guestId, ...partyGuestIds]))}
         );
+        await axios.post(
+            getTablesEndpointUrl(),
+            {}
+        )
         return NextResponse.json({
-           statusCode: 201,
-           guests: addUpdateGuestResponse.data.guests,
-           tables: addUpdateTableResponse.data.tables,
+            statusCode: 201,
+            guests: addUpdateGuestResponse.data.guests,
+            tables: addUpdateTableResponse.data.tables,
         });
     } catch (e) {
         console.error(e);

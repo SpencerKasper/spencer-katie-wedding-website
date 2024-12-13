@@ -1,5 +1,5 @@
 import {useAppDispatch, useAppSelector} from "@/lib/hooks";
-import {useCallback, useEffect} from "react";
+import {useCallback, useEffect, useState} from "react";
 import axios from "axios";
 import {Guest} from "@/types/guest";
 import {setGuests as setGuestsAction} from "@/lib/reducers/appReducer";
@@ -12,17 +12,21 @@ interface UseGuestListProps {
     setGuests: (guests: Guest[]) => void;
     getGuestsAtTable: (table: Table) => Guest[];
     getGuestsAtTableNumber: (tableNumber: number, tables: Table[]) => Guest[];
+    isLoadingGuests: boolean;
 }
 
 const defaultProps = {getGuestsOnInstantiation: false};
 const useGuestList = ({getGuestsOnInstantiation = false} = defaultProps): UseGuestListProps => {
+    const [isLoadingGuests, setIsLoadingGuests] = useState(false);
     const guests: Guest[] = useAppSelector(state => state.app.guests);
     const dispatch = useAppDispatch();
 
     const getGuests = useCallback(async () => {
+        setIsLoadingGuests(true);
         const guestListResponse = await axios.get(getGuestListEndpointUrl());
         const updatedGuests = guestListResponse.data.guests as Guest[];
         await dispatch(setGuestsAction({guests: updatedGuests}));
+        setIsLoadingGuests(false);
         return updatedGuests;
     }, [dispatch]);
 
@@ -48,6 +52,7 @@ const useGuestList = ({getGuestsOnInstantiation = false} = defaultProps): UseGue
         setGuests,
         getGuestsAtTable,
         getGuestsAtTableNumber,
+        isLoadingGuests
     };
 }
 
