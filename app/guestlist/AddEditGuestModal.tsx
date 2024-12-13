@@ -1,10 +1,13 @@
 'use client';
-import {Autocomplete, Button, Divider, Group, List, Modal, NumberInput, TextInput} from "@mantine/core";
+import {Autocomplete, Button, Divider, Group, List, Modal, NumberInput, Select, TextInput} from "@mantine/core";
 import {useForm} from "@mantine/form";
 import {useEffect, useState} from "react";
 import CityStateAndZipCodeInput from "@/app/guestlist/CityStateAndZipCodeInput";
 import axios from "axios";
 import {Guest} from "@/types/guest";
+import useGuestList from "@/app/hooks/useGuestList";
+import useTables from "@/app/hooks/useTables";
+import {getGuestListBffEndpointUrl} from "@/app/util/api-util";
 
 interface AddEditGuestModalProps {
     guests: Guest[];
@@ -16,14 +19,15 @@ interface AddEditGuestModalProps {
 }
 
 const AddEditGuestModal = ({
-                               guests,
-                               setGuests,
                                opened,
                                onClose,
                                selectedGuest = null,
                                setSelectedGuest
                            }: AddEditGuestModalProps) => {
-    const [guestsAtTable, setGuestsAtTable] = useState(guests.filter(g => g.tableNumber === 1));
+    const {guests, setGuests, getGuestsAtTable} = useGuestList();
+    const {tables, getGuestsTable, setTables} = useTables({fetchTablesOnInit: true});
+    const guestsTable = getGuestsTable(selectedGuest);
+    const [guestsAtTable, setGuestsAtTable] = useState(getGuestsAtTable(guestsTable));
     const [zipCode, setZipCode] = useState(selectedGuest ? selectedGuest.zipCode : '');
     const getGuestPartyMember = (initialGuest: Guest) => {
         const foundGuest = guests.find(guest => guest.guestId !== initialGuest.guestId && guest.partyId === initialGuest.partyId);
@@ -46,7 +50,7 @@ const AddEditGuestModal = ({
             state: selectedGuest ? selectedGuest.state : '',
             zipCode: selectedGuest ? selectedGuest.zipCode : '',
             guestPartyMember: getSelectedGuestsPartyMember(),
-            tableNumber: 1,
+            tableId: guestsTable ? guestsTable.tableId : null,
         },
         // @ts-ignore
         validate: {
@@ -60,25 +64,19 @@ const AddEditGuestModal = ({
                 const hasFirstName = getValueFromForm('firstName').trim() !== '';
                 const isNameInList = guests.filter(guest => `${guest.firstName} ${guest.lastName}` === `${getValueFromForm('firstName')} ${value}`).length;
                 return hasFirstName && isNameInList && !selectedGuest ? 'Guest with this first and last name is already in list.' : null;
-            },
-            tableNumber: (value) => {
-                return isNaN(value) || value <= 0 ? 'Table number must be at least 1' : null;
             }
         },
         onValuesChange: (values, previous) => {
-            if (values.tableNumber !== previous.tableNumber) {
-                setGuestsAtTable(guests.filter(g => g.tableNumber === values.tableNumber));
+            if (values.tableId !== previous.tableId) {
+                const table = tables.find(t => t.tableId === values.tableId);
+                setGuestsAtTable(getGuestsAtTable(table));
             }
         }
     });
 
     useEffect(() => {
-        setGuestsAtTable(guests.filter(g => g.tableNumber === 1));
-    }, [guests]);
-
-    useEffect(() => {
         if (selectedGuest && opened) {
-            setGuestsAtTable(guests.filter(g => g.tableNumber === selectedGuest.tableNumber));
+            setGuestsAtTable(getGuestsAtTable(getGuestsTable(selectedGuest)));
             setZipCode(selectedGuest.zipCode);
             form.setValues({
                 ...selectedGuest,
@@ -86,6 +84,13 @@ const AddEditGuestModal = ({
             });
         }
     }, [selectedGuest, guests, opened]);
+
+    useEffect(() => {
+        form.setValues((prev) => ({
+            ...prev,
+            tableId: guestsTable ? guestsTable.tableId : null,
+        }));
+    }, [guestsTable]);
 
     const getValueFromForm = (property: PropertyKey) => form.getValues() && form.getValues().hasOwnProperty(property) ? form.getValues()[property] : '';
 
@@ -99,12 +104,18 @@ const AddEditGuestModal = ({
         onClose();
     }
 
+    const tableOptions = tables.map(t => ({label: `${t.tableNumber}`, value: t.tableId}));
     return (
         <Modal opened={opened} onClose={() => resetModal()} title="Add Guest" centered>
             <form
                 onSubmit={form.onSubmit(async (guestToAdd) => {
-                    const response = await axios.post(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist`, guestToAdd);
+                    const tableToAddTo = tables.find(t => t.tableId === guestToAdd.tableId);
+                    const response = await axios.post(getGuestListBffEndpointUrl(), {
+                        guest: guestToAdd,
+                        tableId: tableToAddTo ? tableToAddTo.tableId : '',
+                    });
                     setGuests(response.data.guests);
+                    setTables(response.data.tables);
                     resetModal();
                 })}
             >
@@ -171,20 +182,25 @@ const AddEditGuestModal = ({
                         <Divider/>
                     </div>
                     <p className={'text-md'}>Table</p>
-                    <NumberInput
-                        label={'Table Number'}
-                        placeholder={'Enter a Table Number'}
-                        key={form.key('tableNumber')}
-                        {...form.getInputProps('tableNumber')}
+                    <Select
+                        placeholder={'Select a Table'}
+                        data={tableOptions}
+                        key={form.key('tableId')}
+                        {...form.getInputProps('tableId')}
                     />
                     {guestsAtTable.length ?
                         <div>
-                            <p className={'text-sm'}>People at Table</p>
+                            <p className={'text-md'}>People at Table</p>
                             <List>
                                 {guestsAtTable
                                     .map((g, index) => (
                                         <List.Item
-                                            key={`guest-at-table-${index}`}>{`- ${g.firstName} ${g.lastName}`}</List.Item>))
+                                            key={`guest-at-table-${index}`}
+                                            className={'text-sm'}
+                                        >
+                                            {`- ${g.firstName} ${g.lastName}`}
+                                        </List.Item>
+                                    ))
                                 }
                             </List>
                         </div> :

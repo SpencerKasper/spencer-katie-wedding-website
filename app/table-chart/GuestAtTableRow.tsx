@@ -14,7 +14,6 @@ interface GuestAtTableRowProps {
     guest: Guest;
     table: Table;
     removingGuests: Guest[];
-    guestsAtTable: Guest[];
     setRemovingGuests: (guests: Guest[]) => void;
 }
 

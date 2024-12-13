@@ -2,24 +2,17 @@
 import {Guest} from "@/types/guest";
 import {Button, Card, Checkbox, Pagination, Select, Table, TextInput, Highlight} from "@mantine/core";
 import AddEditGuestModal from "@/app/guestlist/AddEditGuestModal";
-import {useEffect, useState} from "react";
-import axios from "axios";
+import {useState} from "react";
 import {booleanIsDefined} from "@/app/util/general-util";
+import useGuestList from "@/app/hooks/useGuestList";
+import useTables from "@/app/hooks/useTables";
 
 export function GuestListTable() {
     const [search, setSearch] = useState({search: '', includePartyMembers: false});
-    const [guests, setGuests] = useState([] as Guest[]);
     const [paginationInfo, setPaginationInfo] = useState({guestsPerPage: 20, currentPage: 1});
 
-    const refreshGuests = () => {
-        const url = `${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist`;
-        axios.get(url)
-            .then(guestListResponse => setGuests(guestListResponse.data.guests));
-    };
-
-    useEffect(() => {
-        refreshGuests();
-    }, []);
+    const {guests} = useGuestList({getGuestsOnInstantiation: true});
+    const {tables} = useTables();
 
     const [selectedGuest, setSelectedGuest] = useState(null as Guest);
     const [modalOpen, setModalOpen] = useState(false);
@@ -71,6 +64,7 @@ export function GuestListTable() {
         currentWhiteIndex = dataStriped;
         index++;
         const guestName = `${guest.firstName} ${guest.lastName}`;
+        const guestsTable = tables.find(t => t.guests.find(g => g === guest.guestId));
         guestRows.push(
             <Table.Tr
                 className={'cursor-pointer hover:bg-yellow-100'}
@@ -83,7 +77,7 @@ export function GuestListTable() {
             >
                 <Table.Td><Highlight highlight={search.search}>{guestName}</Highlight></Table.Td>
                 <Table.Td className={'min-w-48'}>{formattedAddress}</Table.Td>
-                <Table.Td>{guest.tableNumber > 0 ? guest.tableNumber : '-'}</Table.Td>
+                <Table.Td>{guestsTable ? guestsTable.tableNumber : '-'}</Table.Td>
                 <Table.Td>{guest.phoneNumber ? guest.phoneNumber : '-'}</Table.Td>
                 <Table.Td>{guest.emailAddress ? guest.emailAddress : '-'}</Table.Td>
                 <Table.Td>{booleanIsDefined(guest.optOutOfEmail) ? (guest.optOutOfEmail ? 'Yes' : 'No') : '-'}</Table.Td>
@@ -117,8 +111,6 @@ export function GuestListTable() {
                     <AddEditGuestModal
                         selectedGuest={selectedGuest}
                         setSelectedGuest={setSelectedGuest}
-                        guests={guests}
-                        setGuests={setGuests}
                         opened={modalOpen}
                         onClose={() => setModalOpen(false)}
                     />

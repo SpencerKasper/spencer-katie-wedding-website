@@ -87,7 +87,6 @@ export async function POST(request) {
                             state: {S: rsvpGuest.state},
                             emailAddress: {S: rsvpGuest.emailAddress},
                             phoneNumber: {S: rsvpGuest.phoneNumber.toString()},
-                            tableNumber: {N: rsvpGuest.tableNumber ? rsvpGuest.tableNumber.toString() : '-1'},
                             ...(rsvpGuest.partyId && rsvpGuest.partyId !== '' ? {partyId: {S: rsvpGuest.partyId}} : {}),
                         }
                     },

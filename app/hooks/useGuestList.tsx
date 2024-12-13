@@ -4,11 +4,14 @@ import axios from "axios";
 import {Guest} from "@/types/guest";
 import {setGuests as setGuestsAction} from "@/lib/reducers/appReducer";
 import {getGuestListEndpointUrl} from "@/app/util/api-util";
+import {Table} from "@/types/table";
 
 interface UseGuestListProps {
     guests: Guest[];
     getGuests: () => Promise<Guest[]>;
     setGuests: (guests: Guest[]) => void;
+    getGuestsAtTable: (table: Table) => Guest[];
+    getGuestsAtTableNumber: (tableNumber: number, tables: Table[]) => Guest[];
 }
 
 const defaultProps = {getGuestsOnInstantiation: false};
@@ -27,6 +30,12 @@ const useGuestList = ({getGuestsOnInstantiation = false} = defaultProps): UseGue
         dispatch(setGuestsAction({guests}));
     }, [dispatch]);
 
+    const getGuestsAtTable = (table: Table) => table ?
+        guests.filter(guest => table.guests.find(guestId => guestId === guest.guestId)) :
+        [];
+
+    const getGuestsAtTableNumber = (tableNumber: number, tables: Table[]) => getGuestsAtTable(tables.find(t => t.tableNumber === tableNumber))
+
     useEffect(() => {
         if (getGuestsOnInstantiation) {
             getGuests().then();
@@ -37,6 +46,8 @@ const useGuestList = ({getGuestsOnInstantiation = false} = defaultProps): UseGue
         guests,
         getGuests,
         setGuests,
+        getGuestsAtTable,
+        getGuestsAtTableNumber,
     };
 }
 

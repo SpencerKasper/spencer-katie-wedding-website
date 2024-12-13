@@ -47,7 +47,6 @@ export async function POST(request) {
             state,
             zipCode,
             guestPartyMember,
-            tableNumber,
             optOutOfEmail,
             partyId
         } = guest;
@@ -96,7 +95,7 @@ export async function POST(request) {
                 Key: {
                     guestId: foundGuest.guestId
                 },
-                UpdateExpression: "SET #address = :address, #address2 = :address2, #city = :city, #state = :state, #zipCode = :zipCode, #emailAddress = :emailAddress, #optOutOfEmail = :optOutOfEmail, #partyId = :partyId, #phoneNumber = :phoneNumber, #tableNumber = :tableNumber",
+                UpdateExpression: "SET #address = :address, #address2 = :address2, #city = :city, #state = :state, #zipCode = :zipCode, #emailAddress = :emailAddress, #optOutOfEmail = :optOutOfEmail, #partyId = :partyId, #phoneNumber = :phoneNumber",
                 ExpressionAttributeNames: {
                     "#address": "address",
                     "#address2": "address2",
@@ -107,7 +106,6 @@ export async function POST(request) {
                     "#optOutOfEmail": "optOutOfEmail",
                     "#phoneNumber": "phoneNumber",
                     "#partyId": "partyId",
-                    "#tableNumber": "tableNumber",
                 },
                 ExpressionAttributeValues: {
                     ":address": guest && guest.address ? guest.address : '',
@@ -119,7 +117,6 @@ export async function POST(request) {
                     ":optOutOfEmail": guest && !booleanIsUndefined(guest.optOutOfEmail) ? guest.optOutOfEmail : false,
                     ":phoneNumber": guest && guest.phoneNumber ? guest.phoneNumber : '',
                     ":partyId": guest ? await getPartyId() : '',
-                    ":tableNumber": guest && guest.tableNumber ? guest.tableNumber : '',
                 }
             }));
         } else {
@@ -138,7 +135,6 @@ export async function POST(request) {
                     state: {S: state ? state : ''},
                     zipCode: {S: zipCode ? zipCode : ''},
                     partyId: {S: await getPartyId()},
-                    tableNumber: {N: tableNumber ? tableNumber.toString() : '-1'}
                 }
             }));
         }

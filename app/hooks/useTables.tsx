@@ -3,8 +3,9 @@ import axios from "axios";
 import {getTablesEndpointUrl} from "@/app/util/api-util";
 import {Table} from "@/types/table";
 import {useEffect} from "react";
-import {setTables} from "@/lib/reducers/appReducer";
+import {setTables as setTablesAction} from "@/lib/reducers/appReducer";
 import {getUsedTableNumbers} from "@/app/util/table-util";
+import {Guest} from "@/types/guest";
 
 const useTables = ({fetchTablesOnInit = false} = {fetchTablesOnInit: false}) => {
     const tables = useAppSelector(state => state.app.tables);
@@ -12,9 +13,13 @@ const useTables = ({fetchTablesOnInit = false} = {fetchTablesOnInit: false}) => 
 
     const extractTablesFromResponseAndSetInRedux = (response: axios.AxiosResponse<{ tables: Table[] }>) => {
         const extractedTables = response.data.tables;
-        dispatch(setTables({tables: extractedTables}));
+        setTables(extractedTables)
         return extractedTables;
     };
+
+    const setTables = (tables: Table[]) => {
+        dispatch(setTablesAction({tables}));
+    }
 
     const getTables = async () => {
         const response = await axios.get(getTablesEndpointUrl());
@@ -27,6 +32,7 @@ const useTables = ({fetchTablesOnInit = false} = {fetchTablesOnInit: false}) => 
     }
 
     const tableNumberExists = (tableNumber: number) => getUsedTableNumbers(tables).includes(tableNumber);
+    const getGuestsTable = (guest: Guest) => guest ? tables.find(t => t.guests.find(guestId => guestId === guest.guestId)) : null;
 
     useEffect(() => {
         if (fetchTablesOnInit) {
@@ -37,8 +43,10 @@ const useTables = ({fetchTablesOnInit = false} = {fetchTablesOnInit: false}) => 
     return {
         tables,
         getTables,
+        setTables,
         createOrUpdateTable,
-        tableNumberExists
+        tableNumberExists,
+        getGuestsTable
     };
 }
 

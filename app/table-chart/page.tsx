@@ -26,8 +26,10 @@ export default function TableChartPage() {
     const [originalNodes, setOriginalNodes] = useState([]);
     const [nodes, setNodes] = useState([]);
     const [tableToEdit, setTableToEdit] = useState(null as Table);
-    const hasChanges = nodes.filter(nwt =>
-        !nwt.table || (nwt.table.coordinates.x !== nwt.position.x || nwt.table.coordinates.y !== nwt.position.y)
+    const hasChanges = nodes.filter(nwt => {
+            const tableForNode = nwt.data.table;
+            return !tableForNode || (tableForNode.coordinates.x !== nwt.position.x || tableForNode.coordinates.y !== nwt.position.y);
+        }
     ).length > 0;
 
     useEffect(() => {
@@ -95,17 +97,18 @@ export default function TableChartPage() {
                                 className={'z-50'}
                                 onClick={async () => {
                                     for (let node of nodes) {
+                                        const tableForNode = node.data.table;
                                         if (
-                                            !node.table ||
-                                            (node.table &&
+                                            !tableForNode ||
+                                            (tableForNode &&
                                                 (
-                                                    node.table.coordinates.x !== node.position.x ||
-                                                    node.table.coordinates.y !== node.position.y
+                                                    tableForNode.coordinates.x !== node.position.x ||
+                                                    tableForNode.coordinates.y !== node.position.y
                                                 )
                                             )
                                         ) {
                                             await createOrUpdateTable({
-                                                ...(node.table ? node.table : {
+                                                ...(tableForNode ? tableForNode : {
                                                     tableNumber: node.data.tableNumber,
                                                     shape: node.data.shape
                                                 }),
