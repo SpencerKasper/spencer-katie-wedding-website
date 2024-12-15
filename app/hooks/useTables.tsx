@@ -1,5 +1,5 @@
 import {useAppDispatch, useAppSelector} from "@/lib/hooks";
-import axios from "axios";
+import axios, {AxiosResponse} from "axios";
 import {getTablesEndpointUrl} from "@/app/util/api-util";
 import {Table} from "@/types/table";
 import {useEffect, useState} from "react";
@@ -7,12 +7,16 @@ import {setTables as setTablesAction} from "@/lib/reducers/appReducer";
 import {getUsedTableNumbers} from "@/app/util/table-util";
 import {Guest} from "@/types/guest";
 
-const useTables = ({fetchTablesOnInit = false} = {fetchTablesOnInit: false}) => {
+interface UseTableProps {
+    fetchTablesOnInit: boolean;
+}
+
+const useTables = ({fetchTablesOnInit = false}: UseTableProps = {fetchTablesOnInit: false}) => {
     const [isLoadingTables, setIsLoadingTables] = useState(false);
     const tables = useAppSelector(state => state.app.tables);
     const dispatch = useAppDispatch();
 
-    const extractTablesFromResponseAndSetInRedux = (response: axios.AxiosResponse<{ tables: Table[] }>) => {
+    const extractTablesFromResponseAndSetInRedux = (response: AxiosResponse<{ tables: Table[] }>) => {
         const extractedTables = response.data.tables;
         setTables(extractedTables)
         return extractedTables;

@@ -10,8 +10,6 @@ import useTables from "@/app/hooks/useTables";
 import {getGuestListBffEndpointUrl} from "@/app/util/api-util";
 
 interface AddEditGuestModalProps {
-    guests: Guest[];
-    setGuests: (guests: Guest[]) => void;
     opened: boolean;
     onClose: () => void;
     selectedGuest?: Guest;
