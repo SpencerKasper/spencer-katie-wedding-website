@@ -9,6 +9,7 @@ import axios from "axios";
 import {getTablesEndpointUrl} from "@/app/util/api-util";
 import useGuestList from "@/app/hooks/useGuestList";
 import {Table} from "@/types/table";
+import useTables from "@/app/hooks/useTables";
 
 interface GuestAtTableRowProps {
     guest: Guest;
@@ -23,7 +24,8 @@ export const GuestAtTableRow = ({
                                     removingGuests,
                                     setRemovingGuests
                                 }: GuestAtTableRowProps) => {
-    const {guests, setGuests} = useGuestList();
+    const {guests} = useGuestList();
+    const {setTables} = useTables();
     const [opened, {close, open}] = useDisclosure(false);
     const [cancelOpened, {close: cancelClose, open: cancelOpen}] = useDisclosure(false);
     const [isRemoving, setIsRemoving] = useState(false);
@@ -31,8 +33,11 @@ export const GuestAtTableRow = ({
     const handleRemoveGuestsFromTable = async () => {
         setIsRemoving(true);
         try {
-            const response = await axios.post(getTablesEndpointUrl(), {...table, tableNumber: null});
-            setGuests(response.data.guests);
+            const response = await axios.post(getTablesEndpointUrl(), {
+                ...table,
+                guests: table.guests.filter(guestId => removingGuests.filter(rg => rg.guestId === guestId).length === 0),
+            });
+            setTables(response.data.tables);
             setRemovingGuests([]);
             cancelClose();
         } catch (e) {

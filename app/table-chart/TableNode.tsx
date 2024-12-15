@@ -6,7 +6,7 @@ import useGuestList from "@/app/hooks/useGuestList";
 import {DEFAULT_TABLE_COLOR} from "@/constants/app-constants";
 
 function TableNode({data}) {
-    const {guests, getGuestsAtTable} = useGuestList();
+    const {getGuestsAtTable} = useGuestList();
     const [opened, {close, open}] = useDisclosure(false);
 
     const tableText = `Table ${data.table.tableNumber} - ${data.table.guests.length} Guests`;

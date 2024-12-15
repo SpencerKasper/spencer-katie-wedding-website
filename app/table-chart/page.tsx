@@ -10,6 +10,7 @@ import {Table} from "@/types/table";
 import {DEFAULT_TABLE_COLOR} from "@/constants/app-constants";
 import {getFirstMissingInteger, getFirstMissingTableNumber, getUsedTableNumbers} from "@/app/util/table-util";
 import useGuestList from "@/app/hooks/useGuestList";
+import {setTables} from "@/lib/reducers/appReducer";
 
 const getDefaultTable = (tableNumber: number): Table => ({
     tableNumber,
@@ -58,6 +59,9 @@ export default function TableChartPage() {
             });
             setNodes(updatedNodes);
             setOriginalNodes(updatedNodes);
+            if(tableToEdit) {
+                setTableToEdit(tables.find(t => t.tableId === tableToEdit.tableId));
+            }
         }
     }, [tables]);
 

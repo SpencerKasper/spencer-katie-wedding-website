@@ -1,11 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import {Button, Divider, Modal, NumberInput, Text} from "@mantine/core";
+import {Autocomplete, Button, Divider, Modal, NumberInput, Text} from "@mantine/core";
 import {Guest} from "@/types/guest";
 import {GuestAtTableRow} from "@/app/table-chart/GuestAtTableRow";
 import useGuestList from "@/app/hooks/useGuestList";
 import useTables from "@/app/hooks/useTables";
 import {getFirstMissingTableNumber} from "@/app/util/table-util";
 import {Table} from "@/types/table";
+import axios from "axios";
+import {getGuestListBffEndpointUrl} from "@/app/util/api-util";
 
 interface EditTableModalProps {
     table: Table;
@@ -95,12 +97,12 @@ const UpdateTableNumber = ({table, setTableToEdit}: { table: Table; setTableToEd
 }
 
 const EditTableModal = ({table, isOpen, setIsOpen, setTableToEdit}: EditTableModalProps) => {
-    const {guests} = useGuestList();
+    const {guests, getGuestsAtTable} = useGuestList();
+    const {tables, createOrUpdateTable} = useTables();
     const [removingGuests, setRemovingGuests] = useState([] as Guest[]);
+    const [selectedName, setSelectedName] = useState('');
     const tableNumber = table ? table.tableNumber : -1;
-    const guestsAtTable = table && table.guests ?
-        table.guests.map(guestId => guests.find(g => g.guestId === guestId)) :
-        [];
+    const guestsAtTable = getGuestsAtTable(table);
 
     return (
         <Modal title={`Table ${tableNumber}`} opened={isOpen} onClose={() => setIsOpen(false)}>
@@ -125,6 +127,33 @@ const EditTableModal = ({table, isOpen, setIsOpen, setTableToEdit}: EditTableMod
                                 />
                             )}
                     </div>
+                </div>
+                <div>
+                    <Autocomplete
+                        label={'Add Guests to Table'}
+                        placeholder={'Search for Guests Who Do Not Have a table'}
+                        data={guests.filter(g => !tables.find(t => t.guests.find(guestId => g.guestId === guestId))).map(g => ({
+                            label: `${g.firstName} ${g.lastName}`,
+                            value: g.guestId
+                        }))}
+                        value={selectedName}
+                        onChange={(value) => setSelectedName(value)}
+                    />
+                    <Button
+                        variant={'outline'}
+                        onClick={async () => {
+                        const selectedGuest = guests.find(g => `${g.firstName} ${g.lastName}` === selectedName);
+                        const partyGuestIds = selectedGuest && selectedGuest.partyId && selectedGuest.partyId !== '' ?
+                            guests.filter(g => g.partyId === selectedGuest.partyId && g.guestId !== selectedGuest.guestId).map(g => g.guestId) :
+                            [];
+
+                        const updatedGuests = [...table.guests, selectedGuest.guestId, ...partyGuestIds];
+                        await createOrUpdateTable({
+                            ...table,
+                            guests: updatedGuests
+                        });
+                        setSelectedName('');
+                    }}>Submit</Button>
                 </div>
             </div>
         </Modal>

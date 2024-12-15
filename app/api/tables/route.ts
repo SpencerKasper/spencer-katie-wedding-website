@@ -47,7 +47,7 @@ export async function POST(request) {
                     ":coordinates": body.coordinates,
                     ":shape": body.shape,
                     ":color": body.color,
-                    ":guests": body.guests,
+                    ":guests": Array.from(new Set(body.guests)),
                 }
             }));
         } else {
