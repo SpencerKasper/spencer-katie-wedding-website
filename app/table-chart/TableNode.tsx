@@ -10,6 +10,7 @@ function TableNode({data}) {
     const [opened, {close, open}] = useDisclosure(false);
 
     const tableText = `Table ${data.table.tableNumber} - ${data.table.guests.length} Guests`;
+    const color = data.table ? data.table.color : '';
     return (
         <>
             <Popover position={'top'} withArrow shadow="md" opened={opened}>
@@ -19,15 +20,15 @@ function TableNode({data}) {
                         onMouseEnter={open}
                         onMouseLeave={close}
                     >
-                        {data.shape && data.shape === 'rectangle' ?
+                        {data.table  && data.table.shape && data.table.shape === 'rectangle' ?
                             <Rectangle
                                 width={150}
                                 height={100}
                                 text={tableText}
-                                color={DEFAULT_TABLE_COLOR}
+                                color={color}
                             /> :
                             <Circle
-                                color={DEFAULT_TABLE_COLOR}
+                                color={color}
                                 size={150}
                                 text={tableText}
                             />

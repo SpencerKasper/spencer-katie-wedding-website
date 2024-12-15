@@ -54,7 +54,7 @@ export default function TableChartPage() {
                         x: table ? table.coordinates.x : DEFAULT_X,
                         y: table ? table.coordinates.y : DEFAULT_Y
                     },
-                    data: {table, setTableToEdit, shape: 'circle'}
+                    data: {table, setTableToEdit}
                 });
             });
             setNodes(updatedNodes);

@@ -1,5 +1,16 @@
 import React, {useEffect, useState} from 'react';
-import {Autocomplete, Button, Divider, Modal, NumberInput, Text} from "@mantine/core";
+import {
+    Autocomplete,
+    Button,
+    ColorPicker,
+    Divider,
+    InputLabel,
+    Modal,
+    NumberInput,
+    Popover,
+    Select,
+    Text
+} from "@mantine/core";
 import {Guest} from "@/types/guest";
 import {GuestAtTableRow} from "@/app/table-chart/GuestAtTableRow";
 import useGuestList from "@/app/hooks/useGuestList";
@@ -8,6 +19,7 @@ import {getFirstMissingTableNumber} from "@/app/util/table-util";
 import {Table} from "@/types/table";
 import axios from "axios";
 import {getGuestListBffEndpointUrl} from "@/app/util/api-util";
+import {DEFAULT_TABLE_COLOR} from "@/constants/app-constants";
 
 interface EditTableModalProps {
     table: Table;
@@ -74,7 +86,7 @@ const UpdateTableNumber = ({table, setTableToEdit}: { table: Table; setTableToEd
         'Table numbers are meant to be unique. Please select a table number that is not already being used.' :
         null;
     return (
-        <div className={'w-full flex flex-col gap-4 px-8'}>
+        <div className={'w-full flex justify-between items-end gap-4'}>
             <div>
                 <NumberInput
                     min={1}
@@ -96,24 +108,25 @@ const UpdateTableNumber = ({table, setTableToEdit}: { table: Table; setTableToEd
     );
 }
 
+const COLOR_SAMPLE_SIZE = 48;
 const EditTableModal = ({table, isOpen, setIsOpen, setTableToEdit}: EditTableModalProps) => {
     const {guests, getGuestsAtTable} = useGuestList();
     const {tables, createOrUpdateTable} = useTables();
     const [removingGuests, setRemovingGuests] = useState([] as Guest[]);
     const [selectedName, setSelectedName] = useState('');
+    const [tableColor, setTableColor] = useState(table && table.color ? table.color : DEFAULT_TABLE_COLOR);
     const tableNumber = table ? table.tableNumber : -1;
     const guestsAtTable = getGuestsAtTable(table);
 
     return (
         <Modal title={`Table ${tableNumber}`} opened={isOpen} onClose={() => setIsOpen(false)}>
-            <div className={'flex flex-col justify-center items-center gap-4'}>
+            <div className={'flex flex-col justify-center items-center gap-4 px-8'}>
                 <UpdateTableNumber
                     table={table}
                     setTableToEdit={setTableToEdit}
                 />
-                <div className={'text-center w-full px-8'}>
-                    <Text size={'lg'}>Guests at Table</Text>
-                    <Divider className={'pb-4'}/>
+                <Divider/>
+                <div className={'text-center w-full'}>
                     <div className={'flex flex-col gap-2 w-full'}>
                         {guestsAtTable
                             .sort((a, b) => a.partyId > b.partyId ? -1 : 1)
@@ -128,7 +141,7 @@ const EditTableModal = ({table, isOpen, setIsOpen, setTableToEdit}: EditTableMod
                             )}
                     </div>
                 </div>
-                <div>
+                <div className={'flex justify-between gap-4 w-full items-end'}>
                     <Autocomplete
                         label={'Add Guests to Table'}
                         placeholder={'Search for Guests Who Do Not Have a table'}
@@ -139,21 +152,70 @@ const EditTableModal = ({table, isOpen, setIsOpen, setTableToEdit}: EditTableMod
                         value={selectedName}
                         onChange={(value) => setSelectedName(value)}
                     />
-                    <Button
-                        variant={'outline'}
-                        onClick={async () => {
-                        const selectedGuest = guests.find(g => `${g.firstName} ${g.lastName}` === selectedName);
-                        const partyGuestIds = selectedGuest && selectedGuest.partyId && selectedGuest.partyId !== '' ?
-                            guests.filter(g => g.partyId === selectedGuest.partyId && g.guestId !== selectedGuest.guestId).map(g => g.guestId) :
-                            [];
+                    <div className={'pt-4 flex justify-end'}>
+                        <Button
+                            variant={'outline'}
+                            onClick={async () => {
+                                const selectedGuest = guests.find(g => `${g.firstName} ${g.lastName}` === selectedName);
+                                const partyGuestIds = selectedGuest && selectedGuest.partyId && selectedGuest.partyId !== '' ?
+                                    guests.filter(g => g.partyId === selectedGuest.partyId && g.guestId !== selectedGuest.guestId).map(g => g.guestId) :
+                                    [];
 
-                        const updatedGuests = [...table.guests, selectedGuest.guestId, ...partyGuestIds];
-                        await createOrUpdateTable({
-                            ...table,
-                            guests: updatedGuests
-                        });
-                        setSelectedName('');
-                    }}>Submit</Button>
+                                const updatedGuests = [...table.guests, selectedGuest.guestId, ...partyGuestIds];
+                                await createOrUpdateTable({
+                                    ...table,
+                                    guests: updatedGuests
+                                });
+                                setSelectedName('');
+                            }}>Add Guest</Button>
+                    </div>
+                </div>
+                <Divider/>
+                <div className={'flex w-full justify-between items-end flex-wrap'}>
+                    <Select
+                        data={[{label: 'Circle', value: 'circle'}, {label: 'Rectangle', value: 'rectangle'}]}
+                        placeholder={'Select a Table Shape'}
+                        label={'Table Shape'}
+                        value={table ? table.shape : ''}
+                        onChange={async (value) => {
+                            await createOrUpdateTable({
+                                ...table,
+                                shape: value
+                            })
+                        }}
+                    />
+                    <div>
+                        <InputLabel>Table Color</InputLabel>
+                        <Popover>
+                            <Popover.Target>
+                                <div>
+                                    <svg height={COLOR_SAMPLE_SIZE} width={COLOR_SAMPLE_SIZE}
+                                         fill={tableColor}>
+                                        <rect height={COLOR_SAMPLE_SIZE} width={COLOR_SAMPLE_SIZE}/>
+                                    </svg>
+                                </div>
+                            </Popover.Target>
+                            <Popover.Dropdown>
+                                <div className={'flex flex-col gap-4'}>
+                                    <ColorPicker
+                                        onChange={setTableColor}
+                                        value={tableColor}
+                                    />
+                                    <div className={'flex justify-between items-end'}>
+                                        <div></div>
+                                        <Button
+                                            variant={'outline'}
+                                            onClick={async () => await createOrUpdateTable({
+                                                ...table,
+                                                color: tableColor
+                                            })}>
+                                            Save Color
+                                        </Button>
+                                    </div>
+                                </div>
+                            </Popover.Dropdown>
+                        </Popover>
+                    </div>
                 </div>
             </div>
         </Modal>
