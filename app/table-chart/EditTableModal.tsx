@@ -118,6 +118,10 @@ const EditTableModal = ({table, isOpen, setIsOpen, setTableToEdit}: EditTableMod
     const tableNumber = table ? table.tableNumber : -1;
     const guestsAtTable = getGuestsAtTable(table);
 
+    useEffect(() => {
+        setTableColor(table ? table.color : DEFAULT_TABLE_COLOR);
+    }, [table]);
+
     return (
         <Modal title={`Table ${tableNumber}`} opened={isOpen} onClose={() => setIsOpen(false)}>
             <div className={'flex flex-col justify-center items-center gap-4 px-8'}>

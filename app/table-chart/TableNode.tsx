@@ -4,6 +4,7 @@ import Circle from "@/app/table-chart/shapes/Circle";
 import Rectangle from "@/app/table-chart/shapes/Rectangle";
 import useGuestList from "@/app/hooks/useGuestList";
 import {DEFAULT_TABLE_COLOR} from "@/constants/app-constants";
+import {getBrightness} from "@/app/util/rgb-util";
 
 function TableNode({data}) {
     const {getGuestsAtTable} = useGuestList();
@@ -12,7 +13,7 @@ function TableNode({data}) {
     const tableText = `Table ${data.table.tableNumber} - ${data.table.guests.length} Guests`;
     const color = data.table ? data.table.color : '';
     return (
-        <>
+        <div className={getBrightness(color) > 40 ? 'text-black' : 'text-white'}>
             <Popover position={'top'} withArrow shadow="md" opened={opened}>
                 <Popover.Target>
                     <div
@@ -48,7 +49,7 @@ function TableNode({data}) {
                     </div>
                 </Popover.Dropdown>
             </Popover>
-        </>
+        </div>
     );
 };
 

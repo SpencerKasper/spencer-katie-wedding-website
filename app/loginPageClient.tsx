@@ -13,18 +13,6 @@ export const LAST_NAME_LOCAL_STORAGE_KEY = 'WEDDING_LAST_NAME';
 export const PASSWORD_LOCAL_STORAGE_KEY = 'WEDDING_PASSWORD';
 export const WEDDING_GUEST_LOCAL_STORAGE_KEY = 'WEDDING_GUEST';
 
-export const validateLoginInfo = async (loginInfo) => {
-    const response = await axios.post(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/authorize`, loginInfo);
-    if (response.data.isAuthorized && response.data.guest) {
-        const guest = response.data.guest;
-        localStorage.setItem(FIRST_NAME_LOCAL_STORAGE_KEY, loginInfo.firstName);
-        localStorage.setItem(LAST_NAME_LOCAL_STORAGE_KEY, loginInfo.lastName);
-        localStorage.setItem(PASSWORD_LOCAL_STORAGE_KEY, loginInfo.password);
-        localStorage.setItem(WEDDING_GUEST_LOCAL_STORAGE_KEY, JSON.stringify(guest));
-    }
-    return response.data;
-};
-
 export default function LoginPageClient() {
     const router = useRouter();
     const [hasError, setHasError] = useState(false);
@@ -52,7 +40,7 @@ export default function LoginPageClient() {
     };
     return !isLoading ?
         <div
-            className="text-white flex flex-col justify-center align-center min-h-screen w-full p-8 gap-8 font-[family-name:var(--font-geist-sans)]">
+            className="text-white flex flex-col align-center min-h-screen w-full gap-8 font-[family-name:var(--font-geist-sans)]">
             {hasError ?
                 <Notification className={'w-full'} color={'red'} onClose={() => setHasError(false)}>
                     There was an error with the first name, last name, and/or password you entered. Please make sure the
@@ -63,7 +51,7 @@ export default function LoginPageClient() {
             <main className="flex flex-col gap-8">
                 <div className={'flex flex-col gap-8'}>
                     <OverrideFont>
-                        <h1 className={'text-6xl text-white text-center font-bold'}>
+                        <h1 className={'text-6xl leading-relaxed text-white text-center font-bold'}>
                             Katie and Spencer&apos;s Wedding
                         </h1>
                         <h2 className={'text-4xl text-white text-center font-bold pt-8'}>
