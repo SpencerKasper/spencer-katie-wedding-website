@@ -76,13 +76,15 @@ export default function LoginPageClient() {
                                     {...form.getInputProps('lastName')}
                                 />
                             </div>
-                            <PasswordInput
-                                className={'min-w-80'}
-                                key={form.key('password')}
-                                label={'Please enter the password provided on your invite to gain access to the website.'}
-                                placeholder={'Enter password here.'}
-                                {...form.getInputProps('password')}
-                            />
+                            <div className={'px-4 md:px-8'}>
+                                <PasswordInput
+                                    // className={'min-w-80'}
+                                    key={form.key('password')}
+                                    label={'Please enter the password provided on your invite to gain access to the website.'}
+                                    placeholder={'Enter password here.'}
+                                    {...form.getInputProps('password')}
+                                />
+                            </div>
                             <Button loading={isLoggingIn} type={'submit'} variant={'outline'} color={'white'}>
                                 Enter
                             </Button>
