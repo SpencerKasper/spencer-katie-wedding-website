@@ -1,7 +1,6 @@
 import getDynamoDbClient from "@/app/api/aws-clients/dynamodb-client";
 import {ScanCommand} from "@aws-sdk/lib-dynamodb";
 import {NextResponse} from 'next/server';
-import {GUESTLIST_TABLE_NAME} from "@/app/api/constants/dynamo";
 
 export const dynamic = 'force-dynamic';
 
@@ -9,7 +8,7 @@ export async function POST(request) {
     try {
         const dynamo = await getDynamoDbClient();
         const response = await dynamo.send(new ScanCommand({
-            TableName: GUESTLIST_TABLE_NAME,
+            TableName: 'wedding_guest_list',
         }));
         const guests = response.Items;
         const body = await request.json();

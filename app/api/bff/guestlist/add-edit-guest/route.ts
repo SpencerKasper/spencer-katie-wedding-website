@@ -22,7 +22,7 @@ export async function POST(request) {
                 message: `Could not find a table with tableId of "${tableId}".`,
             });
         }
-        const addUpdateGuestResponse = await axios.post(getGuestListEndpointUrl(), {guests: [guest]});
+        const addUpdateGuestResponse = await axios.post(getGuestListEndpointUrl(), guest);
         const getGuestsResponse = await axios.get(getGuestListEndpointUrl());
         const guests = getGuestsResponse.data.guests;
         const guestIdsAtTable = tableToUpdate.guests ? tableToUpdate.guests : [];
