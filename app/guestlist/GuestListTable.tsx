@@ -6,6 +6,7 @@ import {useState} from "react";
 import {booleanIsDefined} from "@/app/util/general-util";
 import useGuestList from "@/app/hooks/useGuestList";
 import useTables from "@/app/hooks/useTables";
+import ImportGuestsModal from "@/app/guestlist/ImportGuestsModal";
 
 export function GuestListTable() {
     const [search, setSearch] = useState({search: '', includePartyMembers: false});
@@ -106,7 +107,7 @@ export function GuestListTable() {
                         }}
                     />
                 </div>
-                <div className={'w-full sm:w-1/4 flex justify-end'}>
+                <div className={'w-full sm:w-1/4 flex justify-end gap-2'}>
                     <Button variant={'outline'} color={'green'} onClick={() => setModalOpen(true)}>Add Guest</Button>
                     <AddEditGuestModal
                         selectedGuest={selectedGuest}
@@ -114,6 +115,7 @@ export function GuestListTable() {
                         opened={modalOpen}
                         onClose={() => setModalOpen(false)}
                     />
+                    <ImportGuestsModal />
                 </div>
             </div>
             <Table.ScrollContainer minWidth={500}>

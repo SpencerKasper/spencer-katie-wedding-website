@@ -6,7 +6,7 @@ import {Guest} from "@/types/guest";
 import axios from "axios";
 import {booleanIsDefined} from "@/app/util/general-util";
 
-const EmailModal = ({loggedInGuest}: {loggedInGuest: Guest}) => {
+const EmailModal = ({loggedInGuest}: { loggedInGuest: Guest }) => {
     const form = useForm({
         mode: 'uncontrolled',
         initialValues: {
@@ -34,13 +34,20 @@ const EmailModal = ({loggedInGuest}: {loggedInGuest: Guest}) => {
                 className={'flex flex-col justify-center items-center p-4 gap-4'}
                 onSubmit={form.onSubmit(async (formValues) => {
                     setIsLoading(true);
-                    await axios.patch(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist`, {guestId: loggedInGuest.guestId, emailAddress: formValues.emailAddress, optOutOfEmail: formValues.emailOptOut});
+                    await axios.post(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist`, {
+                        guests: [{
+                            guestId: loggedInGuest.guestId,
+                            emailAddress: formValues.emailAddress,
+                            optOutOfEmail: formValues.emailOptOut
+                        }]
+                    });
                     setIsLoading(false);
                     setIsOpen(false);
                 })}
             >
                 <p>
-                    Your email will only be seen by Spencer Kasper and Katie Riek. We will use your email address only to send you notifications when you or your party RSVPs and
+                    Your email will only be seen by Spencer Kasper and Katie Riek. We will use your email address only
+                    to send you notifications when you or your party RSVPs and
                     alerts
                     related to the wedding.
                 </p>
