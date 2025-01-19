@@ -42,10 +42,14 @@ export default function LoginPageClient() {
         <div
             className="text-white flex flex-col align-center min-h-screen w-full gap-8 font-[family-name:var(--font-geist-sans)]">
             {hasError ?
-                <Notification className={'w-full'} color={'red'} onClose={() => setHasError(false)}>
-                    There was an error with the first name, last name, and/or password you entered. Please make sure the
-                    information matches exactly as spelled on your invite.
-                </Notification> :
+                <div className={'px-4 sm:px-16'}>
+                    <Notification className={'w-full'} color={'red'} onClose={() => setHasError(false)}>
+                        There was an error with the first name, last name, and/or password you entered. Please make sure the
+                        information matches exactly as spelled on your invite. If your invite was addressed to your entire family
+                        or doesn&apos;t include your name, try a few variations of your name.  If that still doesn&apos;t work,
+                        please text Spencer at (224)-567-9847 and he can help you login.
+                    </Notification>
+                </div> :
                 <></>
             }
             <main className="flex flex-col gap-8">
