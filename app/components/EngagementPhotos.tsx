@@ -61,7 +61,10 @@ const EngagementPhotos = () => {
             <div>
                 <SegmentedControl
                     value={engagementPhotosGroup}
-                    onChange={(value) => setEngagementPhotosGroup(value)}
+                    onChange={(value) => {
+                        setImageIndex(0);
+                        setEngagementPhotosGroup(value);
+                    }}
                     data={[PROPOSAL_PHOTOS_GROUP, ENGAGEMENT_SHOOT_PHOTOS_GROUP]}/>
             </div>
             <div className={'relative flex items-center'} style={{minHeight: '516px'}} {...swipeHandlers}>
