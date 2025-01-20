@@ -31,8 +31,8 @@ export default function LoginPageClient() {
         setIsLoggingIn(true);
         const response = await validateLoginInfo(loginInfo);
         if (response.isAuthorized) {
-            setIsLoggingIn(false);
             router.push('/home');
+            setIsLoggingIn(false);
         } else {
             setHasError(true);
             setIsLoggingIn(false);
@@ -66,6 +66,7 @@ export default function LoginPageClient() {
                         <div className={'flex flex-col gap-8 justify-center items-center'}>
                             <div className={'flex gap-8 flex-wrap justify-center items-center'}>
                                 <TextInput
+                                    disabled={isLoggingIn}
                                     key={form.key('firstName')}
                                     className={'min-w-80'}
                                     label={'First Name (As Written On Invite)'}
@@ -73,6 +74,7 @@ export default function LoginPageClient() {
                                     {...form.getInputProps('firstName')}
                                 />
                                 <TextInput
+                                    disabled={isLoggingIn}
                                     key={form.key('lastName')}
                                     className={'min-w-80'}
                                     label={'Last Name (As Written On Invite)'}
@@ -83,6 +85,7 @@ export default function LoginPageClient() {
                             <div className={'px-4 md:px-8'}>
                                 <PasswordInput
                                     // className={'min-w-80'}
+                                    disabled={isLoggingIn}
                                     key={form.key('password')}
                                     label={'Please enter the password provided on your invite to gain access to the website.'}
                                     placeholder={'Enter password here.'}
