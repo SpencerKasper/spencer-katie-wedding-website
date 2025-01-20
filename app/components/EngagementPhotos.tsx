@@ -62,7 +62,7 @@ const EngagementPhotos = () => {
                 <SegmentedControl
                     value={engagementPhotosGroup}
                     onChange={(value) => {
-                        setImageIndex(0);
+                        setImageIndex(1);
                         setEngagementPhotosGroup(value);
                     }}
                     data={[PROPOSAL_PHOTOS_GROUP, ENGAGEMENT_SHOOT_PHOTOS_GROUP]}/>
