@@ -7,7 +7,6 @@ import EmailModal from "@/app/EmailModal";
 import {useBreakpoint} from "@/app/hooks/useBreakpoint";
 import {usePathname} from "next/navigation";
 import {HeaderButtons} from "@/app/HeaderButtons";
-import MobileNavigationModal from "@/app/MobileNavigationModal";
 
 export const IS_CURSIVE_KEY = 'WEDDING_WEBSITE_IS_CURSIVE';
 
