@@ -217,8 +217,7 @@ export async function POST(request) {
         }
         for(let i = 0; i < guestListPatchRequests.length; i++) {
             const dynamo = await getDynamoDbClient();
-            const response = await dynamo.send(guestListPatchRequests[i]);
-            console.error(JSON.stringify(response.Items));
+            await dynamo.send(guestListPatchRequests[i]);
         }
         const updatedGuestsResponse = await dynamo.send(new ScanCommand({
             TableName: GUESTLIST_TABLE_NAME,
