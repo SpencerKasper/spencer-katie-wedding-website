@@ -104,10 +104,26 @@ async function toGuestListPutRequest(guest: Partial<Guest>) {
     };
 }
 
-function delay(milliseconds){
+function delay(milliseconds) {
     return new Promise(resolve => {
         setTimeout(resolve, milliseconds);
     });
+}
+
+function sortObjectFields(obj) {
+    const sortedKeys = Object.keys(obj).sort();
+    const sortedObject = {};
+
+    for (const key of sortedKeys) {
+        sortedObject[key] = obj[key];
+    }
+    return sortedObject;
+}
+
+function shallowCompareObjects(object1, object2) {
+    const sorted1 = sortObjectFields(object1);
+    const sorted2 = sortObjectFields(object2);
+    return JSON.stringify(sorted1) === JSON.stringify(sorted2);
 }
 
 export async function POST(request) {
@@ -129,38 +145,88 @@ export async function POST(request) {
             return NextResponse.json({error: 'You must provide both first and last name for each guest.'});
         }
         const guestListPutRequests = [];
+        const guestListPatchRequests = [];
         for (let guest of guests) {
             const {firstName, lastName} = guest;
-            const foundGuest = allGuests.find(g => `${g.firstName} ${g.lastName}` === `${firstName} ${lastName}`);
-            // console.error(foundGuest);
+            const foundGuest = allGuests.find(g => (guest.guestId && g.guestId === guest.guestId) || `${g.firstName} ${g.lastName}` === `${firstName} ${lastName}`);
             const partyIdResolved = await getPartyId(guest, guests);
-            const modifiedGuest = {
-                ...(foundGuest ? foundGuest : {}),
-                ...guest,
-                guestId: foundGuest && foundGuest.guestId && foundGuest.guestId !== '' ? foundGuest.guestId : uuidv4().toString(),
-                partyId: partyIdResolved,
-            };
-            console.error(modifiedGuest);
-            guestListPutRequests.push({
-                PutRequest: await toGuestListPutRequest(modifiedGuest)
-            });
+            if (foundGuest) {
+                if(shallowCompareObjects(foundGuest, guest)) {
+                    console.error(`Skipping guest: ${foundGuest.firstName} ${foundGuest.lastName}`);
+                    continue;
+                }
+                const modifiedGuest: Guest = {
+                    ...foundGuest,
+                    ...guest,
+                    partyId: partyIdResolved,
+                };
+                guestListPatchRequests.push(new UpdateCommand({
+                    TableName: GUESTLIST_TABLE_NAME,
+                    Key: {
+                        guestId: modifiedGuest.guestId
+                    },
+                    UpdateExpression: "SET #partyId = :partyId, #firstName = :firstName, #lastName = :lastName, #address = :address, #address2 = :address2, #city = :city, #state = :state, #zipCode = :zipCode, #emailAddress = :emailAddress, #optOutOfEmail = :optOutOfEmail, #phoneNumber = :phoneNumber",
+                    ExpressionAttributeNames: {
+                        "#partyId": "partyId",
+                        '#firstName': 'firstName',
+                        '#lastName': 'lastName',
+                        '#address': 'address',
+                        '#address2': 'address2',
+                        '#city': 'city',
+                        '#state': 'state',
+                        '#zipCode': 'zipCode',
+                        '#emailAddress': 'emailAddress',
+                        '#optOutOfEmail': 'optOutOfEmail',
+                        '#phoneNumber': 'phoneNumber'
+                    },
+                    ExpressionAttributeValues: {
+                        ":partyId": modifiedGuest.partyId,
+                        ':firstName': modifiedGuest.firstName,
+                        ':lastName': modifiedGuest.lastName,
+                        ':address': modifiedGuest.address,
+                        ':address2': modifiedGuest.address2,
+                        ':city': modifiedGuest.city,
+                        ':state': modifiedGuest.state,
+                        ':zipCode': modifiedGuest.zipCode,
+                        ':emailAddress': modifiedGuest.emailAddress,
+                        ':optOutOfEmail': modifiedGuest.optOutOfEmail,
+                        ':phoneNumber': modifiedGuest.phoneNumber
+                    }
+                }));
+                console.error(`Updating Guest: ${modifiedGuest.firstName} ${modifiedGuest.lastName}`);
+            } else {
+                const modifiedGuest = {
+                    ...guest,
+                    guestId: uuidv4().toString(),
+                    partyId: partyIdResolved,
+                };
+                guestListPutRequests.push({
+                    PutRequest: await toGuestListPutRequest(modifiedGuest)
+                });
+            }
         }
         const chunkSize = 25;
         for (let i = 0; i < guestListPutRequests.length; i += chunkSize) {
             const chunk = guestListPutRequests.slice(i, i + chunkSize);
-            // console.error(chunk);
-            // console.error('----------------------')
-            // await dynamo.send(new BatchWriteItemCommand({
-            //     RequestItems: {
-            //         [GUESTLIST_TABLE_NAME]: chunk
-            //     }
-            // }));
+            await dynamo.send(new BatchWriteItemCommand({
+                RequestItems: {
+                    [GUESTLIST_TABLE_NAME]: chunk
+                }
+            }));
             await delay(500);
+        }
+        for(let i = 0; i < guestListPatchRequests.length; i++) {
+            const dynamo = await getDynamoDbClient();
+            const response = await dynamo.send(guestListPatchRequests[i]);
+            console.error(JSON.stringify(response.Items));
         }
         const updatedGuestsResponse = await dynamo.send(new ScanCommand({
             TableName: GUESTLIST_TABLE_NAME,
         }));
         const updatedGuests = updatedGuestsResponse.Items as Guest[];
+        console.error(`Total Guests Added: ${guestListPutRequests.length}`);
+        console.error(`Total Guests Updated: ${guestListPatchRequests.length}`);
+        console.error(`Total Guests: ${updatedGuests.length}`);
         return NextResponse.json({guests: updatedGuests});
     } catch (e) {
         console.error(e);

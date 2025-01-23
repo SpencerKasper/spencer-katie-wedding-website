@@ -4,17 +4,25 @@ import {useState} from "react";
 import {useForm} from "@mantine/form";
 import axios from "axios";
 import {getGuestListEndpointUrl} from "@/app/util/api-util";
+import useGuestList from "@/app/hooks/useGuestList";
+import {Guest} from "@/types/guest";
 
 const ImportGuestsModal = () => {
     const form = useForm();
     const [isOpen, {toggle}] = useDisclosure();
     const [fileContent, setFileContent] = useState([]);
+    const {setGuests} = useGuestList();
     const firstFileContent = fileContent.slice(0, 1);
     const FIELDS = [{label: 'First Name', value: 'firstName'}, {label: 'Last Name', value: 'lastName'}];
+    const onClose = () => {
+        toggle();
+        setFileContent([]);
+        form.reset();
+    };
     return (
         <>
             <Button variant={'outline'} onClick={toggle}>Import Guests</Button>
-            <Modal opened={isOpen} onClose={() => null}>
+            <Modal opened={isOpen} onClose={onClose}>
                 {firstFileContent.length > 0 ?
                     <div className={'flex flex-col gap-4 pb-4'}>
                         <div>
@@ -31,6 +39,9 @@ const ImportGuestsModal = () => {
                                         }))
                                         .filter(g => g.firstName && g.lastName && g.firstName !== '' && g.lastName !== '');
                                     const addUpdateGuestResponse = await axios.post(getGuestListEndpointUrl(), {guests});
+                                    const updatedGuests: Guest[] = addUpdateGuestResponse.data.guests;
+                                    setGuests(updatedGuests);
+                                    onClose();
                                 }
                             })}>
                                 {FIELDS.map(key =>
