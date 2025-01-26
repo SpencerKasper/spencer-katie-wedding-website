@@ -92,8 +92,8 @@ const AddEditGuestModal = ({
 
     const getValueFromForm = (property: PropertyKey) => form.getValues() && form.getValues().hasOwnProperty(property) ? form.getValues()[property] : '';
 
-    const guestNames = guests
-        .map(guest => `${guest.firstName} ${guest.lastName}`);
+    const guestNames = Array.from(new Set(guests
+        .map(guest => `${guest.firstName} ${guest.lastName}`)));
 
     function resetModal() {
         form.reset();
