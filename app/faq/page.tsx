@@ -43,6 +43,10 @@ export default function FAQPage() {
             question: 'Can I bring a plus one?',
             answer: 'We are only able to accommodate those listed on your invitation. Thank you for your understanding and we can\'t wait to celebrate with you!'
         },
+        {
+            question: 'Is there parking at the wedding venue?',
+            answer: 'Yes! There is free parking at the hotel.  If you plan on drinking and aren\'t staying overnight, we recommend using a ride share to get to and from the venue!'
+        },
         ...(isSaveTheDateMode ? [] : [{
             question: 'What if I have food allergies or dietary restrictions?',
             answer: 'Please let us know when you RSVP and we will do our best to accommodate!'

@@ -21,8 +21,10 @@ const EmailModal = ({loggedInGuest}: { loggedInGuest: Guest }) => {
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        const hasInvalidEmailAddress = loggedInGuest && (!loggedInGuest.emailAddress || loggedInGuest.emailAddress === '');
-        setIsOpen(hasInvalidEmailAddress && !loggedInGuest.optOutOfEmail);
+        if (loggedInGuest) {
+            const hasInvalidEmailAddress = loggedInGuest && (!loggedInGuest.emailAddress || loggedInGuest.emailAddress === '');
+            setIsOpen(hasInvalidEmailAddress && !loggedInGuest.optOutOfEmail);
+        }
     }, [loggedInGuest]);
     return (
         <Modal

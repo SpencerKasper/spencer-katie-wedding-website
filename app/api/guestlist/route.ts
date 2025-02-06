@@ -135,10 +135,14 @@ export async function POST(request) {
         }));
         const allGuests = response.Items as Guest[];
         const invalidGuests = guests.filter(guest => {
+            const foundGuest = allGuests.find(g => guest.guestId && guest.guestId !== '' && g.guestId === guest.guestId);
             const {
                 firstName,
                 lastName,
-            } = guest;
+            } = {
+                ...(foundGuest ? foundGuest : {}),
+                ...guest
+            };
             return isNullOrEmptyString(firstName) || isNullOrEmptyString(lastName);
         });
         if (invalidGuests.length > 0) {
