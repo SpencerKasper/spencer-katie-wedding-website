@@ -46,7 +46,9 @@ export default function LoginPageClient() {
                     <Notification className={'w-full'} color={'red'} onClose={() => setHasError(false)}>
                         There was an error with the first name, last name, and/or password you entered. Please make sure the
                         information matches exactly as spelled on your invite. If your invite was addressed to your entire family
-                        or doesn&apos;t include your name, try a few variations of your name.  If that still doesn&apos;t work,
+                        or doesn&apos;t include your name, try a few variations of your name. If your invite was addressed as
+                        &quot;Mr. Spencer Kasper & Ms. Katie Riek&quot;, Spencer&apos;s login would be &quot;Spencer&quot; for first name and
+                        &quot;Kasper&quot; for last name.  Katie would have her own login similarly.  If that still doesn&apos;t work,
                         please text Spencer at (224)-567-9847 and he can help you login.
                     </Notification>
                 </div> :
@@ -69,16 +71,16 @@ export default function LoginPageClient() {
                                     disabled={isLoggingIn}
                                     key={form.key('firstName')}
                                     className={'min-w-80'}
-                                    label={'First Name (As Written On Invite)'}
-                                    placeholder={'Enter First Name Here'}
+                                    label={'Your First Name (As Spelled On Invite)'}
+                                    placeholder={'Enter Your First Name Here'}
                                     {...form.getInputProps('firstName')}
                                 />
                                 <TextInput
                                     disabled={isLoggingIn}
                                     key={form.key('lastName')}
                                     className={'min-w-80'}
-                                    label={'Last Name (As Written On Invite)'}
-                                    placeholder={'Enter Last Name Here'}
+                                    label={'Your Last Name (As Spelled On Invite)'}
+                                    placeholder={'Enter Your Last Name Here'}
                                     {...form.getInputProps('lastName')}
                                 />
                             </div>
