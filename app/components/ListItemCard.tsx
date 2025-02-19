@@ -1,8 +1,8 @@
 import {Badge, Card, Divider, Text} from "@mantine/core";
 
-export function HotelImage({hotelName, imageUrl, linkUrl, notes, isVenue = false}) {
+export function ListItemCard({title, imageUrl, linkUrl, notes, tags = [], isVenue = false}) {
     return (
-        <div className={'full-w max-w-xl text-center'}>
+        <div className={'max-w-xl text-center'}>
             <a
                 target={"_blank"}
                 // className={"underline"}
@@ -18,7 +18,7 @@ export function HotelImage({hotelName, imageUrl, linkUrl, notes, isVenue = false
                     </Card.Section>
                     <div className={'py-1'}>
                         <Text className={'font-bold'} fw={500} size="lg" mt="md">
-                            {hotelName}
+                            {title}
                         </Text>
                     </div>
                     {notes && notes !== '' ?
@@ -27,9 +27,9 @@ export function HotelImage({hotelName, imageUrl, linkUrl, notes, isVenue = false
                         </Text> :
                         <></>
                     }
-                    {isVenue ?
-                        <div>
-                            <Badge>Wedding Venue</Badge>
+                    {tags && tags.length ?
+                        <div className={'flex justify-center gap-x-4 pt-8'}>
+                            {tags.map(tag => (<Badge color={tag.color} key={`tag-${tag.name}`}>{tag.name}</Badge>))}
                         </div> :
                         <></>
                     }

@@ -19,7 +19,7 @@ export const WebsiteHeader = () => {
     const {loggedInGuest} = useLoggedInGuest();
     return !HIDE_NAVBAR_PATHS.includes(pathname) ?
         <OverrideFont>
-            <div className={'flex justify-between w-full p-4 md:p-8'}>
+            <div className={'flex justify-between w-full p-4 md:p-8 md:min-h-24'}>
                 {isAtMostMd ? <Burger opened={isOpen} onClick={toggle} color={'white'}></Burger> : <div></div>}
                 <p className={'text-white'}>{loggedInGuest ? `Welcome, ${loggedInGuest.firstName} ${loggedInGuest.lastName}` : ''}</p>
             </div>

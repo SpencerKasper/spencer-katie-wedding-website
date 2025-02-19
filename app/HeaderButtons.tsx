@@ -8,6 +8,8 @@ export const HeaderButtons = () => {
     const HomeButton = <Button component={"a"} href={"/home"} variant={"outline"} color={"white"}>Home</Button>;
     const EngagementPhotosButton = <Button component={"a"} href={"/engagement-photos"} variant={"outline"}
                                            color={"white"}>Engagement Photos</Button>;
+    const ThingsToDoButton = <Button component={"a"} href={"/things-to-do"} variant={"outline"}
+                                           color={"white"}>Things To Do</Button>;
     return (
         <div className={"flex flex-col text-white"}>
             <div className={"flex flex-col "}>
@@ -23,12 +25,14 @@ export const HeaderButtons = () => {
                             <Button component={"a"} href={"/registry"} variant={"outline"}
                                     color={"white"}>Registry</Button>
                             {EngagementPhotosButton}
+                            {ThingsToDoButton}
                         </> :
                         <>
                             {HomeButton}
                             {ArrangementsButton}
                             {FAQButton}
                             {EngagementPhotosButton}
+                            {ThingsToDoButton}
                         </>
                     }
                 </div>
