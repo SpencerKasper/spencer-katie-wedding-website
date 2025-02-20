@@ -11,7 +11,6 @@ const KatieAndSpencersWeddingTitle = () => {
     const date2 = new Date('2025-10-11');
 
     const daysBetween = getDaysBetweenDates(today, date2);
-    console.log(daysBetween);
     return (
         <div className={'text-white flex flex-col justify-center items-center gap-4'}>
             <div className={'py-8'}>
