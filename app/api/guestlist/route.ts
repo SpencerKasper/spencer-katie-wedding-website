@@ -1,7 +1,7 @@
 import {ScanCommand, UpdateCommand} from "@aws-sdk/lib-dynamodb";
-import {NextRequest, NextResponse} from 'next/server';
+import {NextResponse} from 'next/server';
 import getDynamoDbClient from "@/app/api/aws-clients/dynamodb-client";
-import {BatchWriteItemCommand, PutItemCommand} from "@aws-sdk/client-dynamodb";
+import {BatchWriteItemCommand} from "@aws-sdk/client-dynamodb";
 import {Guest} from "@/types/guest";
 import {v4 as uuidv4} from 'uuid';
 import {booleanIsUndefined} from "@/app/util/general-util";
@@ -36,38 +36,73 @@ const isNullOrEmptyString = (value) => {
     return !value || value === '';
 }
 
+async function updatePartyId(guest: Guest, newPartyId: string) {
+    const dynamo = await getDynamoDbClient();
+    await dynamo.send(new UpdateCommand({
+        TableName: GUESTLIST_TABLE_NAME,
+        Key: {
+            guestId: guest.guestId
+        },
+        UpdateExpression: "SET #partyId = :partyId",
+        ExpressionAttributeNames: {
+            "#partyId": "partyId"
+        },
+        ExpressionAttributeValues: {
+            ":partyId": newPartyId
+        }
+    }));
+}
+
+const getPartyIdV2 = async (guest: Guest, guests: Guest[]): Promise<string> => {
+    if(isNullOrEmptyString(guest.guestPartyMember)) {
+        return '';
+    }
+    const findPartyMember = () => guests.find(g => {
+        if (guest.firstName === 'Katie') {
+            console.error(`Party Member: "${g.firstName} ${g.lastName}"`);
+        }
+        return `${g.firstName} ${g.lastName}` === guest.guestPartyMember;
+    });
+    const foundPartyMember = findPartyMember();
+    if (foundPartyMember && !isNullOrEmptyString(foundPartyMember.partyId)) {
+        return foundPartyMember.partyId;
+    }
+    const newPartyId = uuidv4().toString();
+    if (foundPartyMember) {
+        await updatePartyId(foundPartyMember, newPartyId);
+    }
+    return newPartyId;
+}
+
+
 const getPartyId = async (guest: Guest, guests: Guest[]): Promise<string> => {
+    console.error('partyId')
+    console.error(guest);
+    const findPartyMember = () => guests.find(g => `${g.firstName} ${g.lastName}` === guest.guestPartyMember);
     if (!guest) {
         return '';
     }
     if (guest.partyId && guest.partyId !== '') {
+        const foundPartyMember = findPartyMember();
+        if (foundPartyMember) {
+            await updatePartyId(foundPartyMember, guest.partyId);
+        }
+        console.error('existing partyId')
         return guest.partyId.toString();
     }
     const partyMemberIsDefined = guest.guestPartyMember && guest.guestPartyMember.trim() !== '';
     if (!partyMemberIsDefined) {
         return '';
     }
-    const foundPartyMember = guests.find(g => `${g.firstName} ${g.lastName}` === guest.guestPartyMember);
+
+    const foundPartyMember = findPartyMember();
     if (foundPartyMember && foundPartyMember.partyId && foundPartyMember.partyId !== '') {
         return foundPartyMember.partyId.toString();
     }
-
+    console.error('creating new party')
     // Handles new parties
     const newPartyId = uuidv4().toString();
-    const dynamo = await getDynamoDbClient();
-    // await dynamo.send(new UpdateCommand({
-    //     TableName: GUESTLIST_TABLE_NAME,
-    //     Key: {
-    //         guestId: foundPartyMember.guestId
-    //     },
-    //     UpdateExpression: "SET #partyId = :partyId",
-    //     ExpressionAttributeNames: {
-    //         "#partyId": "partyId"
-    //     },
-    //     ExpressionAttributeValues: {
-    //         ":partyId": newPartyId
-    //     }
-    // }));
+    await updatePartyId(foundPartyMember, newPartyId);
     return newPartyId;
 }
 
@@ -153,9 +188,9 @@ export async function POST(request) {
         for (let guest of guests) {
             const {firstName, lastName} = guest;
             const foundGuest = allGuests.find(g => (guest.guestId && g.guestId === guest.guestId) || `${g.firstName} ${g.lastName}` === `${firstName} ${lastName}`);
-            const partyIdResolved = await getPartyId(guest, guests);
+            const partyIdResolved = await getPartyIdV2(guest, allGuests);
             if (foundGuest) {
-                if(shallowCompareObjects(foundGuest, guest)) {
+                if (shallowCompareObjects(foundGuest, guest)) {
                     console.error(`Skipping guest: ${foundGuest.firstName} ${foundGuest.lastName}`);
                     continue;
                 }
@@ -219,7 +254,7 @@ export async function POST(request) {
             }));
             await delay(500);
         }
-        for(let i = 0; i < guestListPatchRequests.length; i++) {
+        for (let i = 0; i < guestListPatchRequests.length; i++) {
             const dynamo = await getDynamoDbClient();
             await dynamo.send(guestListPatchRequests[i]);
         }

@@ -25,21 +25,30 @@ export async function POST(request) {
                 guests.filter(g => g.partyId === guest.partyId).map(g => g.guestId) :
                 [];
             const previousTable = tables.find(t => t.guests.includes(guest.guestId));
-            await axios.post(
-                getTablesEndpointUrl(),
-                {
-                    ...previousTable,
-                    guests: previousTable.guests.filter(g => ![guest.guestId, ...partyGuestIds].includes(g))
-                }
-            );
-            const addUpdateTableResponse = await axios.post(
-                getTablesEndpointUrl(),
-                {...tableToUpdate, guests: Array.from(new Set([...guestIdsAtTable, guest.guestId, ...partyGuestIds]))}
-            );
-            await axios.post(
-                getTablesEndpointUrl(),
-                {}
-            )
+            try {
+                await axios.post(
+                    getTablesEndpointUrl(),
+                    {
+                        ...previousTable,
+                        guests: previousTable.guests.filter(g => ![guest.guestId, ...partyGuestIds].includes(g))
+                    }
+                );
+            } catch (e) {
+                console.error(e);
+            }
+            let addUpdateTableResponse;
+            try {
+                addUpdateTableResponse = await axios.post(
+                    getTablesEndpointUrl(),
+                    {
+                        ...tableToUpdate,
+                        guests: Array.from(new Set([...guestIdsAtTable, guest.guestId, ...partyGuestIds]))
+                    }
+                );
+            } catch (e) {
+                console.error(e);
+            }
+
             return NextResponse.json({
                 statusCode: 201,
                 guests: addUpdateGuestResponse.data.guests,
