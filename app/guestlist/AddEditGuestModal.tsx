@@ -104,7 +104,11 @@ const AddEditGuestModal = ({
 
     const tableOptions = tables.map(t => ({label: `${t.tableNumber}`, value: t.tableId}));
     return (
-        <Modal opened={opened} onClose={() => resetModal()} title="Add Guest" centered>
+        <Modal opened={opened} onClose={() => resetModal()} title={
+            <div className={'flex flex-col gap-4'}>
+                <h2 className={'font-bold'}>{selectedGuest ? `Edit Guest` : "Add Guest"}</h2>
+                {selectedGuest ? <p className={'text-sm'}>Guest Id: {selectedGuest.guestId}</p> : <></>}
+            </div>} centered>
             <form
                 onSubmit={form.onSubmit(async (guestToAdd) => {
                     const tableToAddTo = tables.find(t => t.tableId === guestToAdd.tableId);
