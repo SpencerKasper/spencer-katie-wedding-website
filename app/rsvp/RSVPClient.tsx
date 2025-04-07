@@ -20,6 +20,12 @@ const NUMBER_OF_PAGES = 2;
 
 const IS_ATTENDING_POSTFIX = '_isAttending';
 
+const DINNER_CHOICES = [
+    {displayName: 'Grilled Filet Mignon', id: 'beef' },
+    {displayName: 'Pistachio Crusted Chicken Breast', id: 'chicken' },
+    {displayName: 'Pan-Seared Walleye', id: 'fish' },
+    {displayName: 'I have a food restriction', id: 'restrictive-diet'}
+];
 export default function RSVPClient() {
     const {loggedInGuest} = useLoggedInGuest();
     const [guestsInParty, setGuestsInParty] = useState([] as Guest[]);
@@ -123,12 +129,12 @@ export default function RSVPClient() {
                                 <Select
                                     label={'Dinner choice'}
                                     placeholder={'Select your dinner option'}
-                                    data={['Steak', 'Chicken', 'Fish']}
+                                    data={DINNER_CHOICES.map(dc => dc.displayName)}
                                     key={form.key(`${getGuestPrefix(guest)}_dinnerChoice`)}
                                     {...form.getInputProps(`${getGuestPrefix(guest)}_dinnerChoice`)}
                                 />
                             </div>
-                            <div>
+                            {<div>
                                 <Textarea
                                     ref={ref}
                                     resize={'vertical'}
@@ -137,7 +143,7 @@ export default function RSVPClient() {
                                     key={form.key(`${getGuestPrefix(guest)}_dietaryRestrictions`)}
                                     {...form.getInputProps(`${getGuestPrefix(guest)}_dietaryRestrictions`)}
                                 />
-                            </div>
+                            </div>}
                             {index + 1 !== attendingGuests.length ? <Divider my={'md'}/> : <></>}
                         </div>
                     ))}
@@ -210,7 +216,6 @@ export default function RSVPClient() {
         await axios.post(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/rsvp`, {rsvps: rsvpsFromForm});
         setRsvps(rsvpsFromForm);
     }
-
     return (
         <div>
             <Skeleton visible={isLoading}>

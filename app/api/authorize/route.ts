@@ -13,10 +13,18 @@ export async function POST(request) {
         }));
         const guests = response.Items;
         const body = await request.json();
+        const guestId = new URL(request.url).searchParams.get('guestId');
         const foundGuests = guests.filter(guest =>
             guest.firstName.toLowerCase() === body.firstName.toLowerCase() &&
-            guest.lastName.toLowerCase() === body.lastName.toLowerCase()
+            guest.lastName.toLowerCase() === body.lastName.toLowerCase() &&
+            (!guestId || guestId === '' || guest.guestId === guestId)
         );
+        if (foundGuests.length > 1) {
+            return NextResponse.json({
+                isAuthorized: false,
+                possibleGuests: foundGuests,
+            });
+        }
         const isAuthorized = body.password === process.env.NEXT_PUBLIC_WEDDING_PASSWORD && foundGuests.length === 1;
         return NextResponse.json({
             isAuthorized,
