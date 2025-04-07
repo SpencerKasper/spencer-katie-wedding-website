@@ -101,7 +101,8 @@ export default function LoginPageClient() {
                         <Group className={'flex flex-col gap-4 p-8'}>
                             {possibleGuests.map(g => {
                                 const key = compareFieldForGuests;
-                                return <Radio key={g[key]} label={g[key]}
+                                return <Radio key={`radio-${key}`}
+                                              label={g[key]}
                                               value={g.emailAddress}/>;
                             })}
                         </Group>
