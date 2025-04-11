@@ -2,7 +2,7 @@
 import {Guest} from "@/types/guest";
 import {useEffect, useState} from "react";
 import {
-    FIRST_NAME_LOCAL_STORAGE_KEY,
+    FIRST_NAME_LOCAL_STORAGE_KEY, GUEST_ID_STORAGE_KEY,
     LAST_NAME_LOCAL_STORAGE_KEY,
     PASSWORD_LOCAL_STORAGE_KEY,
     WEDDING_GUEST_LOCAL_STORAGE_KEY
@@ -35,16 +35,17 @@ export default (): UseLoggedInGuestOutput => {
         const lastName = localStorage.getItem(LAST_NAME_LOCAL_STORAGE_KEY);
         const password = localStorage.getItem(PASSWORD_LOCAL_STORAGE_KEY);
         if (firstName && lastName && password && firstName !== '' && lastName !== '' && password !== '') {
-            validateLoginInfo({firstName, lastName, password})
+            const guestId = localStorage.getItem(GUEST_ID_STORAGE_KEY);
+            validateLoginInfo({firstName, lastName, password}, guestId)
                 .then(response => {
                     if (response.isAuthorized) {
                         const guest = response.guest as Guest;
                         dispatch(setLoggedInGuest({loggedInGuest: guest}));
                         setIsLoading(false);
-                        router.push('/home');
                     } else if(response.possibleGuests && response.possibleGuests.length) {
                         dispatch(setPossibleGuests({possibleGuests: response.possibleGuests}));
                         setIsLoading(false);
+                        router.push('/');
                     } else {
                         setIsLoading(false);
                         router.push('/');

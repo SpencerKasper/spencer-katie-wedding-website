@@ -15,6 +15,7 @@ export const FIRST_NAME_LOCAL_STORAGE_KEY = 'WEDDING_FIRST_NAME';
 export const LAST_NAME_LOCAL_STORAGE_KEY = 'WEDDING_LAST_NAME';
 export const PASSWORD_LOCAL_STORAGE_KEY = 'WEDDING_PASSWORD';
 export const WEDDING_GUEST_LOCAL_STORAGE_KEY = 'WEDDING_GUEST';
+export const GUEST_ID_STORAGE_KEY = 'WEDDING_GUEST_ID';
 
 export default function LoginPageClient() {
     const router = useRouter();
@@ -23,7 +24,15 @@ export default function LoginPageClient() {
     const [isLoggingIn, setIsLoggingIn] = useState(false);
     const [selectedGuest, setSelectedGuest] = useState(null as Guest);
     const [userConfirmationModalOpen, setUserConfirmationModalOpen] = useState(false);
-    const {validateLoginInfo, isLoading, possibleGuests} = useLoggedInGuest();
+    const {validateLoginInfo, isLoading, possibleGuests, loggedInGuest} = useLoggedInGuest();
+
+    useEffect(() => {
+        if (loggedInGuest) {
+            router.push('/home');
+        } else {
+            localStorage.clear();
+        }
+    }, [loggedInGuest]);
 
     const form = useForm({
         mode: 'uncontrolled',
@@ -61,6 +70,7 @@ export default function LoginPageClient() {
         const key = compareFieldForGuests;
         const foundGuest = possibleGuests.find(g => g[key] === value);
         setSelectedGuest(foundGuest);
+        localStorage.setItem(GUEST_ID_STORAGE_KEY, foundGuest.guestId);
     };
     const camelCaseToDisplay = (value) => {
         const replaced = value
