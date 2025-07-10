@@ -34,6 +34,25 @@ const AddEditGuestModal = ({
     const getSelectedGuestsPartyMember = () => selectedGuest && selectedGuest.partyId && selectedGuest.partyId !== '' ?
         getGuestPartyMember(selectedGuest) :
         '';
+
+    const atLeastOneUniqueFieldRequired = () => {
+        const hasFirstName = getValueFromForm('firstName').trim() !== '';
+        const hasLastName = getValueFromForm('lastName').trim() !== '';
+        const isNameInList = guests.filter(guest => `${guest.firstName} ${guest.lastName}` === `${getValueFromForm('firstName')} ${getValueFromForm('lastName')}`).length;
+        return hasFirstName && hasLastName && isNameInList;
+    };
+
+    const validateEmail = (value) => {
+        const isValidEmailFormat = /^\S+@\S+$/.test(value);
+        const trimmedEmailFormValue = value.trim();
+        if(isValidEmailFormat || trimmedEmailFormValue === '') {
+            return null
+        }
+        if(!isValidEmailFormat) {
+            return 'Invalid email format.';
+        }
+        return atLeastOneUniqueFieldRequired() && trimmedEmailFormValue === '' ? 'Another guest with this first and last name exists. Email address is required to differentiate.' : null;
+    };
     const form = useForm({
         mode: 'uncontrolled',
         // @ts-ignore
@@ -52,17 +71,7 @@ const AddEditGuestModal = ({
         },
         // @ts-ignore
         validate: {
-            emailAddress: (value) => (/^\S+@\S+$/.test(value) || value.trim() === '' ? null : 'Invalid email'),
-            firstName: (value) => {
-                const hasLastName = getValueFromForm('lastName').trim() !== '';
-                const isNameInList = guests.filter(guest => `${guest.firstName} ${guest.lastName}` === `${value} ${getValueFromForm('lastName')}`).length;
-                return hasLastName && isNameInList && !selectedGuest ? 'Guest with this first and last name is already in list.' : null;
-            },
-            lastName: (value) => {
-                const hasFirstName = getValueFromForm('firstName').trim() !== '';
-                const isNameInList = guests.filter(guest => `${guest.firstName} ${guest.lastName}` === `${getValueFromForm('firstName')} ${value}`).length;
-                return hasFirstName && isNameInList && !selectedGuest ? 'Guest with this first and last name is already in list.' : null;
-            }
+            emailAddress: validateEmail,
         },
         onValuesChange: (values, previous) => {
             if (values.tableId !== previous.tableId) {
@@ -213,6 +222,7 @@ const AddEditGuestModal = ({
                     </div>
                     <p className={'text-md'}>Contact Info</p>
                     <TextInput
+                        required={atLeastOneUniqueFieldRequired()}
                         label={'Email Address'}
                         key={form.key('emailAddress')}
                         {...form.getInputProps('emailAddress')}

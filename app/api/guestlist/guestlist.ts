@@ -9,6 +9,7 @@ export interface GuestListDynamo {
     city: {S: string};
     state: {S: string};
     zipCode: {S: string};
+    roles: {L: string[]};
 }
 
 export interface Guest {
@@ -22,6 +23,7 @@ export interface Guest {
     city: string;
     state: string;
     zipCode: string;
+    roles: string[];
 }
 
 export const toGuestListItemFromDynamo = (guestListDynamo: GuestListDynamo) => {
@@ -36,5 +38,6 @@ export const toGuestListItemFromDynamo = (guestListDynamo: GuestListDynamo) => {
         city: guestListDynamo.city.S,
         state: guestListDynamo.state.S,
         zipCode: guestListDynamo.zipCode.S,
+        roles: guestListDynamo.roles ? guestListDynamo.roles.L : [],
     }
 }

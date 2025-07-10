@@ -3,6 +3,7 @@ import HomePageClient from "@/app/home/homePageClient";
 import {APP_MODE} from "@/constants/app-constants";
 import SaveTheDate from "@/app/SaveTheDate";
 import KatieAndSpencersWeddingTitle from "@/app/KatieAndSpencersWeddingTitle";
+import {Divider} from "@mantine/core";
 
 export default async function AuthenticatedHomePage() {
     try {
@@ -14,7 +15,7 @@ export default async function AuthenticatedHomePage() {
         if (response && response.ok) {
             const {guests} = await response.json();
             return (
-                <div className={'flex flex-col w-full justify-center '}>
+                <div className={'flex flex-col w-full justify-center gap-16'}>
                     <KatieAndSpencersWeddingTitle/>
                     <HomePageClient guests={guests}/>
                 </div>

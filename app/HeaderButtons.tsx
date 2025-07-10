@@ -21,6 +21,8 @@ export const HeaderButtons = () => {
                             {HomeButton}
                             <Button component={"a"} href={"/rsvp"} variant={"outline"}
                                     color={"white"}>RSVP&nbsp; </Button>
+                            <Button component={"a"} href={"/itinerary"} variant={"outline"}
+                                    color={"white"}>Itinerary&nbsp; </Button>
                             {/*<Button component={"a"} href={"/itinerary"} variant={"outline"} color={"white"}>Itinerary</Button>*/}
                             {ArrangementsButton}
                             {FAQButton}

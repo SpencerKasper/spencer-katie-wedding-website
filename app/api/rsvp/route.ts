@@ -8,7 +8,7 @@ import {getSearchParams} from "@/app/api/helpers/param-util";
 import {GUESTLIST_TABLE_NAME, RSVPS_TABLE_NAME} from "@/app/api/constants/dynamo";
 import {sendTemplateEmail} from "@/app/api/aws-clients/send-email";
 import {updateRsvpResponseEmailTemplate} from "@/app/api/email-templates/rsvp-response-email";
-import {APP_MODE, KATIE_SPENCER_EMAIL, SPENCER_EMAIL} from "@/constants/app-constants";
+import {APP_MODE, KATIE_SPENCER_EMAIL, REHEARSAL_DINNER_ROLE, SPENCER_EMAIL} from "@/constants/app-constants";
 
 export const dynamic = 'force-dynamic';
 
@@ -45,6 +45,10 @@ export async function GET(request) {
 
 function getGuestName(rsvp: RSVP) {
     return `${rsvp.guest.firstName} ${rsvp.guest.lastName}`;
+}
+
+function isInvitedToRehearsalDinner(rsvp: RSVP) {
+    return rsvp.guest.roles && rsvp.guest.roles.includes(REHEARSAL_DINNER_ROLE);
 }
 
 export async function POST(request) {
@@ -87,12 +91,18 @@ export async function POST(request) {
                             state: {S: rsvpGuest.state},
                             emailAddress: {S: rsvpGuest.emailAddress},
                             phoneNumber: {S: rsvpGuest.phoneNumber.toString()},
+                            roles: {L: rsvpGuest.roles ? rsvpGuest.roles.map(role => ({S: role})) : []},
                             ...(rsvpGuest.partyId && rsvpGuest.partyId !== '' ? {partyId: {S: rsvpGuest.partyId}} : {}),
                         }
                     },
                     isAttending: {BOOL: Boolean(rsvp.isAttending)},
+                    ...(isInvitedToRehearsalDinner(rsvp) ?
+                            {isAttendingRehearsalDinner: {BOOL: Boolean(rsvp.isAttending)}} :
+                            {}
+                    ),
                     dinnerChoice: {S: rsvp.dinnerChoice ? rsvp.dinnerChoice : ''},
-                    dietaryRestrictions: {S: rsvp.dietaryRestrictions ? rsvp.dietaryRestrictions : ''}
+                    dietaryRestrictions: {S: rsvp.dietaryRestrictions ? rsvp.dietaryRestrictions : ''},
+                    songRequests: {S: rsvp.songRequests ? rsvp.songRequests : ''},
                 }
             }));
         }
@@ -108,8 +118,13 @@ export async function POST(request) {
                 rsvps: rsvps.map(rsvp => ({
                     name: getGuestName(rsvp),
                     isAttending: rsvp.isAttending ? 'Yes' : 'No',
+                    ...(isInvitedToRehearsalDinner(rsvp) ?
+                            {isAttendingRehearsalDinner: rsvp.isAttendingRehearsalDinner ? 'Yes' : 'No'} :
+                            {}
+                    ),
                     dinnerChoice: rsvp.dinnerChoice ? rsvp.dinnerChoice : 'N/A',
                     dietaryRestrictions: rsvp.dietaryRestrictions ? rsvp.dietaryRestrictions : 'N/A',
+                    songRequests: rsvp.songRequests ? rsvp.songRequests : 'N/A',
                 }))
             }),
             toAddresses: APP_MODE === 'SAVE_THE_DATE' ?
@@ -125,8 +140,13 @@ export async function POST(request) {
                     rsvps: rsvps.map(rsvp => ({
                         name: getGuestName(rsvp),
                         isAttending: rsvp.isAttending ? 'Yes' : 'No',
+                        ...(rsvp.guest.roles && rsvp.guest.roles.includes(REHEARSAL_DINNER_ROLE) ?
+                                {isAttendingRehearsalDinner: rsvp.isAttendingRehearsalDinner ? 'Yes' : 'No'} :
+                                {}
+                        ),
                         dinnerChoice: rsvp.dinnerChoice ? rsvp.dinnerChoice : 'N/A',
                         dietaryRestrictions: rsvp.dietaryRestrictions ? rsvp.dietaryRestrictions : 'N/A',
+                        songRequests: rsvp.songRequests ? rsvp.songRequests : 'N/A'
                     }))
                 }),
                 toAddresses: [KATIE_SPENCER_EMAIL],
@@ -136,7 +156,8 @@ export async function POST(request) {
             rsvps,
             statusCode: 200
         });
-    } catch (e) {
+    } catch
+        (e) {
         console.error(e);
         return NextResponse.json({error: e});
     }

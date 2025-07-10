@@ -2,11 +2,6 @@
 
 import {useEffect, useRef, useState} from "react";
 import {Button, Card, Checkbox, Divider, Select, Skeleton, Textarea} from "@mantine/core";
-import {
-    FIRST_NAME_LOCAL_STORAGE_KEY,
-    LAST_NAME_LOCAL_STORAGE_KEY,
-    PASSWORD_LOCAL_STORAGE_KEY,
-} from "@/app/loginPageClient";
 import axios from "axios";
 import {useForm} from "@mantine/form";
 import {RSVP} from "@/types/rsvp";
@@ -15,15 +10,15 @@ import {RSVPPill} from "@/app/rsvp/RSVPPill";
 import {RSVPsReview} from "@/app/rsvp/RSVPsReview";
 import useLoggedInGuest from "@/app/hooks/useLoggedInGuest";
 import EmailModal from "@/app/EmailModal";
-
-const NUMBER_OF_PAGES = 2;
+import {REHEARSAL_DINNER_ROLE, RSVP_DEADLINE} from "@/constants/app-constants";
 
 const IS_ATTENDING_POSTFIX = '_isAttending';
+const IS_ATTENDING_REHEARSAL_DINNER_POSTFIX = '_isAttendingRehearsalDinner';
 
 const DINNER_CHOICES = [
-    {displayName: 'Grilled Filet Mignon', id: 'beef' },
-    {displayName: 'Pistachio Crusted Chicken Breast', id: 'chicken' },
-    {displayName: 'Pan-Seared Walleye', id: 'fish' },
+    {displayName: 'Grilled Filet Mignon', id: 'beef'},
+    {displayName: 'Pistachio Crusted Chicken Breast', id: 'chicken'},
+    {displayName: 'Pan-Seared Walleye', id: 'fish'},
     {displayName: 'I have a food restriction', id: 'restrictive-diet'}
 ];
 export default function RSVPClient() {
@@ -87,10 +82,11 @@ export default function RSVPClient() {
     const decrementRsvpPage = () => {
         setRsvpPage(rsvpPage - 1);
     }
+    const rehearsalDinnerGuests = guestsInParty.filter(g => g.roles && g.roles.includes(REHEARSAL_DINNER_ROLE));
+    const andYourGuests = !guestsInParty || guestsInParty.length <= 1 ? '' : ` and your guest${guestsInParty.length > 2 ? 's' : ''}`;
+    const andYourGuestsRehearsal = !rehearsalDinnerGuests || rehearsalDinnerGuests.length <= 1 ? '' : ` and your guest${rehearsalDinnerGuests.length > 2 ? 's' : ''}`;
 
-    const andYourGuests = !guestsInParty || guestsInParty.length === 0 ? '' : ` and your guest${guestsInParty.length > 2 ? 's' : ''}`;
-
-    const PageOneContent = () => {
+    const AreYouAttendingContent = () => {
         return (
             <div className={'flex flex-col gap-4'}>
                 {guestsInParty.map((guestInParty, index) => {
@@ -113,8 +109,7 @@ export default function RSVPClient() {
             </div>
         )
     };
-
-    const PageTwoContent = () => {
+    const DinnerChoiceContent = () => {
         const ref = useRef();
         if (attendingGuests.length === 0) {
             incrementRsvpPage();
@@ -150,63 +145,81 @@ export default function RSVPClient() {
             </div>
         );
     }
-
-    const ReviewPage = () => {
-        const reviewRsvps = getRsvpsFromForm();
+    const SongRequestsContent = () => {
+        const ref = useRef();
         return (
-            <div className={'flex flex-col flex-wrap gap-8'}>
-                {reviewRsvps.map((rsvp, index) => {
-                    return (
-                        <div key={`rsvp-${index}`}>
-                            <div className={'flex flex-wrap justify-between'}>
-                                <p>{`${rsvp.guest.firstName} ${rsvp.guest.lastName}`}</p>
-                                <div><RSVPPill rsvp={rsvp}/></div>
-                            </div>
-                            {rsvp.isAttending ?
-                                <div className={'flex flex-col'}>
-                                    <div>
-                                        <p>{`Dinner Choice: ${rsvp.dinnerChoice}`}</p>
-                                    </div>
-                                    <div>
-                                        <p>{`Dietary Restrictions: ${rsvp.dietaryRestrictions && rsvp.dietaryRestrictions !== '' ? rsvp.dietaryRestrictions : 'N/A'}`}</p>
-                                    </div>
-                                    {index + 1 === reviewRsvps.length ? <></> : <Divider my={'md'}/>}
-                                </div> :
-                                <></>
-                            }
-                        </div>
-                    )
-                })}
+            <div className={'flex flex-col gap-4'}>
+                <div>
+                    <Textarea
+                        ref={ref}
+                        resize={'vertical'}
+                        label={'Share your must-play party song (This is not required):'}
+                        placeholder={'Make sure to share the name of the song and the artist!'}
+                        key={'must-play'}
+                        {...form.getInputProps(`must-play`)}
+                    />
+                </div>
             </div>
         );
     }
-
-    const getPageTitle = () => {
-        if (rsvpPage === 0) {
-            return `Will you${andYourGuests} be attending?`
-        } else if (rsvpPage === 1) {
-            return `What will you${andYourGuests} have for dinner?`
-        }
-        return 'Review Your Selections:'
+    const RehearsalDinnerContent = () => {
+        return (
+            <div className={'flex flex-col gap-4'}>
+                {rehearsalDinnerGuests
+                    .map((guestInParty, index) => {
+                        return (
+                            <div key={`guest-response-${index}`} className={'flex justify-between'}>
+                                <div>
+                                    <p>{guestInParty.firstName} {guestInParty.lastName}</p>
+                                </div>
+                                <div>
+                                    <Checkbox
+                                        variant={'outline'}
+                                        color={'green'}
+                                        key={form.key(`${getGuestPrefix(guestInParty)}${IS_ATTENDING_REHEARSAL_DINNER_POSTFIX}`)}
+                                        {...form.getInputProps(`${getGuestPrefix(guestInParty)}${IS_ATTENDING_REHEARSAL_DINNER_POSTFIX}`, {type: 'checkbox'})}
+                                    />
+                                </div>
+                            </div>
+                        );
+                    })}
+            </div>
+        )
     }
 
-    const getPageContent = () => {
-        if (rsvpPage === 0) {
-            return <PageOneContent/>;
-        } else if (rsvpPage === 1) {
-            return <PageTwoContent/>;
-        }
-        return <ReviewPage/>;
+    const ReviewContent = () => {
+        const reviewRsvps = getRsvpsFromForm();
+        return <RSVPsReview rsvps={reviewRsvps} setRsvps={setRsvps}/>
     }
 
-    function getRsvpsFromForm() {
+    const PAGES = [
+        {title: `Will you${andYourGuests} be attending?`, content: () => <AreYouAttendingContent/>},
+        {title: `What will you${andYourGuests} have for dinner?`, content: () => <DinnerChoiceContent/>},
+        {title: 'We\'re taking requests!', content: () => <SongRequestsContent/>},
+        ...(rehearsalDinnerGuests.length ?
+                [{
+                    title: `Will you${andYourGuestsRehearsal} be attending the rehearsal dinner?`,
+                    content: () => <RehearsalDinnerContent/>
+                }] :
+                []
+        ),
+        {title: 'Review Your Selections:', content: () => <ReviewContent/>}
+    ]
+
+    function getRsvpsFromForm(): RSVP[] {
         return guestsInParty.map(guestInParty => {
             const isAttending = extractValueFromForm(guestInParty, IS_ATTENDING_POSTFIX);
+            const isAttendingRehearsalDinner = extractValueFromForm(guestInParty, IS_ATTENDING_REHEARSAL_DINNER_POSTFIX);
             return {
                 guest: guestInParty,
                 isAttending: Boolean(isAttending),
+                ...(guestInParty.roles && guestInParty.roles.includes(REHEARSAL_DINNER_ROLE) ?
+                        {isAttendingRehearsalDinner: Boolean(isAttendingRehearsalDinner)} :
+                        {}
+                ),
                 dinnerChoice: extractValueFromForm(guestInParty, '_dinnerChoice'),
                 dietaryRestrictions: extractValueFromForm(guestInParty, '_dietaryRestrictions'),
+                songRequests: form.getValues()['must-play']
             }
         });
     }
@@ -216,38 +229,58 @@ export default function RSVPClient() {
         await axios.post(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/rsvp`, {rsvps: rsvpsFromForm});
         setRsvps(rsvpsFromForm);
     }
+    const deleteRSVPs = async () => {
+        const guestIds = rsvps.map(rsvp => rsvp.guest.guestId);
+        await axios.delete(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/rsvp?guestIds=${guestIds}`);
+        setRsvps([]);
+        form.reset();
+        setRsvpPage(0);
+    }
+    const currentPage = PAGES[rsvpPage];
     return (
         <div>
             <Skeleton visible={isLoading}>
                 <EmailModal loggedInGuest={loggedInGuest}/>
-                <div className={'flex justify-center'}>
-                    <Card className={'max-w-lg'}>
+                <div className={'flex justify-center w-full'}>
+                    <Card className={'w-full md:w-3/4 xl:w-1/2'}>
                         {rsvps.length ?
-                            <RSVPsReview rsvps={rsvps} setRsvps={(value) => {
-                                setRsvps(value);
-                                form.reset();
-                                setRsvpPage(0);
-                            }}/> :
-                            <form>
-                                <h2 className={'text-4xl'}>{getPageTitle()}</h2>
+                            <div>
+                                <RSVPsReview rsvps={rsvps}/>
                                 <Divider my={'md'}/>
-                                {getPageContent()}
+                                <div className={'flex flex-col gap-4'}>
+                                    <div>
+                                        <p>Need to change your selections? No problem! Just RSVP again
+                                            before {RSVP_DEADLINE}.</p>
+                                    </div>
+                                    <div className={'flex justify-between'}>
+                                        <div></div>
+                                        <Button onClick={deleteRSVPs} variant={'outline'}>Delete RSVPs and Start
+                                            Over</Button>
+                                    </div>
+                                </div>
+                            </div> :
+                            <form>
+                                <h2 className={'text-4xl'}>{currentPage.title}</h2>
+                                <Divider my={'md'}/>
+                                <div>
+                                    {currentPage.content()}
+                                </div>
                                 <Divider my={'md'}/>
                                 <div className={'flex justify-between'}>
                                     <div></div>
                                     <div className={'flex gap-2'}>
                                         <Button disabled={rsvpPage === 0} variant={'outline'} color={'black'}
                                                 onClick={() => {
-                                                    if (rsvpPage === 2 && attendingGuests.length === 0) {
+                                                    if (rsvpPage + 1 === PAGES.length && attendingGuests.length === 0) {
                                                         setRsvpPage(0);
                                                     } else {
                                                         decrementRsvpPage();
                                                     }
                                                 }}>Back</Button>
-                                        {rsvpPage === NUMBER_OF_PAGES ?
+                                        {rsvpPage === PAGES.length - 1 ?
                                             <Button variant={'outline'} color={'black'}
                                                     onClick={handleSubmit}>Submit</Button> :
-                                            <Button disabled={rsvpPage >= NUMBER_OF_PAGES} variant={'outline'}
+                                            <Button disabled={rsvpPage >= PAGES.length - 1} variant={'outline'}
                                                     color={'black'}
                                                     onClick={() => incrementRsvpPage()}>Next</Button>
                                         }

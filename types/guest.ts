@@ -14,4 +14,5 @@ export interface Guest {
     guestPartyMember?: string;
     phoneNumber: string;
     tableNumber?: number;
+    roles?: string[];
 }

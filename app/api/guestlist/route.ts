@@ -135,6 +135,7 @@ async function toGuestListPutRequest(guest: Partial<Guest>) {
             state: {S: state ? state : ''},
             zipCode: {S: zipCode ? zipCode : ''},
             partyId: {S: partyId ? partyId : ''},
+            roles: {L: guest.roles ? guest.roles : []}
         }
     };
 }
@@ -204,7 +205,7 @@ export async function POST(request) {
                     Key: {
                         guestId: modifiedGuest.guestId
                     },
-                    UpdateExpression: "SET #partyId = :partyId, #firstName = :firstName, #lastName = :lastName, #address = :address, #address2 = :address2, #city = :city, #state = :state, #zipCode = :zipCode, #emailAddress = :emailAddress, #optOutOfEmail = :optOutOfEmail, #phoneNumber = :phoneNumber",
+                    UpdateExpression: "SET #partyId = :partyId, #firstName = :firstName, #lastName = :lastName, #address = :address, #address2 = :address2, #city = :city, #state = :state, #zipCode = :zipCode, #emailAddress = :emailAddress, #optOutOfEmail = :optOutOfEmail, #phoneNumber = :phoneNumber, #roles = :roles",
                     ExpressionAttributeNames: {
                         "#partyId": "partyId",
                         '#firstName': 'firstName',
@@ -216,7 +217,8 @@ export async function POST(request) {
                         '#zipCode': 'zipCode',
                         '#emailAddress': 'emailAddress',
                         '#optOutOfEmail': 'optOutOfEmail',
-                        '#phoneNumber': 'phoneNumber'
+                        '#phoneNumber': 'phoneNumber',
+                        "#roles": 'roles'
                     },
                     ExpressionAttributeValues: {
                         ":partyId": modifiedGuest.partyId,
@@ -229,7 +231,8 @@ export async function POST(request) {
                         ':zipCode': modifiedGuest.zipCode,
                         ':emailAddress': modifiedGuest.emailAddress,
                         ':optOutOfEmail': modifiedGuest.optOutOfEmail,
-                        ':phoneNumber': modifiedGuest.phoneNumber
+                        ':phoneNumber': modifiedGuest.phoneNumber,
+                        ':roles': modifiedGuest.roles ? modifiedGuest.roles : [],
                     }
                 }));
                 console.error(`Updating Guest: ${modifiedGuest.firstName} ${modifiedGuest.lastName}`);
