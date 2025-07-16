@@ -7,7 +7,7 @@ import {Button, Group, Loader, Modal, Notification, PasswordInput, Radio, TextIn
 import axios from "axios";
 import {OverrideFont} from "@/app/components/OverrideFont";
 import useLoggedInGuest from "@/app/hooks/useLoggedInGuest";
-import {setPossibleGuests} from "@/lib/reducers/appReducer";
+import {setGuestsInParties, setPossibleGuests} from "@/lib/reducers/appReducer";
 import {useAppDispatch} from "@/lib/hooks";
 import {Guest} from "@/types/guest";
 
@@ -24,7 +24,7 @@ export default function LoginPageClient() {
     const [isLoggingIn, setIsLoggingIn] = useState(false);
     const [selectedGuest, setSelectedGuest] = useState(null as Guest);
     const [userConfirmationModalOpen, setUserConfirmationModalOpen] = useState(false);
-    const {validateLoginInfo, isLoading, possibleGuests, loggedInGuest} = useLoggedInGuest();
+    const {validateLoginInfo, isLoading, possibleGuests, loggedInGuest, guestsInParties} = useLoggedInGuest();
 
     useEffect(() => {
         if (loggedInGuest) {
@@ -50,6 +50,7 @@ export default function LoginPageClient() {
             setIsLoggingIn(false);
         } else if (response.possibleGuests && response.possibleGuests.length) {
             dispatch(setPossibleGuests({possibleGuests: response.possibleGuests}));
+            dispatch(setGuestsInParties({guestsInParties: response.guestsInParties}));
             setUserConfirmationModalOpen(true);
             setIsLoggingIn(false);
         } else {
@@ -57,26 +58,22 @@ export default function LoginPageClient() {
             setIsLoggingIn(false);
         }
     };
-    const getCompareFieldForGuests = (guests: Guest[]): keyof Guest => {
-        const POSSIBLE_FIELDS: (keyof Guest)[] = ['emailAddress', "phoneNumber", 'state', 'city'];
-        const foundField = POSSIBLE_FIELDS.find(field => new Set(guests.map(g => g[field])).size === guests.length);
-        if (foundField) {
-            return foundField;
-        }
-        return 'emailAddress';
-    };
-    const compareFieldForGuests = getCompareFieldForGuests(possibleGuests);
     const onSelectedGuestChange = (value) => {
-        const key = compareFieldForGuests;
-        const foundGuest = possibleGuests.find(g => g[key] === value);
+        const partyGuest = guestsInParties.find(g => `${g.firstName} ${g.lastName}`);
+        const foundGuest = partyGuest ?
+            possibleGuests.find(g => g.partyId === partyGuest.partyId) :
+            possibleGuests.find(g => !g.partyId || g.partyId === '');
         setSelectedGuest(foundGuest);
         localStorage.setItem(GUEST_ID_STORAGE_KEY, foundGuest.guestId);
     };
-    const camelCaseToDisplay = (value) => {
-        const replaced = value
-            .replace(/([A-Z])/g, ' $1');
-        return replaced.toLowerCase();
-    };
+    const partyGuestsRadioButtons = guestsInParties.map(g => {
+        return <Radio
+            key={`radio-${g.guestId}`}
+            label={`${g.firstName} ${g.lastName}`}
+            value={g.guestId}
+        />;
+    });
+    const eachPossibleGuestHasPartyMember = possibleGuests.filter(pg => pg.partyId && pg.partyId !== '' && guestsInParties.find(g => g.partyId === pg.partyId)).length === possibleGuests.length;
     return !isLoading ?
         <div
             className="text-white flex flex-col align-center min-h-screen w-full gap-8 font-[family-name:var(--font-geist-sans)]">
@@ -103,18 +100,25 @@ export default function LoginPageClient() {
                        className={'flex flex-col gap-8'}>
                     <Radio.Group
                         name="loggedInUserEmail"
-                        label={`Which of the following is your ${camelCaseToDisplay(compareFieldForGuests)}?`}
+                        label={`Which of the following is your guest?`}
                         description="This will help us determine which account to choose for you."
                         withAsterisk
                         onChange={onSelectedGuestChange}
                     >
                         <Group className={'flex flex-col gap-4 p-8'}>
-                            {possibleGuests.map(g => {
-                                const key = compareFieldForGuests;
-                                return <Radio key={`radio-${key}`}
-                                              label={g[key]}
-                                              value={g.emailAddress}/>;
-                            })}
+                            {[
+                                ...partyGuestsRadioButtons,
+                                ...(eachPossibleGuestHasPartyMember ?
+                                        [] :
+                                        [
+                                            <Radio
+                                                key={'radio-no-guest'}
+                                                label={'No Guest'}
+                                                value={''}
+                                            />
+                                        ]
+                                )
+                            ]}
                         </Group>
                     </Radio.Group>
                     <div>

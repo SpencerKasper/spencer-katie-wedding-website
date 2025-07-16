@@ -23,6 +23,7 @@ export async function POST(request) {
             return NextResponse.json({
                 isAuthorized: false,
                 possibleGuests: foundGuests,
+                guestsInParties: guests.filter(g => foundGuests.filter(fg => fg.partyId && fg.partyId === g.partyId && g.guestId !== fg.guestId).length)
             });
         }
         const isAuthorized = body.password === process.env.NEXT_PUBLIC_WEDDING_PASSWORD && foundGuests.length === 1;
