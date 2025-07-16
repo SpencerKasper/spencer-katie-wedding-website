@@ -34,6 +34,12 @@ export default function LoginPageClient() {
         }
     }, [loggedInGuest]);
 
+    useEffect(() => {
+        if(possibleGuests && possibleGuests.length) {
+            setSelectedGuest(possibleGuests[0]);
+        }
+    }, [possibleGuests])
+
     const form = useForm({
         mode: 'uncontrolled',
         initialValues: {
@@ -59,18 +65,19 @@ export default function LoginPageClient() {
         }
     };
     const onSelectedGuestChange = (value) => {
-        const partyGuest = guestsInParties.find(g => `${g.firstName} ${g.lastName}`);
+        const partyGuest = guestsInParties.find(g => g.guestId === value);
         const foundGuest = partyGuest ?
             possibleGuests.find(g => g.partyId === partyGuest.partyId) :
             possibleGuests.find(g => !g.partyId || g.partyId === '');
         setSelectedGuest(foundGuest);
         localStorage.setItem(GUEST_ID_STORAGE_KEY, foundGuest.guestId);
     };
-    const partyGuestsRadioButtons = guestsInParties.map(g => {
+    const partyGuestsRadioButtons = guestsInParties.map((g, i) => {
         return <Radio
             key={`radio-${g.guestId}`}
             label={`${g.firstName} ${g.lastName}`}
             value={g.guestId}
+            defaultChecked={i === 0}
         />;
     });
     const eachPossibleGuestHasPartyMember = possibleGuests.filter(pg => pg.partyId && pg.partyId !== '' && guestsInParties.find(g => g.partyId === pg.partyId)).length === possibleGuests.length;
@@ -104,6 +111,7 @@ export default function LoginPageClient() {
                         description="This will help us determine which account to choose for you."
                         withAsterisk
                         onChange={onSelectedGuestChange}
+                        defaultValue={guestsInParties.length ? `radio-${guestsInParties[0].guestId}` : 'radio-no-guest'}
                     >
                         <Group className={'flex flex-col gap-4 p-8'}>
                             {[

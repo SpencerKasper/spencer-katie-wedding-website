@@ -8,7 +8,7 @@ export default function Logout() {
     useEffect(() => {
         localStorage.clear();
         router.push('/');
-    }, [router]);
+    }, []);
 
     return (
         <div>
