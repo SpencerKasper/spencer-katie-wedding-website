@@ -24,7 +24,7 @@ export const RSVPsReview = ({rsvps}: { rsvps: RSVP[] }) => {
                             <p className={labelClasses}>Attending Wedding:</p>
                             <p>{rsvp.isAttending ? 'Yes' : 'No'}</p>
                         </div>
-                        {rsvp.isAttending && roles.includes(REHEARSAL_DINNER_ROLE) ?
+                        {rsvp.isAttending && roles && roles.includes(REHEARSAL_DINNER_ROLE) ?
                             <div className={'flex justify-between'}>
                                 <p className={labelClasses}>Attending Rehearsal Dinner:</p>
                                 <p>{rsvp.isAttendingRehearsalDinner ? 'Yes' : 'No'}</p>

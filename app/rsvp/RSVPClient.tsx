@@ -72,8 +72,13 @@ export default function RSVPClient() {
     const [rsvps, setRsvps] = useState([] as RSVP[]);
     const [formErrorMessage, setFormErrorMessage] = useState(null);
 
-    async function getGuestsInParty(partyId: string) {
-        return axios.get(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist?partyId=${partyId}`)
+    async function getGuests(partyId: string = '', guestId: string = '') {
+        const partyQueryParam = partyId !== '' ? `partyId=${partyId}` : '';
+        const guestQueryParam = guestId !== '' ? `guestId=${guestId}` : '';
+        const queryParam = partyQueryParam === '' && guestQueryParam === '' ?
+            '' :
+            `?${partyQueryParam}${guestQueryParam}`;
+        return axios.get(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist${queryParam}`)
             .then(guestListResponse => {
                 setGuestsInParty(guestListResponse.data.guests);
                 setIsLoading(false);
@@ -82,9 +87,11 @@ export default function RSVPClient() {
 
     useEffect(() => {
         if (loggedInGuest) {
-            const partyId = loggedInGuest.partyId;
-            if (partyId && partyId !== '') {
-                getGuestsInParty(partyId).then();
+            const partyId = loggedInGuest.partyId ? loggedInGuest.partyId : '';
+            if (partyId !== '') {
+                getGuests(partyId).then();
+            } else {
+                getGuests('', loggedInGuest.guestId).then();
             }
             const query = loggedInGuest.partyId ? `partyId=${loggedInGuest.partyId}` : `guestIds=${loggedInGuest.guestId}`;
             axios.get(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/rsvp?${query}`)
@@ -338,7 +345,7 @@ export default function RSVPClient() {
                         (plusOneDinnerChoice === '' || !plusOneDinnerChoice);
                     return !dinnerChoice || dinnerChoice === '' || plusOneIsComingButDidNotPickDinnerChoice;
                 });
-                if(missingDinnerChoice.length > 0) {
+                if (missingDinnerChoice.length > 0) {
                     return 'Each guest must select what they want to eat for dinner.'
                 }
 
