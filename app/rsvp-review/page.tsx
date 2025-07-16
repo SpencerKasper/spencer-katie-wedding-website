@@ -21,10 +21,11 @@ export default function RSVPReviewPage() {
                     });
             });
     }, []);
-    const partyNumbersMap = guestList.reduce((acc, curr, index) => ({
-        ...acc,
-        [curr.partyId]: acc.hasOwnProperty(curr.partyId) ? acc[curr.partyId] : index + 1,
-    }), {});
+    const partyNumbersMap = guestList.reduce((acc, curr, index) =>
+        ({
+            ...acc,
+            [curr.partyId]: acc.hasOwnProperty(curr.partyId) ? acc[curr.partyId] : Object.values(acc).length === 0 ? 1 : Math.max(...Object.values(acc)) + 1,
+        }), {});
     const rows = rsvps.map((x, index) => {
         const guest = x.guest;
         const partyNumber = x.guest.partyId ? partyNumbersMap[x.guest.partyId] : -1;
