@@ -14,16 +14,21 @@ function getDefaultValue(value?: string) {
 export async function GET(request) {
     const getNameFields = () => ['First Name', 'Last Name'];
     const getRSVPFields = () => ['Is Attending', 'Dinner Choice', 'Dietary Restrictions'];
+    const getPlusOneFields = () => ['Plus One Name', 'Plus One Dinner Choice', 'Plus One Dietary Restrictions'];
     const getContactFields = () => ['Email Address', 'Phone Number'];
     const getAddressFields = () => ['Address', 'Address 2', 'City', 'State', 'Zip Code'];
 
     function getRSVPsWorksheet(rsvps: RSVP[]): WorkSheet<string> {
-        const headerRow = [...getNameFields(), ...getRSVPFields(), ...getContactFields(), ...getAddressFields()];
+        const headerRow = [...getNameFields(), ...getRSVPFields(), ...getPlusOneFields(), ...getContactFields(), ...getAddressFields()];
         const rsvpRows = rsvps.map(rsvp => {
             const guest = rsvp.guest;
+            const plusOne = rsvp.plusOne ? rsvp.plusOne : null;
+            const hasPlusOne = plusOne && plusOne.firstName !== '';
             return [
                 guest.firstName, guest.lastName, rsvp.isAttending ? 'Yes' : 'No', getDefaultValue(rsvp.dinnerChoice),
-                getDefaultValue(rsvp.dietaryRestrictions), guest.emailAddress, guest.phoneNumber, guest.address,
+                getDefaultValue(rsvp.dietaryRestrictions), hasPlusOne ? `${plusOne.firstName} ${plusOne.lastName}` : '-',
+                hasPlusOne ? plusOne.dinnerChoice : '-', hasPlusOne && plusOne.dietaryRestrictions !== '' ? plusOne.dietaryRestrictions : '-',
+                guest.emailAddress, guest.phoneNumber, guest.address,
                 guest.address2, guest.city, guest.state, guest.zipCode,
             ];
         });

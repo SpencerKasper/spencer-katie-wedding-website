@@ -22,6 +22,7 @@ export default function RSVPReviewPage() {
             });
     }, []);
     const partyNumbersMap = guestList.reduce((acc, curr, index) => ({
+        ...acc,
         [curr.partyId]: acc.hasOwnProperty(curr.partyId) ? acc[curr.partyId] : index + 1,
     }), {});
     const rows = rsvps.map((x, index) => {
@@ -34,6 +35,9 @@ export default function RSVPReviewPage() {
                 <Table.Td>{x.isAttending ? x.dinnerChoice : '-'}</Table.Td>
                 <Table.Td>{x.isAttending && x.dietaryRestrictions && x.dietaryRestrictions !== '' ? x.dietaryRestrictions : '-'}</Table.Td>
                 <Table.Td>{partyNumber > 0 ? partyNumber : '-'}</Table.Td>
+                <Table.Td>{x.plusOne && x.plusOne.firstName !== '' ? `${x.plusOne.firstName} ${x.plusOne.lastName}` : '-'}</Table.Td>
+                <Table.Td>{x.plusOne && x.plusOne.firstName !== '' ? x.plusOne.dinnerChoice : '-'}</Table.Td>
+                <Table.Td>{x.plusOne && x.plusOne.firstName !== '' && x.plusOne.dietaryRestrictions !== '' ? x.plusOne.dietaryRestrictions : '-'}</Table.Td>
             </Table.Tr>
         );
     })
@@ -57,6 +61,9 @@ export default function RSVPReviewPage() {
                                     <Table.Th>Dinner Choice</Table.Th>
                                     <Table.Th>Dietary Restrictions</Table.Th>
                                     <Table.Th>Party Number</Table.Th>
+                                    <Table.Th>Plus One Name</Table.Th>
+                                    <Table.Th>Plus One Dinner Choice</Table.Th>
+                                    <Table.Th>Plus One Dietary Restrictions</Table.Th>
                                 </Table.Tr>
                             </Table.Thead>
                             <Table.Tbody>
