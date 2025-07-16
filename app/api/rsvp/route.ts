@@ -75,6 +75,7 @@ export async function POST(request) {
         }
         for (let rsvp of rsvps) {
             const rsvpGuest = rsvp.guest;
+            const plusOne = rsvp && rsvp.plusOne ? rsvp.plusOne : null;
             const response = await dynamo.send(new PutItemCommand({
                 TableName: RSVPS_TABLE_NAME,
                 Item: {
@@ -103,6 +104,18 @@ export async function POST(request) {
                     dinnerChoice: {S: rsvp.dinnerChoice ? rsvp.dinnerChoice : ''},
                     dietaryRestrictions: {S: rsvp.dietaryRestrictions ? rsvp.dietaryRestrictions : ''},
                     songRequests: {S: rsvp.songRequests ? rsvp.songRequests : ''},
+                    ...(plusOne && plusOne.firstName !== '' ? {
+                                plusOne: {
+                                    M: {
+                                        firstName: {S: plusOne && plusOne.firstName ? plusOne.firstName : ''},
+                                        lastName: {S: plusOne && plusOne.lastName ? plusOne.lastName : ''},
+                                        dinnerChoice: {S: plusOne && plusOne.dinnerChoice ? plusOne.dinnerChoice : ''},
+                                        dietaryRestrictions: {S: plusOne && plusOne.dietaryRestrictions ? plusOne.dietaryRestrictions : ''}
+                                    }
+                                }
+                            } :
+                            {}
+                    )
                 }
             }));
         }
@@ -111,28 +124,34 @@ export async function POST(request) {
         const lastGuestName = guestNames[guestNames.length - 1];
         const lastGuest = rsvps.length === 2 ? ` and ${lastGuestName}` : `, and ${lastGuestName}`;
         const greetingName = rsvps.length === 1 ? getGuestName(rsvps[0]) : `${allGuestsButLastPart}${lastGuest}`;
-        await sendTemplateEmail({
-            template: 'wedding-rsvp-response-template',
-            templateData: JSON.stringify({
-                greetingName: greetingName,
-                rsvps: rsvps.map(rsvp => ({
-                    name: getGuestName(rsvp),
-                    isAttending: rsvp.isAttending ? 'Yes' : 'No',
-                    ...(isInvitedToRehearsalDinner(rsvp) ?
-                            {isAttendingRehearsalDinner: rsvp.isAttendingRehearsalDinner ? 'Yes' : 'No'} :
-                            {}
-                    ),
-                    dinnerChoice: rsvp.dinnerChoice ? rsvp.dinnerChoice : 'N/A',
-                    dietaryRestrictions: rsvp.dietaryRestrictions ? rsvp.dietaryRestrictions : 'N/A',
-                    songRequests: rsvp.songRequests ? rsvp.songRequests : 'N/A',
-                }))
-            }),
-            toAddresses: APP_MODE === 'SAVE_THE_DATE' ?
-                [SPENCER_EMAIL] :
-                rsvps
-                    .map(rsvp => rsvp.guest.emailAddress)
-                    .filter(emailAddress => emailAddress && emailAddress.trim() !== ''),
-        });
+        const toAddresses = APP_MODE === 'SAVE_THE_DATE' ?
+            [SPENCER_EMAIL] :
+            rsvps
+                .map(rsvp => rsvp.guest.emailAddress)
+                .filter(emailAddress => emailAddress && emailAddress.trim() !== '');
+        if (toAddresses.length) {
+            await sendTemplateEmail({
+                template: 'wedding-rsvp-response-template',
+                templateData: JSON.stringify({
+                    greetingName: greetingName,
+                    rsvps: rsvps.map(rsvp => ({
+                        name: getGuestName(rsvp),
+                        isAttending: rsvp.isAttending ? 'Yes' : 'No',
+                        ...(isInvitedToRehearsalDinner(rsvp) ?
+                                {isAttendingRehearsalDinner: rsvp.isAttendingRehearsalDinner ? 'Yes' : 'No'} :
+                                {}
+                        ),
+                        dinnerChoice: rsvp.dinnerChoice ? rsvp.dinnerChoice : 'N/A',
+                        dietaryRestrictions: rsvp.dietaryRestrictions ? rsvp.dietaryRestrictions : 'N/A',
+                        songRequests: rsvp.songRequests ? rsvp.songRequests : 'N/A',
+                        plusOne: rsvp.plusOne && rsvp.plusOne.firstName !== '' ?
+                            rsvp.plusOne :
+                            null,
+                    }))
+                }),
+                toAddresses,
+            });
+        }
         if (APP_MODE !== 'SAVE_THE_DATE') {
             await sendTemplateEmail({
                 template: 'wedding-rsvp-alert-template',
@@ -146,7 +165,10 @@ export async function POST(request) {
                         ),
                         dinnerChoice: rsvp.dinnerChoice ? rsvp.dinnerChoice : 'N/A',
                         dietaryRestrictions: rsvp.dietaryRestrictions ? rsvp.dietaryRestrictions : 'N/A',
-                        songRequests: rsvp.songRequests ? rsvp.songRequests : 'N/A'
+                        songRequests: rsvp.songRequests ? rsvp.songRequests : 'N/A',
+                        plusOne: rsvp.plusOne && rsvp.plusOne.firstName !== '' ?
+                            rsvp.plusOne :
+                            null,
                     }))
                 }),
                 toAddresses: [KATIE_SPENCER_EMAIL],

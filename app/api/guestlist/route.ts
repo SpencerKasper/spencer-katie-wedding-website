@@ -74,38 +74,6 @@ const getPartyIdV2 = async (guest: Guest, guests: Guest[]): Promise<string> => {
     return newPartyId;
 }
 
-
-const getPartyId = async (guest: Guest, guests: Guest[]): Promise<string> => {
-    console.error('partyId')
-    console.error(guest);
-    const findPartyMember = () => guests.find(g => `${g.firstName} ${g.lastName}` === guest.guestPartyMember);
-    if (!guest) {
-        return '';
-    }
-    if (guest.partyId && guest.partyId !== '') {
-        const foundPartyMember = findPartyMember();
-        if (foundPartyMember) {
-            await updatePartyId(foundPartyMember, guest.partyId);
-        }
-        console.error('existing partyId')
-        return guest.partyId.toString();
-    }
-    const partyMemberIsDefined = guest.guestPartyMember && guest.guestPartyMember.trim() !== '';
-    if (!partyMemberIsDefined) {
-        return '';
-    }
-
-    const foundPartyMember = findPartyMember();
-    if (foundPartyMember && foundPartyMember.partyId && foundPartyMember.partyId !== '') {
-        return foundPartyMember.partyId.toString();
-    }
-    console.error('creating new party')
-    // Handles new parties
-    const newPartyId = uuidv4().toString();
-    await updatePartyId(foundPartyMember, newPartyId);
-    return newPartyId;
-}
-
 async function toGuestListPutRequest(guest: Partial<Guest>) {
     const {
         guestId,
@@ -205,7 +173,7 @@ export async function POST(request) {
                     Key: {
                         guestId: modifiedGuest.guestId
                     },
-                    UpdateExpression: "SET #partyId = :partyId, #firstName = :firstName, #lastName = :lastName, #address = :address, #address2 = :address2, #city = :city, #state = :state, #zipCode = :zipCode, #emailAddress = :emailAddress, #optOutOfEmail = :optOutOfEmail, #phoneNumber = :phoneNumber, #roles = :roles",
+                    UpdateExpression: "SET #partyId = :partyId, #firstName = :firstName, #lastName = :lastName, #address = :address, #address2 = :address2, #city = :city, #state = :state, #zipCode = :zipCode, #emailAddress = :emailAddress, #optOutOfEmail = :optOutOfEmail, #phoneNumber = :phoneNumber, #roles = :roles, #plusOneGuestId = :plusOneGuestId",
                     ExpressionAttributeNames: {
                         "#partyId": "partyId",
                         '#firstName': 'firstName',
@@ -218,7 +186,8 @@ export async function POST(request) {
                         '#emailAddress': 'emailAddress',
                         '#optOutOfEmail': 'optOutOfEmail',
                         '#phoneNumber': 'phoneNumber',
-                        "#roles": 'roles'
+                        "#roles": 'roles',
+                        '#plusOneGuestId': 'plusOneGuestId'
                     },
                     ExpressionAttributeValues: {
                         ":partyId": modifiedGuest.partyId,
@@ -233,6 +202,7 @@ export async function POST(request) {
                         ':optOutOfEmail': modifiedGuest.optOutOfEmail,
                         ':phoneNumber': modifiedGuest.phoneNumber,
                         ':roles': modifiedGuest.roles ? modifiedGuest.roles : [],
+                        ':plusOneGuestId': modifiedGuest.plusOneGuestId ? modifiedGuest.plusOneGuestId : ''
                     }
                 }));
                 console.error(`Updating Guest: ${modifiedGuest.firstName} ${modifiedGuest.lastName}`);
