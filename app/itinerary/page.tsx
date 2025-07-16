@@ -25,7 +25,12 @@ const DAY_OF_SCHEDULE = {
             notes: ['The ceremony will take place outside the tent in front of the pond.']
         },
         {startTime: '5:30 PM', endTime: '6:00 PM', eventDescription: 'Wedding ceremony takes place'},
-        {startTime: '6:00 PM', endTime: '7:00 PM', eventDescription: 'Cocktail hour', notes: ['Cocktail hour will be out on the patio next to the tent unless weather prohibits.']},
+        {
+            startTime: '6:00 PM',
+            endTime: '7:00 PM',
+            eventDescription: 'Cocktail hour',
+            notes: ['Cocktail hour will be out on the patio next to the tent unless weather prohibits.']
+        },
         {
             startTime: '7:00 PM',
             endTime: '12:00 AM',
@@ -66,8 +71,11 @@ export default function ItineraryPage() {
                     <div className={'py-4'}>
                         {isInvitedToRehearsalDinner ?
                             <Tabs.Panel value={REHEARSAL_SCHEDULE_TAB_ID}>
-                                <ItineraryItem startTime={'6:00 PM'} endTime={'9:00 PM'}
-                                               eventDescription={'Guests start arriving'}/>
+                                <ItineraryItem
+                                    startTime={'6:00 PM'}
+                                    endTime={'9:00 PM'}
+                                    eventDescription={'Guests start arriving'}
+                                />
                             </Tabs.Panel> :
                             <></>
                         }

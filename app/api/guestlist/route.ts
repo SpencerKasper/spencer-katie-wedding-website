@@ -173,7 +173,7 @@ export async function POST(request) {
                     Key: {
                         guestId: modifiedGuest.guestId
                     },
-                    UpdateExpression: "SET #partyId = :partyId, #firstName = :firstName, #lastName = :lastName, #address = :address, #address2 = :address2, #city = :city, #state = :state, #zipCode = :zipCode, #emailAddress = :emailAddress, #optOutOfEmail = :optOutOfEmail, #phoneNumber = :phoneNumber, #roles = :roles, #plusOneGuestId = :plusOneGuestId",
+                    UpdateExpression: "SET #partyId = :partyId, #firstName = :firstName, #lastName = :lastName, #address = :address, #address2 = :address2, #city = :city, #state = :state, #zipCode = :zipCode, #emailAddress = :emailAddress, #optOutOfEmail = :optOutOfEmail, #phoneNumber = :phoneNumber, #roles = :roles",
                     ExpressionAttributeNames: {
                         "#partyId": "partyId",
                         '#firstName': 'firstName',
@@ -187,7 +187,6 @@ export async function POST(request) {
                         '#optOutOfEmail': 'optOutOfEmail',
                         '#phoneNumber': 'phoneNumber',
                         "#roles": 'roles',
-                        '#plusOneGuestId': 'plusOneGuestId'
                     },
                     ExpressionAttributeValues: {
                         ":partyId": modifiedGuest.partyId,
@@ -202,7 +201,6 @@ export async function POST(request) {
                         ':optOutOfEmail': modifiedGuest.optOutOfEmail,
                         ':phoneNumber': modifiedGuest.phoneNumber,
                         ':roles': modifiedGuest.roles ? modifiedGuest.roles : [],
-                        ':plusOneGuestId': modifiedGuest.plusOneGuestId ? modifiedGuest.plusOneGuestId : ''
                     }
                 }));
                 console.error(`Updating Guest: ${modifiedGuest.firstName} ${modifiedGuest.lastName}`);

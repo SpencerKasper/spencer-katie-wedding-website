@@ -310,7 +310,7 @@ export default function RSVPClient() {
 
     const ReviewContent = () => {
         const reviewRsvps = getRsvpsFromForm();
-        return <RSVPsReview rsvps={reviewRsvps} setRsvps={setRsvps}/>
+        return <RSVPsReview rsvps={reviewRsvps}/>
     }
 
     const PAGES: FormPage[] = [

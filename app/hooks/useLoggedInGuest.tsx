@@ -19,6 +19,7 @@ interface AuthorizationResponse {isAuthorized: boolean; guest: Guest; possibleGu
 interface UseLoggedInGuestOutput {
     loggedInGuest: Guest;
     possibleGuests: Guest[];
+    guestsInParties: Guest[];
     isLoading: boolean;
     validateLoginInfo: (loginInfo, guestId) => Promise<AuthorizationResponse>;
 }

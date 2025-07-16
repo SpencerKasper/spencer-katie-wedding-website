@@ -1,6 +1,6 @@
 import {List} from "@mantine/core";
 
-export const ItineraryItem = ({startTime, endTime, eventDescription, notes}) => {
+export const ItineraryItem = ({startTime, endTime, eventDescription, notes = []}) => {
     return (
         <div className={'flex flex-col w-full px-4 md:px-32'}>
             <div className={'flex justify-between py-4'}>
