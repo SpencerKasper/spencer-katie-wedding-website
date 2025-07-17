@@ -13,4 +13,5 @@ export const GUEST_IDS_WITH_PLUS_ONE = [
     '996bb22e-3157-40cf-91f4-b2c0b93ca115', // Spencer Kasper
     '266570d9-b72a-4262-86a4-c1b0e0642dfa', // Ethan Fivel
     '5db7aefb-d88e-4f16-8649-b4def681cd72', // Vinay Singh
+    'a2e67858-fd72-4b7b-92db-70e712c52dc6', // Lisa Saltiel
 ];
