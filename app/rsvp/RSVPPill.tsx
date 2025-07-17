@@ -2,10 +2,10 @@ import {RSVP} from "@/types/rsvp";
 import {Pill} from "@mantine/core";
 
 export const RSVPPill = ({
-                             rsvp,
+                             isAttending,
                              attendingText = 'Attending',
                              notAttendingText = 'Not Attending'
-                         }: { rsvp: RSVP, attendingText?: string, notAttendingText?: string }) => rsvp.isAttending ?
+                         }: { isAttending: boolean, attendingText?: string, notAttendingText?: string }) => isAttending ?
     <Pill size={'lg'} styles={{
         root: {
             backgroundColor: 'green',

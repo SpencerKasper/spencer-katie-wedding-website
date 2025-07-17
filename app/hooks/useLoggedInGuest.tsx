@@ -36,10 +36,8 @@ export default (): UseLoggedInGuestOutput => {
         const firstName = localStorage.getItem(FIRST_NAME_LOCAL_STORAGE_KEY);
         const lastName = localStorage.getItem(LAST_NAME_LOCAL_STORAGE_KEY);
         const password = localStorage.getItem(PASSWORD_LOCAL_STORAGE_KEY);
-        console.error('effect')
         if (firstName && lastName && password && firstName !== '' && lastName !== '' && password !== '') {
             const guestId = localStorage.getItem(GUEST_ID_STORAGE_KEY);
-            console.error('validate')
             validateLoginInfo({firstName, lastName, password}, guestId)
                 .then(response => {
                     if (response.isAuthorized) {
@@ -48,12 +46,10 @@ export default (): UseLoggedInGuestOutput => {
                         setIsLoading(false);
                     } else if(response.possibleGuests && response.possibleGuests.length) {
                         dispatch(setPossibleGuests({possibleGuests: response.possibleGuests}));
-                        console.error(`Set Guests In Parties: ${response.guestsInParties}`)
                         dispatch(setGuestsInParties({guestsInParties: response.guestsInParties}));
                         setIsLoading(false);
                         router.push('/');
                     } else {
-                        console.error('hi')
                         setIsLoading(false);
                         router.push('/');
                     }
@@ -69,6 +65,7 @@ export default (): UseLoggedInGuestOutput => {
         const response = await axios.post(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/authorize${queryParams}`, loginInfo);
         if (response.data.isAuthorized && response.data.guest) {
             const guest = response.data.guest;
+            localStorage.setItem(GUEST_ID_STORAGE_KEY, guest.guestId);
             localStorage.setItem(FIRST_NAME_LOCAL_STORAGE_KEY, loginInfo.firstName);
             localStorage.setItem(LAST_NAME_LOCAL_STORAGE_KEY, loginInfo.lastName);
             localStorage.setItem(PASSWORD_LOCAL_STORAGE_KEY, loginInfo.password);

@@ -1,8 +1,6 @@
 import {RSVP} from "@/types/rsvp";
-import {RSVPPill} from "@/app/rsvp/RSVPPill";
-import {Divider, Button} from "@mantine/core";
-import axios from "axios";
-import {REHEARSAL_DINNER_ROLE, RSVP_DEADLINE} from "@/constants/app-constants";
+import {Divider} from "@mantine/core";
+import {REHEARSAL_DINNER_ROLE} from "@/constants/app-constants";
 import {guestHasPlusOne} from "@/app/rsvp/RSVPClient";
 
 const labelClasses = 'font-semibold italic text-md';

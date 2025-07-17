@@ -6,6 +6,7 @@ import {Guest} from "@/types/guest";
 import {Table, Card, Divider} from "@mantine/core";
 import {RSVPPill} from "@/app/rsvp/RSVPPill";
 import AdminAuthorizationRequired from "@/app/AdminAuthorizationRequired";
+import {REHEARSAL_DINNER_ROLE} from "@/constants/app-constants";
 
 export default function RSVPReviewPage() {
     const [guestList, setGuestList] = useState([] as Guest[]);
@@ -24,7 +25,7 @@ export default function RSVPReviewPage() {
     const partyNumbersMap = guestList.reduce((acc, curr, index) =>
         ({
             ...acc,
-            [curr.partyId]: acc.hasOwnProperty(curr.partyId) ? acc[curr.partyId] : Object.values(acc).length === 0 ? 1 : Math.max(...Object.values(acc)) + 1,
+            [curr.partyId]: acc.hasOwnProperty(curr.partyId) ? acc[curr.partyId] : Object.values(acc).length === 0 ? 1 : Math.max(...(Object.values(acc) as number[])) + 1,
         }), {});
     const rows = rsvps.map((x, index) => {
         const guest = x.guest;
@@ -32,7 +33,8 @@ export default function RSVPReviewPage() {
         return (
             <Table.Tr key={`rsvp-${index}`}>
                 <Table.Td>{`${guest.firstName} ${guest.lastName}`}</Table.Td>
-                <Table.Td><RSVPPill rsvp={x}/></Table.Td>
+                <Table.Td><RSVPPill isAttending={x.isAttending}/></Table.Td>
+                <Table.Td>{x.guest.roles && x.guest.roles.includes(REHEARSAL_DINNER_ROLE) ? <RSVPPill isAttending={x.isAttendingRehearsalDinner}/> : <p>N/A</p>}</Table.Td>
                 <Table.Td>{x.isAttending ? x.dinnerChoice : '-'}</Table.Td>
                 <Table.Td>{x.isAttending && x.dietaryRestrictions && x.dietaryRestrictions !== '' ? x.dietaryRestrictions : '-'}</Table.Td>
                 <Table.Td>{partyNumber > 0 ? partyNumber : '-'}</Table.Td>
@@ -59,6 +61,7 @@ export default function RSVPReviewPage() {
                                 <Table.Tr>
                                     <Table.Th>Guest Name</Table.Th>
                                     <Table.Th>Is Attending?</Table.Th>
+                                    <Table.Th>Is Attending Rehearsal Dinner?</Table.Th>
                                     <Table.Th>Dinner Choice</Table.Th>
                                     <Table.Th>Dietary Restrictions</Table.Th>
                                     <Table.Th>Party Number</Table.Th>
