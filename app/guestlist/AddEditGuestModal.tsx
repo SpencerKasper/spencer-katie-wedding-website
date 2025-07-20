@@ -51,7 +51,7 @@ const AddEditGuestModal = ({
         if(!isValidEmailFormat) {
             return 'Invalid email format.';
         }
-        return atLeastOneUniqueFieldRequired() && trimmedEmailFormValue === '' ? 'Another guest with this first and last name exists. Email address is required to differentiate.' : null;
+        return trimmedEmailFormValue === '' ? 'Another guest with this first and last name exists. Email address is required to differentiate.' : null;
     };
     const form = useForm({
         mode: 'uncontrolled',
@@ -222,7 +222,6 @@ const AddEditGuestModal = ({
                     </div>
                     <p className={'text-md'}>Contact Info</p>
                     <TextInput
-                        required={atLeastOneUniqueFieldRequired()}
                         label={'Email Address'}
                         key={form.key('emailAddress')}
                         {...form.getInputProps('emailAddress')}
