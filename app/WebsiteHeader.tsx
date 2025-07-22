@@ -23,7 +23,7 @@ export const WebsiteHeader = () => {
                 {isAtMostMd ? <Burger opened={isOpen} onClick={toggle} color={'white'}></Burger> : <div></div>}
                 <p className={'text-white'}>{loggedInGuest ? `Welcome, ${loggedInGuest.firstName} ${loggedInGuest.lastName}` : ''}</p>
             </div>
-            <EmailModal loggedInGuest={loggedInGuest}/>
+            {/*<EmailModal loggedInGuest={loggedInGuest}/>*/}
             {!isAtMostMd || (isAtMostMd && isOpen) ?
                 <HeaderButtons /> :
                 <></>
