@@ -70,6 +70,7 @@ export default (): UseLoggedInGuestOutput => {
             localStorage.setItem(LAST_NAME_LOCAL_STORAGE_KEY, loginInfo.lastName);
             localStorage.setItem(PASSWORD_LOCAL_STORAGE_KEY, loginInfo.password);
             localStorage.setItem(WEDDING_GUEST_LOCAL_STORAGE_KEY, JSON.stringify(guest));
+            dispatch(setLoggedInGuest({loggedInGuest: guest}));
         }
         return response.data as AuthorizationResponse;
     };
