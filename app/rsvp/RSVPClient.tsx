@@ -423,7 +423,6 @@ export default function RSVPClient() {
     return (
         <div>
             <Skeleton visible={isLoading}>
-                <EmailModal loggedInGuest={loggedInGuest}/>
                 <div className={'flex justify-center w-full'}>
                     <Card className={'w-full md:w-3/4 xl:w-1/2'}>
                         {rsvps.length ?
