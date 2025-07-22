@@ -30,8 +30,23 @@ export function GuestListTable() {
     const minItemIndex = (paginationInfo.currentPage - 1) * paginationInfo.guestsPerPage;
     const allMatchingGuests = [...matchingSearchCriteria, ...includedPartyMembers];
     const maxItemIndex = Math.min(paginationInfo.currentPage * paginationInfo.guestsPerPage, allMatchingGuests.length);
-    const sortedGuests = allMatchingGuests
-        .sort((a, b) => a.partyId > b.partyId ? -1 : 1)
+    const grouped = Object.groupBy(allMatchingGuests, item => item.partyId);
+    const nonPartiesRemapped = '' in grouped ? grouped[''].reduce((acc, curr) => ({
+        ...acc,
+        [curr.guestId]: [curr]
+    }), {}) : {};
+    if ('' in grouped) {
+        delete grouped[''];
+    }
+    const groupedWithNonParties = {
+        ...grouped,
+        ...nonPartiesRemapped
+    };
+
+    const sortedGuests = Object.keys(groupedWithNonParties)
+        .map(partyIdOrGuestId => groupedWithNonParties[partyIdOrGuestId].sort((a, b) => a.firstName > b.firstName ? 1 : -1))
+        .sort((a, b) => a[0].firstName > b[0].firstName ? 1 : -1)
+        .reduce((acc, curr) => [...acc, ...curr], [])
         .filter((g, index) => index >= minItemIndex && index < maxItemIndex);
     const guestRows = [];
     let currentPartyId = '';
@@ -74,7 +89,7 @@ export function GuestListTable() {
                     setModalOpen(true);
                 }}
                 data-striped={dataStriped}
-                key={`guest-${guest.firstName}-${guest.lastName}`}
+                key={`guest-${guest.guestId}`}
             >
                 <Table.Td><Highlight highlight={search.search}>{guestName}</Highlight></Table.Td>
                 <Table.Td className={'min-w-48'}>{formattedAddress}</Table.Td>
@@ -115,7 +130,7 @@ export function GuestListTable() {
                         opened={modalOpen}
                         onClose={() => setModalOpen(false)}
                     />
-                    <ImportGuestsModal />
+                    <ImportGuestsModal/>
                 </div>
             </div>
             <Table.ScrollContainer minWidth={500}>
@@ -136,7 +151,8 @@ export function GuestListTable() {
                 </Table>
             </Table.ScrollContainer>
             <div className={'flex justify-between items-end flex-wrap gap-4 sm:gap-0'}>
-                <div className={'w-full sm:w-1/4 text-center sm:text-left'}><p>Showing Guests {minItemIndex + 1} - {maxItemIndex} of {allMatchingGuests.length}</p></div>
+                <div className={'w-full sm:w-1/4 text-center sm:text-left'}><p>Showing
+                    Guests {minItemIndex + 1} - {maxItemIndex} of {allMatchingGuests.length}</p></div>
                 <div className={'w-full sm:w-1/2 flex justify-center'}>
                     <Pagination
                         value={paginationInfo.currentPage}
@@ -147,7 +163,7 @@ export function GuestListTable() {
                 <Select
                     value={paginationInfo.guestsPerPage.toString()}
                     onChange={value => {
-                        setPaginationInfo({...paginationInfo, guestsPerPage: Number(value)});
+                        setPaginationInfo({...paginationInfo, currentPage: 1, guestsPerPage: Number(value)});
                     }}
                     label={'Guests Per Page'}
                     className={'w-full sm:w-1/4'}

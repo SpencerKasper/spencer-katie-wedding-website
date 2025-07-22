@@ -22,25 +22,15 @@ const AddEditGuestModal = ({
                                selectedGuest = null,
                                setSelectedGuest
                            }: AddEditGuestModalProps) => {
-    const {guests, setGuests, getGuestsAtTable} = useGuestList();
+    const {guests, setGuests, getGuestsAtTable, getGuestPartyMember} = useGuestList();
     const {tables, getGuestsTable, setTables} = useTables({fetchTablesOnInit: true});
     const guestsTable = getGuestsTable(selectedGuest);
     const [guestsAtTable, setGuestsAtTable] = useState(getGuestsAtTable(guestsTable));
     const [zipCode, setZipCode] = useState(selectedGuest ? selectedGuest.zipCode : '');
-    const getGuestPartyMember = (initialGuest: Guest) => {
-        const foundGuest = guests.find(guest => guest.guestId !== initialGuest.guestId && guest.partyId === initialGuest.partyId);
-        return foundGuest ? `${foundGuest.firstName} ${foundGuest.lastName}` : '';
-    };
+
     const getSelectedGuestsPartyMember = () => selectedGuest && selectedGuest.partyId && selectedGuest.partyId !== '' ?
         getGuestPartyMember(selectedGuest) :
         '';
-
-    const atLeastOneUniqueFieldRequired = () => {
-        const hasFirstName = getValueFromForm('firstName').trim() !== '';
-        const hasLastName = getValueFromForm('lastName').trim() !== '';
-        const isNameInList = guests.filter(guest => `${guest.firstName} ${guest.lastName}` === `${getValueFromForm('firstName')} ${getValueFromForm('lastName')}`).length;
-        return hasFirstName && hasLastName && isNameInList;
-    };
 
     const validateEmail = (value) => {
         const isValidEmailFormat = /^\S+@\S+$/.test(value);

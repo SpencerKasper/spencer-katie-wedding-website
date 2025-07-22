@@ -5,8 +5,10 @@ import {useForm} from "@mantine/form";
 import {Guest} from "@/types/guest";
 import axios from "axios";
 import {booleanIsDefined} from "@/app/util/general-util";
+import useGuestList from "@/app/hooks/useGuestList";
 
 const EmailModal = ({loggedInGuest}: { loggedInGuest: Guest }) => {
+    const {getGuestPartyMember} = useGuestList()
     const form = useForm({
         mode: 'uncontrolled',
         initialValues: {
@@ -26,6 +28,7 @@ const EmailModal = ({loggedInGuest}: { loggedInGuest: Guest }) => {
             setIsOpen(hasInvalidEmailAddress && !loggedInGuest.optOutOfEmail);
         }
     }, [loggedInGuest]);
+
     return (
         <Modal
             opened={isOpen}
@@ -37,11 +40,13 @@ const EmailModal = ({loggedInGuest}: { loggedInGuest: Guest }) => {
                 className={'flex flex-col justify-center items-center p-4 gap-4'}
                 onSubmit={form.onSubmit(async (formValues) => {
                     setIsLoading(true);
+                    const guestPartyMember = getGuestPartyMember(loggedInGuest);
                     await axios.post(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist`, {
                         guests: [{
-                            guestId: loggedInGuest.guestId,
+                            ...loggedInGuest,
                             emailAddress: formValues.emailAddress,
-                            optOutOfEmail: formValues.emailOptOut
+                            optOutOfEmail: formValues.emailOptOut,
+                            guestPartyMember: guestPartyMember
                         }]
                     });
                     setIsLoading(false);

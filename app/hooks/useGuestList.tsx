@@ -12,6 +12,7 @@ interface UseGuestListProps {
     setGuests: (guests: Guest[]) => void;
     getGuestsAtTable: (table: Table) => Guest[];
     getGuestsAtTableNumber: (tableNumber: number, tables: Table[]) => Guest[];
+    getGuestPartyMember: (guest: Guest) => string;
     isLoadingGuests: boolean;
 }
 
@@ -40,6 +41,11 @@ const useGuestList = ({getGuestsOnInstantiation = false} = defaultProps): UseGue
 
     const getGuestsAtTableNumber = (tableNumber: number, tables: Table[]) => getGuestsAtTable(tables.find(t => t.tableNumber === tableNumber))
 
+    const getGuestPartyMember = (initialGuest: Guest) => {
+        const foundGuest = guests.find(guest => guest.guestId !== initialGuest.guestId && guest.partyId === initialGuest.partyId);
+        return foundGuest ? `${foundGuest.firstName} ${foundGuest.lastName}` : '';
+    };
+
     useEffect(() => {
         if (getGuestsOnInstantiation) {
             getGuests().then();
@@ -52,6 +58,7 @@ const useGuestList = ({getGuestsOnInstantiation = false} = defaultProps): UseGue
         setGuests,
         getGuestsAtTable,
         getGuestsAtTableNumber,
+        getGuestPartyMember,
         isLoadingGuests
     };
 }
