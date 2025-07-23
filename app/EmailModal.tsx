@@ -35,22 +35,21 @@ const EmailModal = ({loggedInGuest}: { loggedInGuest: Guest }) => {
             onClose={() => setIsOpen(false)}
             title={'Can We Get Your Email Address?'}
         >
-            <p className={'text-red-500 font-bold'}>* Saving email addresses was previously broken until 2/5/2025.  If you noticed that it kept prompting you for your email even after you entered it, please try once more now! If it doesn&apos;t work, please text Spencer Kasper at (224)-567-9847 and let him know.</p>
+            <p className={'text-red-500 font-bold'}>* Saving email addresses was previously broken until 2/5/2025. If
+                you noticed that it kept prompting you for your email even after you entered it, please try once more
+                now! If it doesn&apos;t work, please text Spencer Kasper at (224)-567-9847 and let him know.</p>
             <form
                 className={'flex flex-col justify-center items-center p-4 gap-4'}
                 onSubmit={form.onSubmit(async (formValues) => {
                     setIsLoading(true);
-                    const guestPartyMember = getGuestPartyMember(loggedInGuest);
-                    await axios.post(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist`, {
-                        guests: [{
-                            ...loggedInGuest,
+                    if (loggedInGuest) {
+                        await axios.post(`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/update-email-address`, {
+                            guestId: loggedInGuest.guestId,
                             emailAddress: formValues.emailAddress,
-                            optOutOfEmail: formValues.emailOptOut,
-                            guestPartyMember: guestPartyMember
-                        }]
-                    });
+                        });
+                        setIsOpen(false);
+                    }
                     setIsLoading(false);
-                    setIsOpen(false);
                 })}
             >
                 <p>
