@@ -337,14 +337,19 @@ export default function RSVPClient() {
             title: `What will you${andYourGuests} have for dinner?`,
             content: () => <DinnerChoiceContent/>,
             onValidate: values => {
-                const missingDinnerChoice = guestsInParty.filter(guest => {
-                    const dinnerChoice = values[getFormFieldId(guest, DINNER_CHOICE_SUFFIX)];
-                    const plusOneDinnerChoice = values[getFormFieldId(guest, PLUS_ONE_DINNER_CHOICE_SUFFIX)];
-                    const plusOneIsComingButDidNotPickDinnerChoice = guestHasPlusOne(guest) &&
-                        !values[getFormFieldId(guest, NO_PLUS_ONE_SUFFIX)] &&
-                        (plusOneDinnerChoice === '' || !plusOneDinnerChoice);
-                    return !dinnerChoice || dinnerChoice === '' || plusOneIsComingButDidNotPickDinnerChoice;
-                });
+                const missingDinnerChoice = guestsInParty
+                    .filter(guest => {
+                        const rsvpForGuest = rsvps.find(r => r.guest.guestId === guest.guestId);
+                        return rsvpForGuest && rsvpForGuest.isAttending;
+                    })
+                    .filter(guest => {
+                        const dinnerChoice = values[getFormFieldId(guest, DINNER_CHOICE_SUFFIX)];
+                        const plusOneDinnerChoice = values[getFormFieldId(guest, PLUS_ONE_DINNER_CHOICE_SUFFIX)];
+                        const plusOneIsComingButDidNotPickDinnerChoice = guestHasPlusOne(guest) &&
+                            !values[getFormFieldId(guest, NO_PLUS_ONE_SUFFIX)] &&
+                            (plusOneDinnerChoice === '' || !plusOneDinnerChoice);
+                        return !dinnerChoice || dinnerChoice === '' || plusOneIsComingButDidNotPickDinnerChoice;
+                    });
                 if (missingDinnerChoice.length > 0) {
                     return 'Each guest must select what they want to eat for dinner.'
                 }
