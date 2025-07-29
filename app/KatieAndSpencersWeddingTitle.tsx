@@ -1,3 +1,4 @@
+'use client';
 import {OverrideFont} from "@/app/components/OverrideFont";
 
 const KatieAndSpencersWeddingTitle = () => {
