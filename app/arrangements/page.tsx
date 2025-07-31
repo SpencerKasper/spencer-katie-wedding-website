@@ -6,7 +6,7 @@ export default function ArrangementsPage() {
         <div className={'flex flex-col justify-center items-center auto-rows-fr gap-4 md:gap-8 p-4 md:p-16'}>
             <ListItemCard
                 title={'Hilton Chicago/Oak Brook Hills Resort & Conference Center'}
-                notes={'This is where the wedding and reception is happening! We have a wedding block here.  We recommend booking your room ASAP as we have a limited number of rooms within our block!'}
+                notes={'This is where the wedding and reception is happening! We have a wedding block here.  Please book your room by September 11, 2025 as we have a limited number of rooms within our block!'}
                 tags={[{name: 'Wedding Venue', color: 'purple'}]}
                 linkUrl={'https://www.hilton.com/en/attend-my-event/chibhhh-rikawb-6b271841-f399-4c67-831d-3ec302eda97/'}
                 imageUrl={'https://www.hilton.com/im/en/CHIBHHH/14500717/chibhhh-pool-1.jpg?impolicy=crop&cw=4752&ch=2661&gravity=NorthWest&xposition=123&yposition=0&rw=768&rh=430'}

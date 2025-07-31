@@ -22,37 +22,47 @@ export default function RSVPReviewPage() {
                     });
             });
     }, []);
-    const partyNumbersMap = guestList.reduce((acc, curr, index) =>
+    const partyNumbersMap = guestList.reduce((acc, curr) =>
         ({
             ...acc,
             [curr.partyId]: acc.hasOwnProperty(curr.partyId) ? acc[curr.partyId] : Object.values(acc).length === 0 ? 1 : Math.max(...(Object.values(acc) as number[])) + 1,
         }), {});
-    const rows = rsvps.map((x, index) => {
-        const guest = x.guest;
-        const partyNumber = x.guest.partyId ? partyNumbersMap[x.guest.partyId] : -1;
-        return (
-            <Table.Tr key={`rsvp-${index}`}>
-                <Table.Td>{`${guest.firstName} ${guest.lastName}`}</Table.Td>
-                <Table.Td><RSVPPill isAttending={x.isAttending}/></Table.Td>
-                <Table.Td>{x.guest.roles && x.guest.roles.includes(REHEARSAL_DINNER_ROLE) ? <RSVPPill isAttending={x.isAttendingRehearsalDinner}/> : <p>N/A</p>}</Table.Td>
-                <Table.Td>{x.isAttending ? x.dinnerChoice : '-'}</Table.Td>
-                <Table.Td>{x.isAttending && x.dietaryRestrictions && x.dietaryRestrictions !== '' ? x.dietaryRestrictions : '-'}</Table.Td>
-                <Table.Td>{partyNumber > 0 ? partyNumber : '-'}</Table.Td>
-                <Table.Td>{x.plusOne && x.plusOne.firstName !== '' ? `${x.plusOne.firstName} ${x.plusOne.lastName}` : '-'}</Table.Td>
-                <Table.Td>{x.plusOne && x.plusOne.firstName !== '' ? x.plusOne.dinnerChoice : '-'}</Table.Td>
-                <Table.Td>{x.plusOne && x.plusOne.firstName !== '' && x.plusOne.dietaryRestrictions !== '' ? x.plusOne.dietaryRestrictions : '-'}</Table.Td>
-            </Table.Tr>
-        );
-    })
+    const rows = rsvps
+        .sort((a, b) => partyNumbersMap[a.guest.partyId] < partyNumbersMap[b.guest.partyId] ? -1 : 1)
+        .map((x, index) => {
+            const guest = x.guest;
+            const partyNumber = x.guest.partyId ? partyNumbersMap[x.guest.partyId] : -1;
+            return (
+                <Table.Tr key={`rsvp-${index}`}>
+                    <Table.Td>{`${guest.firstName} ${guest.lastName}`}</Table.Td>
+                    <Table.Td><RSVPPill isAttending={x.isAttending}/></Table.Td>
+                    <Table.Td>{x.guest.roles && x.guest.roles.includes(REHEARSAL_DINNER_ROLE) ?
+                        <RSVPPill isAttending={x.isAttendingRehearsalDinner}/> : <p>N/A</p>}</Table.Td>
+                    <Table.Td>{x.isAttending ? x.dinnerChoice : '-'}</Table.Td>
+                    <Table.Td>{x.isAttending && x.dietaryRestrictions && x.dietaryRestrictions !== '' ? x.dietaryRestrictions : '-'}</Table.Td>
+                    <Table.Td>{x.isAttending && x.songRequests ? x.songRequests : '-'}</Table.Td>
+                    <Table.Td>{partyNumber > 0 ? partyNumber : '-'}</Table.Td>
+                    <Table.Td>{x.plusOne && x.plusOne.firstName !== '' ? `${x.plusOne.firstName} ${x.plusOne.lastName}` : '-'}</Table.Td>
+                    <Table.Td>{x.plusOne && x.plusOne.firstName !== '' ? x.plusOne.dinnerChoice : '-'}</Table.Td>
+                    <Table.Td>{x.plusOne && x.plusOne.firstName !== '' && x.plusOne.dietaryRestrictions !== '' ? x.plusOne.dietaryRestrictions : '-'}</Table.Td>
+                </Table.Tr>
+            );
+        })
 
     return (
         <AdminAuthorizationRequired>
             <div className={'p-2 md:p-8'}>
                 <Card>
-                    <div>
+                    <div className={'flex justify-between'}>
                         <a className={'underline cursor-pointer'}
-                           href={`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist-xlsx`}>Download Excel
-                            Export</a>
+                           href={`${process.env.NEXT_PUBLIC_WEDDING_API_URL}/api/guestlist-xlsx`}
+                        >
+                            Download Excel Export
+                        </a>
+                        <div className={'flex gap-8 items-center'}>
+                            <p className={'font-bold'}>Total Guests Attending:</p>
+                            <p> {rsvps.filter(r => r.isAttending).length}</p>
+                        </div>
                     </div>
                     <Divider my={'md'}/>
                     <Table.ScrollContainer minWidth={500}>
@@ -64,6 +74,7 @@ export default function RSVPReviewPage() {
                                     <Table.Th>Is Attending Rehearsal Dinner?</Table.Th>
                                     <Table.Th>Dinner Choice</Table.Th>
                                     <Table.Th>Dietary Restrictions</Table.Th>
+                                    <Table.Th>Song Recs</Table.Th>
                                     <Table.Th>Party Number</Table.Th>
                                     <Table.Th>Plus One Name</Table.Th>
                                     <Table.Th>Plus One Dinner Choice</Table.Th>
