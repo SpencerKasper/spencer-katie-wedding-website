@@ -33,7 +33,7 @@ export default function FAQPage() {
         },
         ...(isSaveTheDateMode ? [] : [{
             question: 'What time should I arrive for the ceremony?',
-            answer: 'This information will be provided shortly.'
+            answer: 'Please arrive at 5:15 PM as the ceremony will start promptly at 5:30 PM.'
         }]),
         {
             question: 'Are children invited to attend the wedding and reception?',
